@@ -3,10 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <title>AR Ortopedia Belén</title>
+
+  <!-- Model Viewer -->
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>AR Ortopedia Belén</h1>
-  <p>Si ves este texto, GitHub Pages funciona.</p>
+  <model-viewer
+    src="models/curio1.glb"
+    ios-src="models/curio1.usdc"
+    ar
+    ar-modes="quick-look scene-viewer webxr"
+    camera-controls
+    auto-rotate
+    exposure="1"
+    shadow-intensity="1"
+    alt="Curiosity Rover en Marte">
+  </model-viewer>
 </body>
 </html>
-Create root index.html
