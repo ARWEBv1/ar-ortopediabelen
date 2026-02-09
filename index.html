@@ -1,36 +1,12 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>AR Ortopedia Belén</title>
-
-  <script type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-  </script>
-
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      overflow: hidden;
-    }
-    model-viewer {
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
-</head>
-
-<body>
-  <model-viewer
-    src="models/curio1.glb"
-    camera-controls
-    auto-rotate
-    ar
-    ar-modes="scene-viewer webxr quick-look"
-    exposure="1"
-    shadow-intensity="1"
-    alt="Rover en 3D">
-  </model-viewer>
-</body>
-</html>
+<model-viewer
+  src="models/curio1.glb"
+  ios-src="models/curio1.usdz"
+  ar
+  ar-modes="scene-viewer webxr quick-look"
+  camera-controls
+  auto-rotate
+  ar-placement="floor"
+  exposure="1"
+  shadow-intensity="1"
+  alt="Curiosity Rover en 3D">
+</model-viewer>
