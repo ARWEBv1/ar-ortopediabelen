@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tanjiro – AR</title>
+  <title>Tanjiro – Web</title>
 
-  <!-- Google Model Viewer -->
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
@@ -17,7 +16,6 @@
       height: 100%;
       background: #000;
     }
-
     model-viewer {
       width: 100%;
       height: 100%;
@@ -29,18 +27,22 @@
 
   <model-viewer
     src="models/Tanjiro Constant Flux.glb"
-    ios-src="models/Tanjiro Constant Flux.usdc"
-    ar
-    ar-modes="quick-look"
-    ar-placement="floor"
+
+    bounds="tight"
     camera-controls
     auto-rotate
+
+    camera-orbit="0deg 75deg 2.5m"
+    camera-target="0m 1m 0m"
+    field-of-view="45deg"
+
     exposure="1"
     shadow-intensity="1"
-    alt="Tanjiro Constant Flux en AR">
 
-    <!-- Fallback visible -->
-    <div style="color:white; text-align:center;">
+    environment-image="neutral"
+    skybox-image="">
+
+    <div style="color:white;text-align:center;">
       Cargando Tanjiro…
     </div>
 
