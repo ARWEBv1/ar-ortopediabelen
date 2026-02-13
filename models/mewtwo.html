@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mewtwo — Legendary Mode</title>
+<title>Mewtwo</title>
 
 <script type="module"
   src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js">
@@ -11,51 +11,17 @@
 <style>
 body {
   margin: 0;
-  overflow: hidden;
   background: radial-gradient(circle at center, #2a003f 0%, #000 70%);
-}
-
-/* Aura energética */
-body::before {
-  content: "";
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background: radial-gradient(circle, rgba(170,0,255,0.25) 0%, transparent 60%);
-  animation: pulse 6s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 0.9; }
-  100% { transform: scale(1); opacity: 0.5; }
 }
 
 model-viewer {
   width: 100vw;
   height: 100vh;
-  background: transparent;
-}
-
-.title {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #e0b3ff;
-  font-size: 28px;
-  letter-spacing: 4px;
-  text-shadow: 0 0 20px #aa00ff;
-  font-family: Arial, sans-serif;
 }
 </style>
 </head>
 
 <body>
-
-<div class="title">MEWTWO — PSYCHIC ASCENSION</div>
 
 <model-viewer
   src="mewtwo.glb"
@@ -67,13 +33,14 @@ model-viewer {
   auto-rotate
   autoplay
   animation-name="*"
-  camera-orbit="0deg 75deg 2m"
-  min-camera-orbit="auto auto 1m"
-  max-camera-orbit="auto auto 10m"
-  field-of-view="30deg"
-  exposure="1.4"
-  shadow-intensity="1.2"
-  environment-image="legacy">
+  camera-target="auto auto auto"
+  camera-orbit="auto auto auto"
+  field-of-view="auto"
+  min-camera-orbit="auto auto auto"
+  max-camera-orbit="auto auto auto"
+  exposure="1.2"
+  shadow-intensity="1"
+  environment-image="neutral">
 </model-viewer>
 
 </body>
