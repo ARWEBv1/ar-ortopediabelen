@@ -1,39 +1,23 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Mewtwo AR</title>
-
-<script type="module"
-  src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
-
-<style>
-body {
-  margin: 0;
-  background-color: #000;
-}
-
-model-viewer {
-  width: 100vw;
-  height: 100vh;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Mewtwo</title>
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+  <style>
+    body { margin:0; }
+    model-viewer { width:100vw; height:100vh; }
+  </style>
 </head>
-
 <body>
 
 <model-viewer
   src="mewtwo.glb"
   ios-src="mewtwo.usdc"
-  alt="Mewtwo 3D Model"
-  ar
-  ar-modes="scene-viewer quick-look webxr"
-  auto-rotate
   camera-controls
-  shadow-intensity="1"
-  exposure="1"
-  environment-image="neutral">
+  auto-rotate>
 </model-viewer>
 
 </body>
