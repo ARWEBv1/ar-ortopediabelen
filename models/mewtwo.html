@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mewtwo — Psychic Ascension</title>
+<title>Mewtwo — Final Form</title>
 
 <script type="module"
   src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -13,11 +13,11 @@
 body {
   margin: 0;
   overflow: hidden;
-  background: radial-gradient(circle at center, #1a0028 0%, #000 70%);
+  background: radial-gradient(circle at center, #12001f 0%, #000 75%);
   font-family: Arial, sans-serif;
 }
 
-/* Aura animada */
+/* Aura energética más intensa */
 body::before {
   content: "";
   position: fixed;
@@ -25,21 +25,20 @@ body::before {
   height: 200%;
   top: -50%;
   left: -50%;
-  background: radial-gradient(circle, rgba(180,0,255,0.25) 0%, transparent 60%);
-  animation: pulse 6s infinite ease-in-out;
+  background: radial-gradient(circle, rgba(160,0,255,0.35) 0%, transparent 60%);
+  animation: pulse 5s infinite ease-in-out;
   z-index: 0;
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.15); opacity: 0.9; }
-  100% { transform: scale(1); opacity: 0.5; }
+  0% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.4; }
 }
 
 model-viewer {
   width: 100vw;
   height: 100vh;
-  background: transparent;
   position: relative;
   z-index: 1;
 }
@@ -49,10 +48,10 @@ model-viewer {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  color: #e6b3ff;
-  font-size: 26px;
-  letter-spacing: 3px;
-  text-shadow: 0 0 15px #a000ff;
+  color: #f0c3ff;
+  font-size: 28px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px #a000ff;
   z-index: 2;
 }
 
@@ -60,30 +59,31 @@ model-viewer {
   position: absolute;
   bottom: 30px;
   right: 30px;
-  padding: 14px 22px;
+  padding: 14px 24px;
   border-radius: 40px;
   border: none;
   font-weight: bold;
   cursor: pointer;
-  background: linear-gradient(145deg, #4a0072, #a000ff);
+  background: linear-gradient(145deg, #3d0066, #b300ff);
   color: white;
-  box-shadow: 0 0 20px rgba(160,0,255,0.7);
+  box-shadow: 0 0 25px rgba(180,0,255,0.8);
   transition: 0.3s;
   z-index: 2;
 }
 
 .energy-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 35px rgba(200,0,255,1);
+  box-shadow: 0 0 40px rgba(200,0,255,1);
 }
 </style>
 </head>
 
 <body>
 
-<div class="title">MEWTWO — PSYCHIC ASCENSION</div>
+<div class="title">MEWTWO — FINAL FORM</div>
 
 <model-viewer
+  id="mewtwo"
   src="mewtwo.glb"
   ios-src="mewtwo.usdz"
   alt="Mewtwo"
@@ -93,15 +93,30 @@ model-viewer {
   auto-rotate
   autoplay
   animation-name="*"
-  exposure="1.3"
-  shadow-intensity="1.2"
-  environment-image="neutral">
+  exposure="1.5"
+  shadow-intensity="1.5"
+  environment-image="neutral"
+  camera-orbit="0deg 75deg 3m">
 </model-viewer>
 
-<button class="energy-btn"
-onclick="document.querySelector('model-viewer').play();">
-ACTIVAR ENERGÍA
+<button class="energy-btn" onclick="bossMode()">
+MODO JEFE FINAL
 </button>
+
+<script>
+function bossMode() {
+  const model = document.getElementById("mewtwo");
+
+  // Zoom dramático
+  model.cameraOrbit = "0deg 60deg 1.8m";
+
+  // Más luz
+  model.exposure = 1.8;
+
+  // Reinicia animación
+  model.play();
+}
+</script>
 
 </body>
 </html>
