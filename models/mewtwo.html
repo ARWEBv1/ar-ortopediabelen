@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mewtwo — Ascension</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mewtwo — Psychic Ascension</title>
 
 <script type="module"
   src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -16,7 +17,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Aura suave animada */
+/* Aura animada */
 body::before {
   content: "";
   position: fixed;
@@ -43,20 +44,20 @@ model-viewer {
   z-index: 1;
 }
 
-/* Título superior */
+/* Título */
 .title {
   position: absolute;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
   color: #e6b3ff;
-  font-size: 28px;
-  letter-spacing: 4px;
+  font-size: 26px;
+  letter-spacing: 3px;
   text-shadow: 0 0 15px #a000ff;
   z-index: 2;
 }
 
-/* Botón Pokédex */
+/* Botón energía */
 .energy-btn {
   position: absolute;
   bottom: 30px;
@@ -86,7 +87,7 @@ model-viewer {
 
 <model-viewer
   src="mewtwo.glb"
-  ios-src="mewtwo.usdc"
+  ios-src="mewtwo.usdz"
   alt="Mewtwo"
   ar
   ar-modes="scene-viewer quick-look webxr"
@@ -100,7 +101,7 @@ model-viewer {
 </model-viewer>
 
 <button class="energy-btn"
-onclick="document.querySelector('model-viewer').animationName='*';">
+onclick="document.querySelector('model-viewer').play();">
 ACTIVAR ENERGÍA
 </button>
 
