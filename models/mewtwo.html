@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mewtwo — Ascension</title>
+<title>Mewtwo — Psychic Ascension</title>
 
 <script type="module"
   src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -17,7 +17,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Aura animada */
+/* Aura base animada */
 body::before {
   content: "";
   position: fixed;
@@ -41,7 +41,7 @@ model-viewer {
   height: 100vh;
   position: relative;
   z-index: 1;
-  transition: transform 0.3s ease, filter 0.3s ease;
+  transition: transform 0.25s ease, filter 0.4s ease;
 }
 
 .title {
@@ -103,6 +103,7 @@ model-viewer {
 LIBERAR ENERGÍA
 </button>
 
+<!-- RUGIDO LOCAL -->
 <audio id="roar">
   <source src="roar.mp3" type="audio/mpeg">
 </audio>
@@ -112,17 +113,26 @@ function activatePower() {
   const model = document.getElementById("mewtwo");
   const roar = document.getElementById("roar");
 
-  // Zoom rápido
+  // Zoom leve dramático
   model.cameraOrbit = "0deg 65deg 2m";
-  model.exposure = 1.7;
-  model.style.filter = "drop-shadow(0 0 30px purple)";
 
-  // Vibración real si el dispositivo lo permite
-  if (navigator.vibrate) {
-    navigator.vibrate([200, 100, 200]);
-  }
+  // Subida fuerte de luz blanca
+  model.exposure = 2.2;
 
-  // Sonido
+  // Aura blanca + morada intensa
+  model.style.filter = `
+    drop-shadow(0 0 40px white)
+    drop-shadow(0 0 70px violet)
+    drop-shadow(0 0 90px purple)
+  `;
+
+  // Pequeña expansión energética
+  model.style.transform = "scale(1.07)";
+  setTimeout(() => {
+    model.style.transform = "scale(1)";
+  }, 250);
+
+  // Rugido (solo funciona tras interacción)
   roar.play().catch(() => {});
 
   model.play();
