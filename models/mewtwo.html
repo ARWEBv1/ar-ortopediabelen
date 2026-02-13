@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mewtwo — Final Form Ultimate</title>
+<title>Mewtwo — Ascension</title>
 
 <script type="module"
   src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -13,11 +13,11 @@
 body {
   margin: 0;
   overflow: hidden;
-  background: radial-gradient(circle at center, #12001f 0%, #000 75%);
+  background: radial-gradient(circle at center, #1a0028 0%, #000 70%);
   font-family: Arial, sans-serif;
 }
 
-/* Aura base */
+/* Aura animada */
 body::before {
   content: "";
   position: fixed;
@@ -25,28 +25,15 @@ body::before {
   height: 200%;
   top: -50%;
   left: -50%;
-  background: radial-gradient(circle, rgba(160,0,255,0.35) 0%, transparent 60%);
-  animation: pulse 5s infinite ease-in-out;
+  background: radial-gradient(circle, rgba(180,0,255,0.25) 0%, transparent 60%);
+  animation: pulse 6s infinite ease-in-out;
   z-index: 0;
 }
 
-/* Vibración energética */
-.energy-burst {
-  animation: burst 0.6s ease-out;
-}
-
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.4; }
-}
-
-@keyframes burst {
-  0% { transform: scale(1); }
-  25% { transform: scale(1.05); }
-  50% { transform: scale(0.98); }
-  75% { transform: scale(1.03); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.15); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 0.5; }
 }
 
 model-viewer {
@@ -54,7 +41,7 @@ model-viewer {
   height: 100vh;
   position: relative;
   z-index: 1;
-  transition: filter 0.5s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .title {
@@ -62,10 +49,10 @@ model-viewer {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  color: #f0c3ff;
-  font-size: 28px;
-  letter-spacing: 4px;
-  text-shadow: 0 0 20px #a000ff;
+  color: #e6b3ff;
+  font-size: 26px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px #a000ff;
   z-index: 2;
 }
 
@@ -73,28 +60,28 @@ model-viewer {
   position: absolute;
   bottom: 30px;
   right: 30px;
-  padding: 14px 24px;
+  padding: 14px 22px;
   border-radius: 40px;
   border: none;
   font-weight: bold;
   cursor: pointer;
-  background: linear-gradient(145deg, #3d0066, #b300ff);
+  background: linear-gradient(145deg, #4a0072, #a000ff);
   color: white;
-  box-shadow: 0 0 25px rgba(180,0,255,0.8);
+  box-shadow: 0 0 20px rgba(160,0,255,0.7);
   transition: 0.3s;
   z-index: 2;
 }
 
 .energy-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 40px rgba(200,0,255,1);
+  box-shadow: 0 0 35px rgba(200,0,255,1);
 }
 </style>
 </head>
 
 <body>
 
-<div class="title">MEWTWO — FINAL FORM</div>
+<div class="title">MEWTWO — PSYCHIC ASCENSION</div>
 
 <model-viewer
   id="mewtwo"
@@ -107,42 +94,36 @@ model-viewer {
   auto-rotate
   autoplay
   animation-name="*"
-  exposure="1.5"
-  shadow-intensity="1.5"
-  environment-image="neutral"
-  camera-orbit="0deg 75deg 3m">
+  exposure="1.3"
+  shadow-intensity="1.2"
+  environment-image="neutral">
 </model-viewer>
 
-<button class="energy-btn" onclick="bossMode()">
-MODO JEFE FINAL
+<button class="energy-btn" onclick="activatePower()">
+LIBERAR ENERGÍA
 </button>
 
-<!-- Rugido -->
-<audio id="roarSound">
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_0f7f8c8d08.mp3?filename=monster-roar-1-106091.mp3" type="audio/mpeg">
+<audio id="roar">
+  <source src="roar.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-function bossMode() {
+function activatePower() {
   const model = document.getElementById("mewtwo");
-  const roar = document.getElementById("roarSound");
+  const roar = document.getElementById("roar");
 
-  // Zoom dramático
-  model.cameraOrbit = "0deg 60deg 1.8m";
+  // Zoom rápido
+  model.cameraOrbit = "0deg 65deg 2m";
+  model.exposure = 1.7;
+  model.style.filter = "drop-shadow(0 0 30px purple)";
 
-  // Más brillo
-  model.exposure = 1.9;
+  // Vibración real si el dispositivo lo permite
+  if (navigator.vibrate) {
+    navigator.vibrate([200, 100, 200]);
+  }
 
-  // Efecto visual energético
-  model.style.filter = "drop-shadow(0 0 25px purple)";
-
-  document.body.classList.add("energy-burst");
-  setTimeout(() => {
-    document.body.classList.remove("energy-burst");
-  }, 600);
-
-  // Rugido
-  roar.play();
+  // Sonido
+  roar.play().catch(() => {});
 
   model.play();
 }
