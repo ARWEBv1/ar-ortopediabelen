@@ -1,17 +1,19 @@
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity Marte</title>
+<title>Curiosity en Marte</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
 </script>
 
 <style>
-html, body{
+html, body {
   margin:0;
   width:100%;
   height:100%;
@@ -19,35 +21,23 @@ html, body{
 }
 
 /* Fondo Marte */
-#marte{
-  position:fixed;
-  inset:0;
-  background:url("models/marte.jpg") center center / cover no-repeat;
-  z-index:0;
-  animation:zoomMarte 45s linear infinite;
-}
-
-@keyframes zoomMarte{
-  from{ transform:scale(1); }
-  to{ transform:scale(1.12); }
-}
-
-/* atmósfera */
-#atmosfera{
-  position:fixed;
-  inset:0;
-  background:rgba(255,120,60,0.04);
-  z-index:2;
-  pointer-events:none;
-}
-
-/* modelo */
-model-viewer{
-  position:relative;
-  z-index:3;
+#marte {
+  position: fixed;
+  top:0;
+  left:0;
   width:100%;
   height:100%;
-  background:transparent;
+  background:url("models/marte.jpg") center center / cover no-repeat;
+  z-index:0;
+}
+
+/* Modelo encima */
+model-viewer {
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:100%;
+  background: transparent;
 }
 </style>
 </head>
@@ -60,18 +50,11 @@ model-viewer{
   src="models/curio1.glb"
   ar
   ar-modes="webxr scene-viewer quick-look"
-
   camera-controls
   auto-rotate
-
-  camera-orbit="0deg 75deg 2m"
-  camera-target="0m -0.35m 0m"
-
-  environment-image="neutral"
-  tone-mapping="aces"
-
-  exposure="1.05"
-  shadow-intensity="1.6">
+  exposure="1.2"
+  shadow-intensity="1.3"
+  interaction-prompt="auto">
 
   <button slot="ar-button"
   style="
@@ -82,13 +65,12 @@ model-viewer{
   background:white;
   border:none;
   padding:12px 18px;
-  border-radius:10px;">
+  border-radius:10px;
+  font-size:16px;">
   🚀 Ver en AR
   </button>
 
 </model-viewer>
-
-<div id="atmosfera"></div>
 
 </body>
 </html>
