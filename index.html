@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Tormenta Marciana</title>
+<title>Curiosity - Tormenta Dinámica</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -18,7 +18,7 @@ html, body{
   overflow:hidden;
 }
 
-/* FONDO MARTE */
+/* MARTE */
 #marte{
   position:fixed;
   inset:0;
@@ -35,7 +35,7 @@ model-viewer{
   background:transparent;
 }
 
-/* POLVO DISPERSO REAL */
+/* POLVO */
 #polvo{
   position:fixed;
   inset:0;
@@ -46,38 +46,30 @@ model-viewer{
   background:
     radial-gradient(circle, rgba(255,180,120,0.9) 2px, transparent 6px),
     radial-gradient(circle, rgba(255,150,90,0.7) 1.5px, transparent 5px),
-    radial-gradient(circle, rgba(255,200,140,0.5) 1px, transparent 4px),
-    radial-gradient(circle, rgba(255,140,80,0.4) 2px, transparent 7px);
+    radial-gradient(circle, rgba(255,200,140,0.5) 1px, transparent 4px);
 
   background-size:
     60px 60px,
     90px 90px,
-    140px 140px,
-    200px 200px;
+    140px 140px;
 
-  animation:
-    mover1 1.5s linear infinite,
-    mover2 2.8s linear infinite,
-    mover3 4s linear infinite;
+  animation:mover 2s linear infinite;
 }
 
-/* movimientos dispersos */
-@keyframes mover1{
-  from{ background-position:0 0; }
-  to{ background-position:600px 180px; }
+/* dirección dinámica (se actualiza con JS) */
+@keyframes mover{
+  from{
+    background-position:0 0,0 0,0 0;
+  }
+  to{
+    background-position:
+      var(--dx1,500px) var(--dy1,150px),
+      var(--dx2,300px) var(--dy2,80px),
+      var(--dx3,200px) var(--dy3,40px);
+  }
 }
 
-@keyframes mover2{
-  from{ background-position:0 0; }
-  to{ background-position:-300px 260px; }
-}
-
-@keyframes mover3{
-  from{ background-position:0 0; }
-  to{ background-position:200px -150px; }
-}
-
-/* OSCURIDAD FUERTE */
+/* OSCURO */
 #oscuro{
   position:fixed;
   inset:0;
@@ -101,7 +93,6 @@ model-viewer{
   background:#ff7b33;
   color:white;
   font-size:16px;
-  cursor:pointer;
 }
 </style>
 </head>
@@ -126,35 +117,47 @@ model-viewer{
 <button id="btn">🌪️ Tormenta</button>
 
 <script>
-const btn = document.getElementById("btn");
+const rover = document.getElementById("rover");
 const polvo = document.getElementById("polvo");
 const oscuro = document.getElementById("oscuro");
-const rover = document.getElementById("rover");
+const btn = document.getElementById("btn");
 
 let activa=false;
 
+/* ACTIVAR TORMENTA */
 btn.onclick=()=>{
 
   activa=!activa;
 
   if(activa){
-
     polvo.style.opacity="1";
     oscuro.style.opacity="0.85";
     rover.exposure=0.25;
-
     btn.textContent="☀️ Normal";
-
   }else{
-
     polvo.style.opacity="0";
     oscuro.style.opacity="0";
     rover.exposure=1.05;
-
     btn.textContent="🌪️ Tormenta";
   }
-
 };
+
+/* CAMBIO DIRECCIÓN SEGÚN GIRO */
+rover.addEventListener("camera-change", ()=>{
+
+  if(!activa) return;
+
+  const orbit = rover.getCameraOrbit();
+  const dir = Math.sin(orbit.theta);
+
+  const dx = dir * 600;
+  const dx2 = dir * 350;
+  const dx3 = dir * 220;
+
+  polvo.style.setProperty("--dx1", dx+"px");
+  polvo.style.setProperty("--dx2", dx2+"px");
+  polvo.style.setProperty("--dx3", dx3+"px");
+});
 </script>
 
 </body>
