@@ -18,7 +18,7 @@ html, body {
   overflow:hidden;
 }
 
-/* Marte */
+/* Fondo Marte */
 #marte {
   position:fixed;
   inset:0;
@@ -32,7 +32,7 @@ html, body {
   to   { transform: scale(1.12); }
 }
 
-/* polvo suave */
+/* Polvo suave */
 #polvo {
   position:fixed;
   inset:0;
@@ -53,7 +53,7 @@ html, body {
   to   { background-position:-220px 80px,-120px 160px; }
 }
 
-/* atmósfera leve */
+/* Atmósfera Marte */
 #atmosfera {
   position:fixed;
   inset:0;
@@ -62,13 +62,16 @@ html, body {
   pointer-events:none;
 }
 
-/* modelo */
+/* Modelo */
 model-viewer{
   position:relative;
   z-index:3;
   width:100%;
   height:100%;
   background:transparent;
+
+  /* giro horizontal correcto */
+  transform: scaleX(-1);
 }
 </style>
 </head>
@@ -83,8 +86,6 @@ model-viewer{
   src="models/curio1.glb"
   ar
   ar-modes="webxr scene-viewer quick-look"
-
-  orientation="0 180 0"
 
   camera-controls
   camera-orbit="0deg 75deg 2m"
