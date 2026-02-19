@@ -1,3 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Curiosity - Tormenta Extrema</title>
+
+<script type="module"
+src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+</script>
+
+<style>
+html, body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+/* FONDO MARTE */
+#marte{
+  position:fixed;
+  inset:0;
+  background:url("models/marte.jpg") center center / cover no-repeat;
+  z-index:0;
+}
+
+/* MODEL VIEWER */
+model-viewer{
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:100%;
+  background:transparent;
+}
+
 /* POLVO EXTREMO */
 #polvo{
   position:fixed;
@@ -37,7 +74,7 @@
   }
 }
 
-/* OSCURIDAD MÁS FUERTE */
+/* OSCURIDAD FUERTE */
 #oscuro{
   position:fixed;
   inset:0;
@@ -47,3 +84,74 @@
   pointer-events:none;
   transition:opacity 1s;
 }
+
+/* BOTÓN */
+#btn{
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  background:#ff7b33;
+  color:white;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="marte"></div>
+
+<model-viewer
+  id="rover"
+  src="models/curio1.glb"
+  ar
+  ar-modes="webxr scene-viewer quick-look"
+  camera-controls
+  auto-rotate
+  exposure="1.05">
+</model-viewer>
+
+<div id="oscuro"></div>
+<div id="polvo"></div>
+
+<button id="btn">🌪️ Tormenta</button>
+
+<script>
+const btn = document.getElementById("btn");
+const polvo = document.getElementById("polvo");
+const oscuro = document.getElementById("oscuro");
+const rover = document.getElementById("rover");
+
+let activa=false;
+
+btn.onclick = ()=>{
+
+  activa=!activa;
+
+  if(activa){
+
+    polvo.style.opacity="1";
+    oscuro.style.opacity="0.85"; // MÁS OSCURO
+    rover.exposure = 0.25;       // casi sin luz
+
+    btn.textContent="☀️ Normal";
+
+  }else{
+
+    polvo.style.opacity="0";
+    oscuro.style.opacity="0";
+    rover.exposure = 1.05;
+
+    btn.textContent="🌪️ Tormenta";
+  }
+
+};
+</script>
+
+</body>
+</html>
