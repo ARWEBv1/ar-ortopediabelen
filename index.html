@@ -18,24 +18,21 @@ html, body {
   overflow:hidden;
 }
 
-/* Fondo Marte acercándose */
+/* Marte acercándose */
 #marte {
-  position: fixed;
-  inset: 0;
-  background: url("models/marte.jpg") center center / cover no-repeat;
+  position:fixed;
+  inset:0;
+  background:url("models/marte.jpg") center center / cover no-repeat;
   z-index:0;
-  animation: zoomMarte 25s linear infinite;
+  animation:zoomMarte 30s linear infinite;
 }
 
 @keyframes zoomMarte {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.15);
-  }
+  from { transform: scale(1); }
+  to   { transform: scale(1.12); }
 }
 
+/* rover encima */
 model-viewer{
   position:relative;
   z-index:1;
@@ -59,7 +56,7 @@ model-viewer{
   camera-controls
 
   camera-orbit="0deg 75deg 2m"
-  camera-target="0m -0.2m 0m"
+  camera-target="0m -0.35m 0m"
 
   exposure="1.2"
   shadow-intensity="2"
@@ -85,8 +82,9 @@ const viewer = document.querySelector("#rover");
 
 let distancia = 2;
 
+// avance en UNA dirección (solo se aleja)
 function avanzar(){
-  distancia += 0.002; // se aleja lento
+  distancia += 0.003;
   viewer.cameraOrbit = `0deg 75deg ${distancia}m`;
   requestAnimationFrame(avanzar);
 }
