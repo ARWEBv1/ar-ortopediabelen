@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity en Marte</title>
+<title>Curiosity Marte Cinemático</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -18,30 +18,30 @@ html, body {
   overflow:hidden;
 }
 
-/* Fondo Marte */
+/* Fondo Marte acercándose */
 #marte {
   position: fixed;
   inset: 0;
-  background: url("models/marte.jpg") repeat-x;
-  background-size: cover;
+  background: url("models/marte.jpg") center center / cover no-repeat;
   z-index:0;
-
-  /* movimiento suave REAL */
-  animation: moverFondo 30s linear infinite;
+  animation: zoomMarte 25s linear infinite;
 }
 
-@keyframes moverFondo {
-  from { background-position: 0 0; }
-  to   { background-position: -400px 0; }
+@keyframes zoomMarte {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.15);
+  }
 }
 
-/* modelo encima */
-model-viewer {
-  position: relative;
-  z-index: 1;
+model-viewer{
+  position:relative;
+  z-index:1;
   width:100%;
   height:100%;
-  background: transparent;
+  background:transparent;
 }
 </style>
 </head>
@@ -51,13 +51,12 @@ model-viewer {
 <div id="marte"></div>
 
 <model-viewer
+  id="rover"
   src="models/curio1.glb"
   ar
   ar-modes="webxr scene-viewer quick-look"
 
   camera-controls
-  auto-rotate
-  rotation-per-second="4deg"
 
   camera-orbit="0deg 75deg 2m"
   camera-target="0m -0.2m 0m"
@@ -80,6 +79,20 @@ model-viewer {
   </button>
 
 </model-viewer>
+
+<script>
+const viewer = document.querySelector("#rover");
+
+let distancia = 2;
+
+function avanzar(){
+  distancia += 0.002; // se aleja lento
+  viewer.cameraOrbit = `0deg 75deg ${distancia}m`;
+  requestAnimationFrame(avanzar);
+}
+
+avanzar();
+</script>
 
 </body>
 </html>
