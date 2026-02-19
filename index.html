@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity Marte Experiencia</title>
+<title>Curiosity Marte</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
 </script>
 
 <style>
-html, body {
+html, body{
   margin:0;
   width:100%;
   height:100%;
@@ -19,7 +19,7 @@ html, body {
 }
 
 /* Fondo Marte */
-#marte {
+#marte{
   position:fixed;
   inset:0;
   background:url("models/marte.jpg") center center / cover no-repeat;
@@ -27,34 +27,13 @@ html, body {
   animation:zoomMarte 45s linear infinite;
 }
 
-@keyframes zoomMarte {
-  from { transform: scale(1); }
-  to   { transform: scale(1.12); }
+@keyframes zoomMarte{
+  from{ transform:scale(1); }
+  to{ transform:scale(1.12); }
 }
 
-/* Polvo suave */
-#polvo {
-  position:fixed;
-  inset:0;
-  z-index:1;
-  pointer-events:none;
-  opacity:0.25;
-
-  background:
-    radial-gradient(circle, rgba(255,170,100,0.25) 1px, transparent 2px),
-    radial-gradient(circle, rgba(255,130,80,0.20) 1px, transparent 2px);
-
-  background-size:140px 140px, 200px 200px;
-  animation:moverPolvo 8s linear infinite;
-}
-
-@keyframes moverPolvo {
-  from { background-position:0 0,0 0; }
-  to   { background-position:-220px 80px,-120px 160px; }
-}
-
-/* Atmósfera Marte */
-#atmosfera {
+/* atmósfera */
+#atmosfera{
   position:fixed;
   inset:0;
   background:rgba(255,120,60,0.04);
@@ -62,7 +41,7 @@ html, body {
   pointer-events:none;
 }
 
-/* Modelo */
+/* modelo */
 model-viewer{
   position:relative;
   z-index:3;
@@ -76,15 +55,15 @@ model-viewer{
 <body>
 
 <div id="marte"></div>
-<div id="polvo"></div>
 
 <model-viewer
-  id="rover"
   src="models/curio1.glb"
   ar
   ar-modes="webxr scene-viewer quick-look"
 
   camera-controls
+  auto-rotate
+
   camera-orbit="0deg 75deg 2m"
   camera-target="0m -0.35m 0m"
 
@@ -92,8 +71,7 @@ model-viewer{
   tone-mapping="aces"
 
   exposure="1.05"
-  shadow-intensity="1.6"
-  shadow-softness="0.6">
+  shadow-intensity="1.6">
 
   <button slot="ar-button"
   style="
@@ -111,26 +89,6 @@ model-viewer{
 </model-viewer>
 
 <div id="atmosfera"></div>
-
-<script>
-const viewer = document.querySelector("#rover");
-
-let distancia = 2;
-
-function avanzar(){
-
-  distancia += 0.0015;
-
-  const shake = Math.sin(Date.now()*0.001) * 0.05;
-
-  viewer.cameraOrbit = `0deg 75deg ${distancia}m`;
-  viewer.cameraTarget = `0m ${-0.35 + shake*0.01}m 0m`;
-
-  requestAnimationFrame(avanzar);
-}
-
-avanzar();
-</script>
 
 </body>
 </html>
