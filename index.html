@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity Marte Cinemático</title>
+<title>Curiosity Marte Experiencia</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -24,7 +24,7 @@ html, body {
   inset:0;
   background:url("models/marte.jpg") center center / cover no-repeat;
   z-index:0;
-  animation:zoomMarte 40s linear infinite;
+  animation:zoomMarte 45s linear infinite;
 }
 
 @keyframes zoomMarte {
@@ -32,32 +32,40 @@ html, body {
   to   { transform: scale(1.12); }
 }
 
-/* POLVO marciano */
+/* Atmósfera marciana */
+#atmosfera {
+  position:fixed;
+  inset:0;
+  background:rgba(255,120,60,0.10);
+  z-index:2;
+  pointer-events:none;
+}
+
+/* Polvo suave */
 #polvo {
   position:fixed;
   inset:0;
   z-index:1;
   pointer-events:none;
-  opacity:0.25;
+  opacity:0.35;
 
   background:
-    radial-gradient(circle, rgba(255,180,120,0.25) 1px, transparent 2px),
-    radial-gradient(circle, rgba(255,150,100,0.20) 1px, transparent 2px);
+    radial-gradient(circle, rgba(255,170,100,0.35) 1px, transparent 2px),
+    radial-gradient(circle, rgba(255,130,80,0.25) 1px, transparent 2px);
 
-  background-size:120px 120px, 180px 180px;
-
-  animation:moverPolvo 6s linear infinite;
+  background-size:140px 140px, 200px 200px;
+  animation:moverPolvo 8s linear infinite;
 }
 
 @keyframes moverPolvo {
-  from { background-position:0 0, 0 0; }
-  to   { background-position:-200px 60px, -100px 120px; }
+  from { background-position:0 0,0 0; }
+  to   { background-position:-220px 80px,-120px 160px; }
 }
 
-/* Rover */
+/* Modelo */
 model-viewer{
   position:relative;
-  z-index:2;
+  z-index:3;
   width:100%;
   height:100%;
   background:transparent;
@@ -81,7 +89,10 @@ model-viewer{
   camera-orbit="0deg 75deg 2m"
   camera-target="0m -0.35m 0m"
 
-  exposure="1.2"
+  environment-image="neutral"
+  tone-mapping="aces"
+
+  exposure="1.4"
   shadow-intensity="2"
   shadow-softness="0.5">
 
@@ -100,15 +111,24 @@ model-viewer{
 
 </model-viewer>
 
+<div id="atmosfera"></div>
+
 <script>
 const viewer = document.querySelector("#rover");
 
 let distancia = 2;
 
-// alejamiento suave (avance visual)
+// Movimiento más lento (gravedad Marte)
 function avanzar(){
-  distancia += 0.003;
+
+  distancia += 0.0015;
+
+  // mini vibración tipo rover
+  const shake = Math.sin(Date.now()*0.001) * 0.05;
+
   viewer.cameraOrbit = `0deg 75deg ${distancia}m`;
+  viewer.cameraTarget = `0m ${-0.35 + shake*0.01}m 0m`;
+
   requestAnimationFrame(avanzar);
 }
 
