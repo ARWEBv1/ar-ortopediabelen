@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Polvo frontal</title>
+<title>Curiosity - Tormenta PRO</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -18,7 +18,7 @@ html, body{
   overflow:hidden;
 }
 
-/* FONDO MARTE */
+/* MARTE */
 #marte{
   position:fixed;
   inset:0;
@@ -33,9 +33,17 @@ model-viewer{
   width:100%;
   height:100%;
   background:transparent;
+
+  /* alejamiento suave */
+  animation:alejar 30s linear infinite;
 }
 
-/* POLVO FRONTAL (encima del rover) */
+@keyframes alejar{
+  from{ transform:scale(1); }
+  to{ transform:scale(0.88); }
+}
+
+/* POLVO FRONTAL DENSO */
 #polvo-frontal{
   position:fixed;
   inset:0;
@@ -44,18 +52,25 @@ model-viewer{
   opacity:0;
 
   background:
-  radial-gradient(circle,
-  rgba(255,180,120,0.65) 1px,
-  transparent 4px);
+    radial-gradient(circle, rgba(255,180,120,0.8) 2px, transparent 4px),
+    radial-gradient(circle, rgba(255,150,90,0.6) 1.5px, transparent 3px),
+    radial-gradient(circle, rgba(255,200,140,0.4) 1px, transparent 2px);
 
-  background-size:120px 120px;
+  background-size:
+    60px 60px,
+    90px 90px,
+    140px 140px;
 
-  animation:moverPolvo 2.5s linear infinite;
+  animation:moverPolvo 1.8s linear infinite;
 }
 
 @keyframes moverPolvo{
-  from{ background-position:0 0; }
-  to{ background-position:400px 80px; } /* viene de frente */
+  from{
+    background-position:0 0, 0 0, 0 0;
+  }
+  to{
+    background-position:500px 120px, 300px 80px, 200px 50px;
+  }
 }
 
 /* BOTÓN */
@@ -88,7 +103,7 @@ model-viewer{
   ar-modes="webxr scene-viewer quick-look"
   camera-controls
   auto-rotate
-  exposure="1.05"
+  exposure="1.0"
   shadow-intensity="1.3">
 
   <button slot="ar-button"
@@ -108,27 +123,27 @@ model-viewer{
 
 <div id="polvo-frontal"></div>
 
-<button id="btnPolvo">🌪️ Activar Polvo</button>
+<button id="btnPolvo">🌪️ Activar Tormenta</button>
 
 <script>
 const btn = document.getElementById("btnPolvo");
 const polvo = document.getElementById("polvo-frontal");
 const rover = document.getElementById("rover");
 
-let activo = false;
+let activo=false;
 
-btn.onclick = ()=>{
+btn.onclick=()=>{
 
-  activo = !activo;
+  activo=!activo;
 
   if(activo){
-    polvo.style.opacity = 0.7;
-    rover.exposure = 0.75;
-    btn.textContent = "☀️ Quitar Polvo";
+    polvo.style.opacity=0.95;
+    rover.exposure=0.65;
+    btn.textContent="☀️ Quitar Tormenta";
   }else{
-    polvo.style.opacity = 0;
-    rover.exposure = 1.05;
-    btn.textContent = "🌪️ Activar Polvo";
+    polvo.style.opacity=0;
+    rover.exposure=1.0;
+    btn.textContent="🌪️ Activar Tormenta";
   }
 
 };
