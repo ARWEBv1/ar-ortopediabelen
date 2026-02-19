@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Tormenta Real</title>
+<title>Curiosity - Tormenta</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -18,7 +18,7 @@ html, body{
   overflow:hidden;
 }
 
-/* MARTE */
+/* FONDO MARTE */
 #marte{
   position:fixed;
   inset:0;
@@ -33,76 +33,53 @@ model-viewer{
   width:100%;
   height:100%;
   background:transparent;
-
-  animation:alejar 35s linear infinite;
 }
 
-@keyframes alejar{
-  from{ transform:scale(1); }
-  to{ transform:scale(0.88); }
-}
-
-/* POLVO DESORDENADO */
-#polvo-frontal{
+/* POLVO (ARRIBA DEL MODELO) */
+#polvo{
   position:fixed;
   inset:0;
-  z-index:2;
+  z-index:5; /* MUY ARRIBA */
   pointer-events:none;
   opacity:0;
 
   background:
-    radial-gradient(circle at 20% 30%, rgba(255,180,120,0.8) 2px, transparent 6px),
-    radial-gradient(circle at 70% 60%, rgba(255,140,90,0.6) 1.5px, transparent 5px),
-    radial-gradient(circle at 40% 80%, rgba(255,200,150,0.5) 1px, transparent 4px),
-    radial-gradient(circle at 10% 50%, rgba(255,160,100,0.4) 2px, transparent 6px);
+    radial-gradient(circle, rgba(255,170,100,0.8) 2px, transparent 6px),
+    radial-gradient(circle, rgba(255,140,90,0.6) 1px, transparent 4px);
 
-  background-size:
-    90px 90px,
-    140px 140px,
-    180px 180px,
-    220px 220px;
-
-  animation:moverPolvo 1.6s linear infinite;
+  background-size:80px 80px, 120px 120px;
+  animation: mover 2s linear infinite;
 }
 
-@keyframes moverPolvo{
-  from{
-    background-position:0 0, 0 0, 0 0, 0 0;
-  }
-  to{
-    background-position:500px 120px,
-                        300px 70px,
-                        220px 40px,
-                        380px 90px;
-  }
+@keyframes mover{
+  from{ background-position:0 0,0 0; }
+  to{ background-position:400px 120px,200px 60px; }
 }
 
-/* OSCURECER VISIBILIDAD */
+/* OSCURO */
 #oscuro{
   position:fixed;
   inset:0;
-  background:#2b1a12;
+  background:#1a0f08;
   opacity:0;
-  z-index:3;
+  z-index:4;
   pointer-events:none;
-  transition:opacity 2s;
+  transition:opacity 1s;
 }
 
 /* BOTÓN */
-#btnPolvo{
+#btn{
   position:fixed;
   top:20px;
   left:50%;
   transform:translateX(-50%);
-  z-index:10;
-
+  z-index:20;
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
   background:#ff7b33;
   color:white;
-  border:none;
-  padding:12px 18px;
-  border-radius:10px;
   font-size:16px;
-  cursor:pointer;
 }
 </style>
 </head>
@@ -118,52 +95,43 @@ model-viewer{
   ar-modes="webxr scene-viewer quick-look"
   camera-controls
   auto-rotate
-  exposure="1.05"
-  shadow-intensity="1.3">
-
-  <button slot="ar-button"
-  style="
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:white;
-  border:none;
-  padding:12px 18px;
-  border-radius:10px;">
-  🚀 Ver en AR
-  </button>
-
+  exposure="1.05">
 </model-viewer>
 
-<div id="polvo-frontal"></div>
 <div id="oscuro"></div>
+<div id="polvo"></div>
 
-<button id="btnPolvo">🌪️ Activar Tormenta</button>
+<button id="btn">🌪️ Tormenta</button>
 
 <script>
-const btn = document.getElementById("btnPolvo");
-const polvo = document.getElementById("polvo-frontal");
+const btn = document.getElementById("btn");
+const polvo = document.getElementById("polvo");
 const oscuro = document.getElementById("oscuro");
 const rover = document.getElementById("rover");
 
-let activo=false;
+let activa=false;
 
-btn.onclick=()=>{
+btn.onclick = ()=>{
 
-  activo=!activo;
+  activa=!activa;
 
-  if(activo){
-    polvo.style.opacity=1;
-    oscuro.style.opacity=0.65;   // OSCURECE FUERTE
-    rover.exposure=0.45;         // casi sin luz
-    btn.textContent="☀️ Quitar Tormenta";
+  if(activa){
+
+    polvo.style.opacity="1";
+    oscuro.style.opacity="0.7";
+    rover.exposure = 0.4;
+
+    btn.textContent="☀️ Normal";
+
   }else{
-    polvo.style.opacity=0;
-    oscuro.style.opacity=0;
-    rover.exposure=1.05;
-    btn.textContent="🌪️ Activar Tormenta";
+
+    polvo.style.opacity="0";
+    oscuro.style.opacity="0";
+    rover.exposure = 1.05;
+
+    btn.textContent="🌪️ Tormenta";
   }
+
 };
 </script>
 
