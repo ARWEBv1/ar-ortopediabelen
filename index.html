@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Polvo frontal</title>
+<title>Curiosity - Tormenta Real</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -18,7 +18,7 @@ html, body{
   overflow:hidden;
 }
 
-/* FONDO MARTE */
+/* MARTE */
 #marte{
   position:fixed;
   inset:0;
@@ -34,16 +34,15 @@ model-viewer{
   height:100%;
   background:transparent;
 
-  /* ALEJAMIENTO SUAVE */
   animation:alejar 35s linear infinite;
 }
 
 @keyframes alejar{
   from{ transform:scale(1); }
-  to{ transform:scale(0.9); }
+  to{ transform:scale(0.88); }
 }
 
-/* POLVO FRONTAL MEJORADO */
+/* POLVO DESORDENADO */
 #polvo-frontal{
   position:fixed;
   inset:0;
@@ -52,25 +51,41 @@ model-viewer{
   opacity:0;
 
   background:
-    radial-gradient(circle, rgba(255,180,120,0.75) 2px, transparent 4px),
-    radial-gradient(circle, rgba(255,150,90,0.55) 1.5px, transparent 3px),
-    radial-gradient(circle, rgba(255,200,140,0.35) 1px, transparent 2px);
+    radial-gradient(circle at 20% 30%, rgba(255,180,120,0.8) 2px, transparent 6px),
+    radial-gradient(circle at 70% 60%, rgba(255,140,90,0.6) 1.5px, transparent 5px),
+    radial-gradient(circle at 40% 80%, rgba(255,200,150,0.5) 1px, transparent 4px),
+    radial-gradient(circle at 10% 50%, rgba(255,160,100,0.4) 2px, transparent 6px);
 
   background-size:
-    70px 70px,
-    110px 110px,
-    160px 160px;
+    90px 90px,
+    140px 140px,
+    180px 180px,
+    220px 220px;
 
-  animation:moverPolvo 2s linear infinite;
+  animation:moverPolvo 1.6s linear infinite;
 }
 
 @keyframes moverPolvo{
   from{
-    background-position:0 0, 0 0, 0 0;
+    background-position:0 0, 0 0, 0 0, 0 0;
   }
   to{
-    background-position:450px 100px, 300px 70px, 180px 40px;
+    background-position:500px 120px,
+                        300px 70px,
+                        220px 40px,
+                        380px 90px;
   }
+}
+
+/* OSCURECER VISIBILIDAD */
+#oscuro{
+  position:fixed;
+  inset:0;
+  background:#2b1a12;
+  opacity:0;
+  z-index:3;
+  pointer-events:none;
+  transition:opacity 2s;
 }
 
 /* BOTÓN */
@@ -122,30 +137,33 @@ model-viewer{
 </model-viewer>
 
 <div id="polvo-frontal"></div>
+<div id="oscuro"></div>
 
-<button id="btnPolvo">🌪️ Activar Polvo</button>
+<button id="btnPolvo">🌪️ Activar Tormenta</button>
 
 <script>
 const btn = document.getElementById("btnPolvo");
 const polvo = document.getElementById("polvo-frontal");
+const oscuro = document.getElementById("oscuro");
 const rover = document.getElementById("rover");
 
-let activo = false;
+let activo=false;
 
-btn.onclick = ()=>{
+btn.onclick=()=>{
 
-  activo = !activo;
+  activo=!activo;
 
   if(activo){
-    polvo.style.opacity = 0.95;   // MÁS DENSO
-    rover.exposure = 0.7;
-    btn.textContent = "☀️ Quitar Polvo";
+    polvo.style.opacity=1;
+    oscuro.style.opacity=0.65;   // OSCURECE FUERTE
+    rover.exposure=0.45;         // casi sin luz
+    btn.textContent="☀️ Quitar Tormenta";
   }else{
-    polvo.style.opacity = 0;
-    rover.exposure = 1.05;
-    btn.textContent = "🌪️ Activar Polvo";
+    polvo.style.opacity=0;
+    oscuro.style.opacity=0;
+    rover.exposure=1.05;
+    btn.textContent="🌪️ Activar Tormenta";
   }
-
 };
 </script>
 
