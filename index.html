@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Tormenta Dinámica</title>
+<title>Curiosity - NASA MODE</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -26,7 +26,7 @@ html, body{
   z-index:0;
 }
 
-/* MODEL VIEWER */
+/* MODEL */
 model-viewer{
   position:relative;
   z-index:1;
@@ -48,15 +48,11 @@ model-viewer{
     radial-gradient(circle, rgba(255,150,90,0.7) 1.5px, transparent 5px),
     radial-gradient(circle, rgba(255,200,140,0.5) 1px, transparent 4px);
 
-  background-size:
-    60px 60px,
-    90px 90px,
-    140px 140px;
+  background-size:60px 60px,90px 90px,140px 140px;
 
   animation:mover 2s linear infinite;
 }
 
-/* dirección dinámica (se actualiza con JS) */
 @keyframes mover{
   from{
     background-position:0 0,0 0,0 0;
@@ -69,7 +65,7 @@ model-viewer{
   }
 }
 
-/* OSCURO */
+/* OSCURIDAD */
 #oscuro{
   position:fixed;
   inset:0;
@@ -77,7 +73,7 @@ model-viewer{
   opacity:0;
   z-index:4;
   pointer-events:none;
-  transition:opacity 1s;
+  transition:opacity .4s;
 }
 
 /* BOTÓN */
@@ -123,16 +119,17 @@ const oscuro = document.getElementById("oscuro");
 const btn = document.getElementById("btn");
 
 let activa=false;
+let prevTheta=0;
 
-/* ACTIVAR TORMENTA */
+/* activar tormenta */
 btn.onclick=()=>{
 
   activa=!activa;
 
   if(activa){
-    polvo.style.opacity="1";
-    oscuro.style.opacity="0.85";
-    rover.exposure=0.25;
+    polvo.style.opacity="0.8";
+    oscuro.style.opacity="0.75";
+    rover.exposure=0.35;
     btn.textContent="☀️ Normal";
   }else{
     polvo.style.opacity="0";
@@ -142,14 +139,21 @@ btn.onclick=()=>{
   }
 };
 
-/* CAMBIO DIRECCIÓN SEGÚN GIRO */
+/* MOTOR DE RÁFAGAS */
 rover.addEventListener("camera-change", ()=>{
 
   if(!activa) return;
 
   const orbit = rover.getCameraOrbit();
-  const dir = Math.sin(orbit.theta);
+  const theta = orbit.theta;
 
+  /* velocidad de giro */
+  const speed = Math.abs(theta - prevTheta);
+  prevTheta = theta;
+
+  const dir = Math.sin(theta);
+
+  /* viento base */
   const dx = dir * 600;
   const dx2 = dir * 350;
   const dx3 = dir * 220;
@@ -157,6 +161,25 @@ rover.addEventListener("camera-change", ()=>{
   polvo.style.setProperty("--dx1", dx+"px");
   polvo.style.setProperty("--dx2", dx2+"px");
   polvo.style.setProperty("--dx3", dx3+"px");
+
+  /* RÁFAGA SI GIRAS RÁPIDO */
+  if(speed > 0.05){
+
+    polvo.style.opacity="1";
+    oscuro.style.opacity="0.9";
+    rover.exposure=0.2;
+
+    /* polvo más rápido */
+    polvo.style.animationDuration="0.8s";
+
+  }else{
+
+    polvo.style.opacity="0.8";
+    oscuro.style.opacity="0.75";
+    rover.exposure=0.35;
+    polvo.style.animationDuration="2s";
+  }
+
 });
 </script>
 
