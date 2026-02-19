@@ -1,11 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity Marte</title>
+<title>Curiosity en Marte</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -21,7 +20,7 @@ html, body {
 model-viewer {
   width: 100%;
   height: 100%;
-  background-image: url("marte.jpg");
+  background-image: url("models/marte.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -42,21 +41,20 @@ model-viewer {
   interaction-prompt="auto">
 
   <button slot="ar-button"
-  style="
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:white;
-  border:none;
-  padding:12px 18px;
-  border-radius:10px;
-  font-size:16px;">
-  🚀 Ver en AR
+    style="
+      position:absolute;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:white;
+      border:none;
+      padding:12px 18px;
+      border-radius:10px;
+      font-size:16px;">
+      🚀 Ver en AR
   </button>
 
 </model-viewer>
 
 </body>
 </html>
-```
