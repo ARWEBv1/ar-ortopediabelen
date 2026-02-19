@@ -1,44 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>AR Ortopedia Belén</title>
 
-<script type="module"
-src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
+  <!-- Google Model Viewer -->
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
 
-<style>
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:black;
-}
-model-viewer{
-  width:100%;
-  height:100%;
-}
-</style>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+
+    model-viewer {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
 
 <body>
 
-<model-viewer
-  src="curio1.glb"
-  camera-controls
-  auto-rotate
-  ar
-  ar-modes="webxr scene-viewer quick-look"
-  exposure="1"
-  shadow-intensity="1"
-
-  camera-orbit="0deg 75deg 2m"
-  field-of-view="45deg"
-
-  min-camera-orbit="auto auto 0.5m"
-  max-camera-orbit="auto auto 10m">
-
-</model-viewer>
+  <model-viewer
+    src="models/curio1.glb"
+    ios-src="models/curio1.usdz"
+    ar
+    ar-modes="quick-look"
+    ar-placement="floor"
+    camera-controls
+    auto-rotate
+    exposure="1"
+    shadow-intensity="1"
+    alt="Curiosity Rover en AR">
+  </model-viewer>
 
 </body>
+</html>
