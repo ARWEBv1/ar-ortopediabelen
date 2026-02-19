@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tormenta Marciana</title>
+<title>Curiosity - Tormenta Marciana</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -19,20 +19,21 @@ html, body{
   background:#111;
 }
 
-/* polvo base */
+/* polvo */
 #polvo{
   position:fixed;
   inset:0;
   z-index:1;
   pointer-events:none;
+  opacity:0;
 
   background:
   radial-gradient(circle,
-  rgba(255,160,90,0.5) 1px,
+  rgba(255,160,90,0.6) 1px,
   transparent 3px);
 
   background-size:120px 120px;
-  animation:moverPolvo 8s linear infinite;
+  animation:moverPolvo 5s linear infinite;
 }
 
 @keyframes moverPolvo{
@@ -40,31 +41,41 @@ html, body{
   to{ background-position:-300px 100px; }
 }
 
-/* OSCURECIMIENTO gradual */
+/* capa oscura */
 #tormenta{
   position:fixed;
   inset:0;
   background:#000;
   opacity:0;
-  z-index:3;
+  z-index:2;
   pointer-events:none;
-
-  animation:oscurecer 40s linear infinite;
+  transition: opacity 6s;
 }
 
-@keyframes oscurecer{
-  0%   { opacity:0; }
-  40%  { opacity:0.2; }
-  70%  { opacity:0.55; }
-  100% { opacity:0.75; }
-}
-
+/* modelo */
 model-viewer{
   position:relative;
-  z-index:2;
+  z-index:3;
   width:100%;
   height:100%;
   background:transparent;
+}
+
+/* botón tormenta */
+#btnTormenta{
+  position:absolute;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:5;
+
+  background:#ff7b33;
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:10px;
+  font-size:15px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -72,6 +83,9 @@ model-viewer{
 <body>
 
 <div id="polvo"></div>
+<div id="tormenta"></div>
+
+<button id="btnTormenta">🌪️ Activar Tormenta</button>
 
 <model-viewer
   id="rover"
@@ -80,7 +94,6 @@ model-viewer{
   ar-modes="webxr scene-viewer quick-look"
   camera-controls
   auto-rotate
-
   exposure="1.1"
   shadow-intensity="1.4">
 
@@ -99,24 +112,36 @@ model-viewer{
 
 </model-viewer>
 
-<div id="tormenta"></div>
-
 <script>
+const btn = document.getElementById("btnTormenta");
+const polvo = document.getElementById("polvo");
+const tormenta = document.getElementById("tormenta");
 const rover = document.getElementById("rover");
 
-/* oscurecer rover durante tormenta */
-let t = 1.1;
+let activa = false;
 
-function tormenta(){
-  t -= 0.0002;
-  if(t < 0.45) t = 1.1;
+btn.addEventListener("click", ()=>{
 
-  rover.exposure = t;
+  activa = !activa;
 
-  requestAnimationFrame(tormenta);
-}
+  if(activa){
 
-tormenta();
+    polvo.style.opacity = 0.6;
+    tormenta.style.opacity = 0.65;
+    rover.exposure = 0.6;
+
+    btn.textContent = "☀️ Quitar Tormenta";
+
+  } else {
+
+    polvo.style.opacity = 0;
+    tormenta.style.opacity = 0;
+    rover.exposure = 1.1;
+
+    btn.textContent = "🌪️ Activar Tormenta";
+  }
+
+});
 </script>
 
 </body>
