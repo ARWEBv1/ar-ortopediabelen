@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity Marte Game Feel</title>
+<title>Curiosity - Efectos</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -16,24 +16,7 @@ html, body{
   width:100%;
   height:100%;
   overflow:hidden;
-}
-
-/* Marte más oscuro / plomo */
-#marte{
-  position:fixed;
-  inset:0;
-  background:url("models/marte.jpg") center center / cover no-repeat;
-  z-index:0;
-
-  filter: brightness(0.7) contrast(1.1);
-
-  animation: zoomMarte 40s linear infinite;
-  animation-play-state: running;
-}
-
-@keyframes zoomMarte{
-  from{ transform:scale(1); }
-  to  { transform:scale(1.10); }
+  background:#111; /* fondo neutro oscuro */
 }
 
 /* polvo visible */
@@ -42,16 +25,15 @@ html, body{
   inset:0;
   z-index:1;
   pointer-events:none;
-  opacity:0.35;
+  opacity:0.4;
 
   background:
   radial-gradient(circle,
-  rgba(255,180,120,0.45) 1px,
+  rgba(255,180,120,0.55) 1px,
   transparent 3px);
 
   background-size:120px 120px;
-
-  animation: moverPolvo 6s linear infinite;
+  animation:moverPolvo 6s linear infinite;
 }
 
 @keyframes moverPolvo{
@@ -72,7 +54,6 @@ model-viewer{
 
 <body>
 
-<div id="marte"></div>
 <div id="polvo"></div>
 
 <model-viewer
@@ -82,8 +63,10 @@ model-viewer{
   ar-modes="webxr scene-viewer quick-look"
   camera-controls
   auto-rotate
+
   exposure="1.0"
-  shadow-intensity="1.3"
+  shadow-intensity="1.4"
+
   interaction-prompt="auto">
 
   <button slot="ar-button"
@@ -95,8 +78,7 @@ model-viewer{
   background:white;
   border:none;
   padding:12px 18px;
-  border-radius:10px;
-  font-size:16px;">
+  border-radius:10px;">
   🚀 Ver en AR
   </button>
 
@@ -104,36 +86,17 @@ model-viewer{
 
 <script>
 const rover = document.getElementById("rover");
-const marte = document.getElementById("marte");
 const polvo = document.getElementById("polvo");
 
-/* detener avance al tocar */
-rover.addEventListener("pointerdown", ()=>{
-  marte.style.animationPlayState="paused";
-});
-
-/* continuar cuando suelta */
-window.addEventListener("pointerup", ()=>{
-  marte.style.animationPlayState="running";
-});
-
-/* CAMBIO DE BRILLO + POLVO según giro */
+/* cambio de brillo según giro */
 rover.addEventListener("camera-change", ()=>{
 
   const orbit = rover.getCameraOrbit();
-  const azimuth = orbit.theta; // ángulo horizontal
+  const azimuth = orbit.theta;
 
-  /* brillo dinámico */
-  const brillo = 0.65 + (Math.sin(azimuth) * 0.15);
-  marte.style.filter =
-    `brightness(${brillo}) contrast(1.1)`;
+  const brillo = 0.8 + (Math.sin(azimuth) * 0.3);
 
-  /* dirección polvo */
-  const dir = Math.sin(azimuth) > 0 ? "-250px" : "250px";
-
-  polvo.style.animation =
-    `moverPolvo 6s linear infinite`;
-  polvo.style.setProperty("--dir", dir);
+  rover.style.filter = `brightness(${brillo})`;
 
 });
 </script>
