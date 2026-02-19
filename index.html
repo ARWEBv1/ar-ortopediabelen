@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Efectos</title>
+<title>Curiosity - Polvo dinámico</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -16,29 +16,34 @@ html, body{
   width:100%;
   height:100%;
   overflow:hidden;
-  background:#111; /* fondo neutro oscuro */
+  background:#111;
 }
 
-/* polvo visible */
-#polvo{
+/* polvo SOLO debajo del rover */
+#polvo-base{
   position:fixed;
-  inset:0;
+  left:50%;
+  bottom:18%;
+  width:50%;
+  height:20%;
+  transform:translateX(-50%);
   z-index:1;
   pointer-events:none;
-  opacity:0.4;
+  opacity:0.45;
 
   background:
   radial-gradient(circle,
-  rgba(255,180,120,0.55) 1px,
+  rgba(255,180,120,0.6) 1px,
   transparent 3px);
 
-  background-size:120px 120px;
-  animation:moverPolvo 6s linear infinite;
+  background-size:80px 80px;
+
+  animation:moverPolvo 4s linear infinite;
 }
 
 @keyframes moverPolvo{
   from{ background-position:0 0; }
-  to  { background-position:-250px 80px; }
+  to  { background-position:-200px 50px; }
 }
 
 /* modelo */
@@ -54,7 +59,7 @@ model-viewer{
 
 <body>
 
-<div id="polvo"></div>
+<div id="polvo-base"></div>
 
 <model-viewer
   id="rover"
@@ -63,11 +68,8 @@ model-viewer{
   ar-modes="webxr scene-viewer quick-look"
   camera-controls
   auto-rotate
-
   exposure="1.0"
-  shadow-intensity="1.4"
-
-  interaction-prompt="auto">
+  shadow-intensity="1.4">
 
   <button slot="ar-button"
   style="
@@ -86,16 +88,28 @@ model-viewer{
 
 <script>
 const rover = document.getElementById("rover");
-const polvo = document.getElementById("polvo");
+const polvo = document.getElementById("polvo-base");
 
-/* cambio de brillo según giro */
+/* polvo responde al giro */
 rover.addEventListener("camera-change", ()=>{
 
   const orbit = rover.getCameraOrbit();
-  const azimuth = orbit.theta;
+  const angulo = Math.sin(orbit.theta);
 
-  const brillo = 0.8 + (Math.sin(azimuth) * 0.3);
+  // dirección del polvo
+  const dir = angulo > 0 ? -200 : 200;
 
+  // velocidad según giro
+  const speed = 3 + Math.abs(angulo)*4;
+
+  polvo.style.animation =
+    `moverPolvo ${speed}s linear infinite`;
+
+  polvo.style.backgroundPosition =
+    `${dir}px 50px`;
+
+  // brillo dinámico del rover
+  const brillo = 0.8 + Math.abs(angulo)*0.3;
   rover.style.filter = `brightness(${brillo})`;
 
 });
