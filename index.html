@@ -1,57 +1,19 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Curiosity en Marte</title>
-
-<script type="module"
-src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
-
-<style>
-html, body {
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-}
-
-/* Fondo Marte */
-#marte {
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:url("models/marte.jpg") center center / cover no-repeat;
-  z-index:0;
-}
-
-/* Modelo encima */
-model-viewer {
-  position:relative;
-  z-index:1;
-  width:100%;
-  height:100%;
-  background: transparent;
-}
-</style>
-</head>
-
-<body>
-
-<div id="marte"></div>
-
 <model-viewer
   src="models/curio1.glb"
   ar
   ar-modes="webxr scene-viewer quick-look"
+
   camera-controls
   auto-rotate
+  rotation-per-second="5deg"
+
+  camera-orbit="0deg 75deg 2m"
+  camera-target="0m -0.2m 0m"
+
   exposure="1.2"
-  shadow-intensity="1.3"
+  shadow-intensity="2"
+  shadow-softness="0.5"
+
   interaction-prompt="auto">
 
   <button slot="ar-button"
@@ -69,6 +31,3 @@ model-viewer {
   </button>
 
 </model-viewer>
-
-</body>
-</html>
