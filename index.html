@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity - Tormenta Extrema</title>
+<title>Curiosity - Tormenta Marciana</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -35,7 +35,7 @@ model-viewer{
   background:transparent;
 }
 
-/* POLVO EXTREMO */
+/* POLVO DISPERSO REAL */
 #polvo{
   position:fixed;
   inset:0;
@@ -44,34 +44,37 @@ model-viewer{
   opacity:0;
 
   background:
-    radial-gradient(circle, rgba(255,180,120,0.9) 2px, transparent 5px),
-    radial-gradient(circle, rgba(255,150,90,0.8) 1.5px, transparent 4px),
-    radial-gradient(circle, rgba(255,200,140,0.6) 1px, transparent 3px),
-    radial-gradient(circle, rgba(255,140,80,0.5) 2px, transparent 6px),
-    radial-gradient(circle, rgba(255,170,110,0.4) 1px, transparent 3px);
+    radial-gradient(circle, rgba(255,180,120,0.9) 2px, transparent 6px),
+    radial-gradient(circle, rgba(255,150,90,0.7) 1.5px, transparent 5px),
+    radial-gradient(circle, rgba(255,200,140,0.5) 1px, transparent 4px),
+    radial-gradient(circle, rgba(255,140,80,0.4) 2px, transparent 7px);
 
   background-size:
-    45px 45px,
-    65px 65px,
+    60px 60px,
     90px 90px,
-    120px 120px,
-    150px 150px;
+    140px 140px,
+    200px 200px;
 
-  animation:mover 1.2s linear infinite;
+  animation:
+    mover1 1.5s linear infinite,
+    mover2 2.8s linear infinite,
+    mover3 4s linear infinite;
 }
 
-@keyframes mover{
-  from{
-    background-position:0 0,0 0,0 0,0 0,0 0;
-  }
-  to{
-    background-position:
-      600px 180px,
-      400px 130px,
-      300px 90px,
-      220px 60px,
-      150px 40px;
-  }
+/* movimientos dispersos */
+@keyframes mover1{
+  from{ background-position:0 0; }
+  to{ background-position:600px 180px; }
+}
+
+@keyframes mover2{
+  from{ background-position:0 0; }
+  to{ background-position:-300px 260px; }
+}
+
+@keyframes mover3{
+  from{ background-position:0 0; }
+  to{ background-position:200px -150px; }
 }
 
 /* OSCURIDAD FUERTE */
@@ -98,6 +101,7 @@ model-viewer{
   background:#ff7b33;
   color:white;
   font-size:16px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -129,15 +133,15 @@ const rover = document.getElementById("rover");
 
 let activa=false;
 
-btn.onclick = ()=>{
+btn.onclick=()=>{
 
   activa=!activa;
 
   if(activa){
 
     polvo.style.opacity="1";
-    oscuro.style.opacity="0.85"; // MÁS OSCURO
-    rover.exposure = 0.25;       // casi sin luz
+    oscuro.style.opacity="0.85";
+    rover.exposure=0.25;
 
     btn.textContent="☀️ Normal";
 
@@ -145,7 +149,7 @@ btn.onclick = ()=>{
 
     polvo.style.opacity="0";
     oscuro.style.opacity="0";
-    rover.exposure = 1.05;
+    rover.exposure=1.05;
 
     btn.textContent="🌪️ Tormenta";
   }
