@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity en Marte - Cinemático</title>
+<title>Curiosity en Marte</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -18,32 +18,30 @@ html, body {
   overflow:hidden;
 }
 
-/* Fondo Marte animado */
+/* Fondo Marte */
 #marte {
   position: fixed;
-  top:0;
-  left:0;
-  width:120%;
-  height:100%;
-  background:url("models/marte.jpg") repeat-x;
+  inset: 0;
+  background: url("models/marte.jpg") repeat-x;
   background-size: cover;
   z-index:0;
-  animation:moverMarte 25s linear infinite;
+
+  /* movimiento suave REAL */
+  animation: moverFondo 30s linear infinite;
 }
 
-/* movimiento lateral lento */
-@keyframes moverMarte {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-200px); }
+@keyframes moverFondo {
+  from { background-position: 0 0; }
+  to   { background-position: -400px 0; }
 }
 
-/* Modelo encima */
+/* modelo encima */
 model-viewer {
-  position:relative;
-  z-index:1;
+  position: relative;
+  z-index: 1;
   width:100%;
   height:100%;
-  background:transparent;
+  background: transparent;
 }
 </style>
 </head>
@@ -66,9 +64,7 @@ model-viewer {
 
   exposure="1.2"
   shadow-intensity="2"
-  shadow-softness="0.5"
-
-  interaction-prompt="auto">
+  shadow-softness="0.5">
 
   <button slot="ar-button"
   style="
@@ -79,8 +75,7 @@ model-viewer {
   background:white;
   border:none;
   padding:12px 18px;
-  border-radius:10px;
-  font-size:16px;">
+  border-radius:10px;">
   🚀 Ver en AR
   </button>
 
