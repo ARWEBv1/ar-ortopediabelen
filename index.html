@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AR Ortopedia Belén - Curio en Marte</title>
+<title>Curio en Marte AR</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
@@ -17,17 +17,12 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-}
-
-/* Fondo Marte */
-body {
-  background: url("marte.jpg") center center / cover no-repeat;
+  background: black;
 }
 
 model-viewer {
   width: 100%;
   height: 100%;
-  background: transparent;
 }
 </style>
 </head>
@@ -38,10 +33,16 @@ model-viewer {
   src="models/curio1.glb"
   ar
   ar-modes="webxr scene-viewer quick-look"
+
   camera-controls
   auto-rotate
+
+  environment-image="marte.jpg"
+  skybox-image="marte.jpg"
+
   exposure="1.2"
   shadow-intensity="1.3"
+
   interaction-prompt="auto"
   alt="Curiosity Rover en Marte">
 
