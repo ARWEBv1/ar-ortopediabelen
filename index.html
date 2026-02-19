@@ -4,43 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Curiosity en Marte</title>
+<title>Curiosity Marte Game Feel</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
 </script>
 
 <style>
-html, body {
+html, body{
   margin:0;
   width:100%;
   height:100%;
   overflow:hidden;
 }
 
-/* Fondo Marte */
-#marte {
-  position: fixed;
+/* Marte más oscuro / plomo */
+#marte{
+  position:fixed;
   inset:0;
   background:url("models/marte.jpg") center center / cover no-repeat;
   z-index:0;
+
+  filter: brightness(0.7) contrast(1.1);
 
   animation: zoomMarte 40s linear infinite;
   animation-play-state: running;
 }
 
-@keyframes zoomMarte {
-  from { transform: scale(1); }
-  to   { transform: scale(1.10); }
+@keyframes zoomMarte{
+  from{ transform:scale(1); }
+  to  { transform:scale(1.10); }
 }
 
-/* Modelo */
-model-viewer {
-  position:relative;
+/* polvo visible */
+#polvo{
+  position:fixed;
+  inset:0;
   z-index:1;
+  pointer-events:none;
+  opacity:0.35;
+
+  background:
+  radial-gradient(circle,
+  rgba(255,180,120,0.45) 1px,
+  transparent 3px);
+
+  background-size:120px 120px;
+
+  animation: moverPolvo 6s linear infinite;
+}
+
+@keyframes moverPolvo{
+  from{ background-position:0 0; }
+  to  { background-position:-250px 80px; }
+}
+
+/* modelo */
+model-viewer{
+  position:relative;
+  z-index:2;
   width:100%;
   height:100%;
-  background: transparent;
+  background:transparent;
 }
 </style>
 </head>
@@ -48,6 +73,7 @@ model-viewer {
 <body>
 
 <div id="marte"></div>
+<div id="polvo"></div>
 
 <model-viewer
   id="rover"
@@ -56,7 +82,7 @@ model-viewer {
   ar-modes="webxr scene-viewer quick-look"
   camera-controls
   auto-rotate
-  exposure="1.05"
+  exposure="1.0"
   shadow-intensity="1.3"
   interaction-prompt="auto">
 
@@ -79,119 +105,37 @@ model-viewer {
 <script>
 const rover = document.getElementById("rover");
 const marte = document.getElementById("marte");
+const polvo = document.getElementById("polvo");
 
-// detener avance cuando tocas
-function pausar(){
-  marte.style.animationPlayState = "paused";
-}
+/* detener avance al tocar */
+rover.addEventListener("pointerdown", ()=>{
+  marte.style.animationPlayState="paused";
+});
 
-// continuar cuando sueltas
-function continuar(){
-  marte.style.animationPlayState = "running";
-}
+/* continuar cuando suelta */
+window.addEventListener("pointerup", ()=>{
+  marte.style.animationPlayState="running";
+});
 
-// eventos touch + mouse
-rover.addEventListener("pointerdown", pausar);
-window.addEventListener("pointerup", continuar);
-</script>
+/* CAMBIO DE BRILLO + POLVO según giro */
+rover.addEventListener("camera-change", ()=>{
 
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  const orbit = rover.getCameraOrbit();
+  const azimuth = orbit.theta; // ángulo horizontal
 
-<title>Curiosity en Marte</title>
+  /* brillo dinámico */
+  const brillo = 0.65 + (Math.sin(azimuth) * 0.15);
+  marte.style.filter =
+    `brightness(${brillo}) contrast(1.1)`;
 
-<script type="module"
-src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
+  /* dirección polvo */
+  const dir = Math.sin(azimuth) > 0 ? "-250px" : "250px";
 
-<style>
-html, body {
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-}
+  polvo.style.animation =
+    `moverPolvo 6s linear infinite`;
+  polvo.style.setProperty("--dir", dir);
 
-/* Fondo Marte */
-#marte {
-  position: fixed;
-  inset:0;
-  background:url("models/marte.jpg") center center / cover no-repeat;
-  z-index:0;
-
-  animation: zoomMarte 40s linear infinite;
-  animation-play-state: running;
-}
-
-@keyframes zoomMarte {
-  from { transform: scale(1); }
-  to   { transform: scale(1.10); }
-}
-
-/* Modelo */
-model-viewer {
-  position:relative;
-  z-index:1;
-  width:100%;
-  height:100%;
-  background: transparent;
-}
-</style>
-</head>
-
-<body>
-
-<div id="marte"></div>
-
-<model-viewer
-  id="rover"
-  src="models/curio1.glb"
-  ar
-  ar-modes="webxr scene-viewer quick-look"
-  camera-controls
-  auto-rotate
-  exposure="1.05"
-  shadow-intensity="1.3"
-  interaction-prompt="auto">
-
-  <button slot="ar-button"
-  style="
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:white;
-  border:none;
-  padding:12px 18px;
-  border-radius:10px;
-  font-size:16px;">
-  🚀 Ver en AR
-  </button>
-
-</model-viewer>
-
-<script>
-const rover = document.getElementById("rover");
-const marte = document.getElementById("marte");
-
-// detener avance cuando tocas
-function pausar(){
-  marte.style.animationPlayState = "paused";
-}
-
-// continuar cuando sueltas
-function continuar(){
-  marte.style.animationPlayState = "running";
-}
-
-// eventos touch + mouse
-rover.addEventListener("pointerdown", pausar);
-window.addEventListener("pointerup", continuar);
+});
 </script>
 
 </body>
