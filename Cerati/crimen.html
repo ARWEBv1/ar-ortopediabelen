@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Crimen - Cerati</title>
+
+<style>
+body{
+    margin:0;
+    background:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    overflow:hidden;
+}
+
+/* efecto cinematico */
+video{
+    width:100%;
+    max-width:900px;
+    opacity:0;
+    animation:fadeIn 2.5s ease forwards;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+/* texto inicial */
+.texto{
+    position:absolute;
+    color:white;
+    font-family:Arial, sans-serif;
+    font-size:24px;
+    letter-spacing:2px;
+    opacity:0;
+    animation:showText 3s ease;
+}
+
+@keyframes showText{
+    0%{opacity:0;}
+    30%{opacity:1;}
+    70%{opacity:1;}
+    100%{opacity:0;}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="texto">La espera me agotó...</div>
+
+<video controls autoplay playsinline>
+    <source src="Cerati/crimen.mp4" type="video/mp4">
+</video>
+
+</body>
+</html>
