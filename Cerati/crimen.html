@@ -7,65 +7,99 @@
 <title>Crimen - Cerati</title>
 
 <style>
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: black;
-    overflow: hidden;
+html, body{
+    margin:0;
+    width:100%;
+    height:100%;
+    background:black;
+    overflow:hidden;
 }
 
-/* CENTRAR TODO */
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-/* VIDEO PANTALLA COMPLETA */
-video {
-    width: 100vw;
-    height: 100vh;
-    object-fit: contain;
-    background: black;
-    opacity: 0;
-    animation: fadeIn 2s ease forwards;
+/* VIDEO */
+video{
+    width:100vw;
+    height:100vh;
+    object-fit:contain;
+    background:black;
 }
 
-/* TEXTO INICIAL */
-.texto {
-    position: absolute;
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 24px;
-    letter-spacing: 2px;
-    opacity: 0;
-    animation: showText 3s ease;
+/* BOTONES */
+.botones{
+    position:absolute;
+    bottom:30px;
+    display:flex;
+    gap:15px;
 }
 
-/* ANIMACIONES */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+button{
+    background:rgba(255,255,255,0.15);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:14px;
+    backdrop-filter:blur(5px);
 }
 
-@keyframes showText {
-    0% { opacity: 0; }
-    30% { opacity: 1; }
-    70% { opacity: 1; }
-    100% { opacity: 0; }
+button:hover{
+    background:rgba(255,255,255,0.3);
+}
+
+/* TEXTO FRASES */
+#frase{
+    position:absolute;
+    top:40px;
+    color:white;
+    font-size:22px;
+    font-family:Arial;
+    text-align:center;
+    padding:10px;
+    max-width:80%;
+}
+
+/* EFECTO CRIMEN */
+.modoCrimen{
+    filter:brightness(0.6) contrast(1.3);
 }
 </style>
 </head>
 
 <body>
 
-<div class="texto">La espera me agotó...</div>
+<div id="frase"></div>
 
-<video autoplay playsinline controls>
+<video id="video" autoplay playsinline controls>
     <source src="crimen.mp4" type="video/mp4">
-    Tu navegador no soporta video.
 </video>
+
+<div class="botones">
+    <button onclick="mostrarFrase()">✨ Frases Cerati</button>
+    <button onclick="modoCrimen()">🖤 Modo Crimen</button>
+</div>
+
+<script>
+const frases = [
+"El arte es transformar el dolor en algo bello.",
+"La música abre puertas que nadie puede cerrar.",
+"Siempre hay algo nuevo esperando ser descubierto."
+];
+
+function mostrarFrase(){
+    const random = frases[Math.floor(Math.random()*frases.length)];
+    document.getElementById("frase").innerText = random;
+}
+
+function modoCrimen(){
+    document.getElementById("video").classList.toggle("modoCrimen");
+}
+</script>
 
 </body>
 </html>
