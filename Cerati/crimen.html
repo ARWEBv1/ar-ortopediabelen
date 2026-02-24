@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crimen - Cerati</title>
+<title>Crimen - Holograma</title>
 
 <style>
-html, body{
+html,body{
     margin:0;
     width:100%;
     height:100%;
@@ -15,50 +14,72 @@ html, body{
     overflow:hidden;
 }
 
-body{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
+/* VIDEO */
 video{
+    position:absolute;
     width:100vw;
     height:100vh;
     object-fit:contain;
     background:black;
+    z-index:1;
 }
 
-/* BOTONES OCULTOS */
+/* CAPA HOLOGRAMA */
+.holograma{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:linear-gradient(
+        rgba(0,255,255,0.05),
+        rgba(0,120,255,0.08)
+    );
+    mix-blend-mode:screen;
+    animation:scan 3s linear infinite;
+    z-index:2;
+}
+
+@keyframes scan{
+    0%{background-position:0 0;}
+    100%{background-position:0 100px;}
+}
+
+/* BOTONES */
 .botones{
     position:absolute;
     bottom:30px;
+    left:50%;
+    transform:translateX(-50%);
     display:flex;
     gap:15px;
-    opacity:0;
-    transition:opacity 1s ease;
-}
-
-.botones.show{
-    opacity:1;
+    z-index:5;
 }
 
 button{
-    background:rgba(255,255,255,0.15);
-    color:white;
-    border:none;
+    background:rgba(0,255,255,0.15);
+    border:1px solid rgba(0,255,255,0.6);
+    color:#00ffff;
     padding:12px 18px;
     border-radius:20px;
     cursor:pointer;
     font-size:14px;
+    box-shadow:0 0 15px rgba(0,255,255,0.6);
+    backdrop-filter:blur(4px);
 }
 
+button:hover{
+    box-shadow:0 0 25px rgba(0,255,255,1);
+}
+
+/* FRASES */
 #frase{
     position:absolute;
-    top:40px;
-    color:white;
-    font-size:22px;
-    text-align:center;
+    top:30px;
     width:100%;
+    text-align:center;
+    color:#00ffff;
+    font-size:24px;
+    text-shadow:0 0 10px cyan;
+    z-index:6;
 }
 
 .modoCrimen{
@@ -75,36 +96,28 @@ button{
     <source src="crimen.mp4" type="video/mp4">
 </video>
 
-<div class="botones" id="botones">
+<div class="holograma"></div>
+
+<div class="botones">
     <button onclick="mostrarFrase()">✨ Frases Cerati</button>
     <button onclick="modoCrimen()">🖤 Modo Crimen</button>
 </div>
 
 <script>
-const frases = [
+const frases=[
 "El arte es transformar el dolor en algo bello.",
 "La música abre puertas que nadie puede cerrar.",
 "Siempre hay algo nuevo esperando ser descubierto."
 ];
 
 function mostrarFrase(){
-    const random = frases[Math.floor(Math.random()*frases.length)];
-    document.getElementById("frase").innerText = random;
+    const random=frases[Math.floor(Math.random()*frases.length)];
+    document.getElementById("frase").innerText=random;
 }
 
 function modoCrimen(){
     document.getElementById("video").classList.toggle("modoCrimen");
 }
-
-const video = document.getElementById("video");
-const botones = document.getElementById("botones");
-
-/* APARECER DESPUÉS DE 20 SEGUNDOS */
-video.addEventListener("play", () => {
-    setTimeout(() => {
-        botones.classList.add("show");
-    }, 20000);
-});
 </script>
 
 </body>
