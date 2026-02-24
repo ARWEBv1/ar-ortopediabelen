@@ -1,57 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Crimen - Cerati</title>
 
 <style>
-body{
-    margin:0;
-    background:black;
-    overflow:hidden;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    overflow: hidden;
 }
 
-/* VIDEO PANTALLA GRANDE */
-video{
-    width:100vw;
-    height:100vh;
-    object-fit:contain;
-    background:black;
-    opacity:0;
-    animation:fadeIn 2s ease forwards;
+/* CENTRAR TODO */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* VIDEO PANTALLA COMPLETA */
+video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    background: black;
+    opacity: 0;
+    animation: fadeIn 2s ease forwards;
 }
 
 /* TEXTO INICIAL */
-.texto{
-    position:absolute;
-    color:white;
-    font-family:Arial, sans-serif;
-    font-size:24px;
-    letter-spacing:2px;
-    opacity:0;
-    animation:showText 3s ease;
+.texto {
+    position: absolute;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    opacity: 0;
+    animation: showText 3s ease;
 }
 
 /* ANIMACIONES */
-@keyframes fadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-@keyframes showText{
-    0%{opacity:0;}
-    30%{opacity:1;}
-    70%{opacity:1;}
-    100%{opacity:0;}
+@keyframes showText {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
 }
 </style>
-
 </head>
 
 <body>
@@ -60,6 +64,7 @@ video{
 
 <video autoplay playsinline controls>
     <source src="crimen.mp4" type="video/mp4">
+    Tu navegador no soporta video.
 </video>
 
 </body>
