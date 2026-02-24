@@ -10,25 +10,24 @@
 body{
     margin:0;
     background:black;
+    overflow:hidden;
     display:flex;
     justify-content:center;
     align-items:center;
     height:100vh;
-    overflow:hidden;
 }
 
+/* VIDEO PANTALLA GRANDE */
 video{
-    width:100%;
-    max-width:900px;
+    width:100vw;
+    height:100vh;
+    object-fit:contain;
+    background:black;
     opacity:0;
-    animation:fadeIn 2.5s ease forwards;
+    animation:fadeIn 2s ease forwards;
 }
 
-@keyframes fadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
-}
-
+/* TEXTO INICIAL */
 .texto{
     position:absolute;
     color:white;
@@ -37,6 +36,12 @@ video{
     letter-spacing:2px;
     opacity:0;
     animation:showText 3s ease;
+}
+
+/* ANIMACIONES */
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
 }
 
 @keyframes showText{
@@ -53,7 +58,7 @@ video{
 
 <div class="texto">La espera me agotó...</div>
 
-<video controls autoplay playsinline>
+<video autoplay playsinline controls>
     <source src="crimen.mp4" type="video/mp4">
 </video>
 
