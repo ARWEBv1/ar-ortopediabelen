@@ -1,4 +1,4 @@
-```html id="x9v4jk"
+```html id="w8n3kp"
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,16 +12,17 @@ src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
 </script>
 
 <style>
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:#111;
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #111;
+  overflow: hidden;
 }
 
-model-viewer{
-  width:100%;
-  height:100%;
+model-viewer {
+  width: 100%;
+  height: 100%;
 }
 </style>
 </head>
@@ -35,14 +36,10 @@ model-viewer{
   camera-controls
   auto-rotate
   environment-image="neutral"
-  exposure="2"
-
-  camera-target="0m 0m 0m"
-  camera-orbit="0deg 75deg 0.4m"
-  min-camera-orbit="auto auto 0.1m"
-  max-camera-orbit="auto auto 2m"
-  field-of-view="25deg">
-
+  exposure="1.5"
+  shadow-intensity="1"
+  loading="eager"
+  reveal="auto">
 </model-viewer>
 
 </body>
