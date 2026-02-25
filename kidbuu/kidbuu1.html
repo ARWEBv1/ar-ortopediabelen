@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Kid Buu FIX</title>
-<style>
-body{margin:0;overflow:hidden;background:#000;}
-</style>
-</head>
-<body>
+<body style="margin:0;overflow:hidden;background:black">
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/examples/js/loaders/GLTFLoader.js"></script>
@@ -16,25 +9,20 @@ body{margin:0;overflow:hidden;background:#000;}
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
-60,
-window.innerWidth/window.innerHeight,
-0.1,
-1000
-);
+const camera = new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.001,10000);
+camera.position.set(0,1,5);
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// luces
-scene.add(new THREE.AmbientLight(0xffffff,1.5));
+// 🌞 LUZ EXTREMA (para ver sí o sí)
+scene.add(new THREE.AmbientLight(0xffffff,5));
 
-const light = new THREE.DirectionalLight(0xffffff,2);
+const light = new THREE.DirectionalLight(0xffffff,5);
 light.position.set(5,10,5);
 scene.add(light);
 
-// loader
 const loader = new THREE.GLTFLoader();
 
 loader.load(
@@ -43,26 +31,35 @@ loader.load(
 (gltf)=>{
 
   const model = gltf.scene;
+
+  // 🔥 FORZAR MATERIAL VISIBLE
+  model.traverse((obj)=>{
+    if(obj.isMesh){
+      obj.material = new THREE.MeshNormalMaterial();
+    }
+  });
+
   scene.add(model);
 
-  // 🔥 CENTRAR MODELO AUTOMATICAMENTE
+  // AUTO CENTER + ZOOM
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
 
   model.position.sub(center);
 
-  // mover cámara según tamaño
   const maxDim = Math.max(size.x,size.y,size.z);
-  camera.position.z = maxDim * 2.5;
-  camera.position.y = maxDim * 0.5;
 
-  console.log("KID BUU CARGADO 🔥");
+  camera.position.z = maxDim * 1.5;
+  camera.lookAt(0,0,0);
+
+  console.log("🔥 MODELO FORZADO VISIBLE");
+
 },
 
 undefined,
 
-(error)=>{ console.error(error); }
+(err)=>console.error(err)
 
 );
 
@@ -70,14 +67,7 @@ function animate(){
  requestAnimationFrame(animate);
  renderer.render(scene,camera);
 }
-
 animate();
-
-window.addEventListener("resize",()=>{
- camera.aspect=window.innerWidth/window.innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(window.innerWidth,window.innerHeight);
-});
 
 </script>
 </body>
