@@ -2,115 +2,68 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Energy Sphere ULTRA</title>
+<title>GLB Energy</title>
 <style>
-body{
-  margin:0;
-  overflow:hidden;
-  background: radial-gradient(circle,#001033,#000);
-}
-canvas{display:block;}
+body { margin:0; overflow:hidden; }
 </style>
 </head>
 <body>
 
-<canvas id="c"></canvas>
+<script type="module">
 
-<script>
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.159/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.159/examples/jsm/loaders/GLTFLoader.js";
 
-function resize(){
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000015);
+
+const camera = new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000);
+camera.position.z = 5;
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// luz
+const light = new THREE.PointLight(0xff66ff,5);
+light.position.set(0,0,5);
+scene.add(light);
+
+// cargar GLB
+const loader = new GLTFLoader();
+
+loader.load("modelo.glb",(gltf)=>{
+  scene.add(gltf.scene);
+});
+
+// esfera energía
+const geo = new THREE.SphereGeometry(1.5,64,64);
+const mat = new THREE.MeshBasicMaterial({
+  color:0xff66ff,
+  transparent:true,
+  opacity:0.35
+});
+
+const sphere = new THREE.Mesh(geo,mat);
+scene.add(sphere);
+
+// animación
+function animate(t){
+  requestAnimationFrame(animate);
+
+  sphere.rotation.y += 0.01;
+  sphere.scale.setScalar(1 + Math.sin(t*0.002)*0.05);
+
+  renderer.render(scene,camera);
 }
-resize();
-addEventListener("resize",resize);
+animate();
 
-function lightning(x1,y1,x2,y2,intensity=40){
-  ctx.beginPath();
-  ctx.moveTo(x1,y1);
+addEventListener("resize",()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
 
-  const seg = 25;
-  for(let i=1;i<seg;i++){
-    let t=i/seg;
-    let x = x1+(x2-x1)*t + (Math.random()-0.5)*intensity;
-    let y = y1+(y2-y1)*t + (Math.random()-0.5)*intensity;
-    ctx.lineTo(x,y);
-  }
-
-  ctx.lineTo(x2,y2);
-
-  ctx.strokeStyle="rgba(255,180,255,0.95)";
-  ctx.lineWidth=2;
-  ctx.shadowBlur=80;           // 🔥 glow fuerte
-  ctx.shadowColor="#ff66ff";
-  ctx.stroke();
-}
-
-function draw(t){
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  let cx=canvas.width/2;
-  let cy=canvas.height/2;
-  let r=140;
-
-  let pulse=Math.sin(t*0.003)*15;
-
-  // ✨ modo glow acumulado (tipo bloom)
-  ctx.globalCompositeOperation="lighter";
-
-  // glow exterior
-  let glow=ctx.createRadialGradient(cx,cy,20,cx,cy,r+100+pulse);
-  glow.addColorStop(0,"rgba(255,255,255,1)");
-  glow.addColorStop(0.2,"rgba(255,120,255,1)");
-  glow.addColorStop(1,"rgba(255,0,255,0)");
-
-  ctx.fillStyle=glow;
-  ctx.beginPath();
-  ctx.arc(cx,cy,r+100+pulse,0,Math.PI*2);
-  ctx.fill();
-
-  // energía interna
-  for(let i=0;i<60;i++){
-    let a=Math.random()*Math.PI*2;
-    let rr=Math.random()*r;
-    let x=cx+Math.cos(a)*rr;
-    let y=cy+Math.sin(a)*rr;
-
-    ctx.fillStyle="rgba(255,200,255,0.25)";
-    ctx.beginPath();
-    ctx.arc(x,y,Math.random()*6,0,Math.PI*2);
-    ctx.fill();
-  }
-
-  // núcleo energético
-  let core=ctx.createRadialGradient(cx,cy,10,cx,cy,r);
-  core.addColorStop(0,"white");
-  core.addColorStop(0.3,"#ff66ff");
-  core.addColorStop(1,"rgba(255,0,255,0)");
-
-  ctx.fillStyle=core;
-  ctx.beginPath();
-  ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.fill();
-
-  // rayos exteriores
-  for(let i=0;i<12;i++){
-    let ang=(Math.PI*2/12)*i+t*0.0015;
-    let dist=300+Math.sin(t*0.004+i)*80;
-    let x2=cx+Math.cos(ang)*dist;
-    let y2=cy+Math.sin(ang)*dist;
-    lightning(cx,cy,x2,y2,40);
-  }
-
-  ctx.globalCompositeOperation="source-over";
-
-  requestAnimationFrame(draw);
-}
-
-requestAnimationFrame(draw);
 </script>
 
 </body>
