@@ -1,81 +1,82 @@
-```html id="v2k8pl"
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Kid Buu Chaos AR</title>
-
-<script type="module"
-src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-</script>
-
+<title>Energy Sphere</title>
 <style>
-html, body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:black;
-}
-
-#scene{
-  width:100%;
-  height:100%;
-  animation: chaos 0.06s infinite;
-}
-
-@keyframes chaos{
-  0% { transform: translate(0,0); }
-  25% { transform: translate(2px,-2px); }
-  50% { transform: translate(-2px,2px); }
-  75% { transform: translate(2px,2px); }
-  100% { transform: translate(-2px,-2px); }
-}
-
-#aura{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background: radial-gradient(circle, rgba(255,0,120,0.2), transparent 70%);
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse{
-  0% { opacity:0.2; transform:scale(1); }
-  50% { opacity:0.7; transform:scale(1.07); }
-  100% { opacity:0.2; transform:scale(1); }
-}
-
-model-viewer{
-  width:100%;
-  height:100%;
-}
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle, #001a44, #000);
+  }
+  canvas {
+    display: block;
+  }
 </style>
 </head>
-
 <body>
+<canvas id="c"></canvas>
 
-<div id="scene">
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
 
-<model-viewer
-  src="./kidbuu1.glb"
-  ar
-  ar-modes="webxr scene-viewer quick-look"
-  camera-controls
-  auto-rotate
-  environment-image="neutral"
-  exposure="2"
-  shadow-intensity="1"
-  camera-orbit="0deg 75deg 2m"
-  field-of-view="35deg">
-</model-viewer>
+resize();
+window.addEventListener("resize", resize);
 
-</div>
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 
-<div id="aura"></div>
+function lightning(x1,y1,x2,y2){
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
 
+  let segments = 20;
+  for(let i=1;i<segments;i++){
+    let t = i/segments;
+    let x = x1 + (x2-x1)*t + (Math.random()-0.5)*20;
+    let y = y1 + (y2-y1)*t + (Math.random()-0.5)*20;
+    ctx.lineTo(x,y);
+  }
+
+  ctx.lineTo(x2,y2);
+  ctx.strokeStyle = "rgba(255,120,255,0.9)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function draw(t){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  let cx = canvas.width/2;
+  let cy = canvas.height/2;
+  let r = 120;
+
+  // esfera glow
+  let grad = ctx.createRadialGradient(cx,cy,20,cx,cy,r);
+  grad.addColorStop(0,"#fff");
+  grad.addColorStop(0.3,"#ff66ff");
+  grad.addColorStop(1,"rgba(255,0,255,0)");
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fill();
+
+  // rayos
+  for(let i=0;i<8;i++){
+    let angle = (Math.PI*2/8)*i + t*0.001;
+    let x2 = cx + Math.cos(angle)*300;
+    let y2 = cy + Math.sin(angle)*300;
+    lightning(cx,cy,x2,y2);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+requestAnimationFrame(draw);
+</script>
 </body>
 </html>
-```
