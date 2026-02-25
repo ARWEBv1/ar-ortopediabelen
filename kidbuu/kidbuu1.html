@@ -2,21 +2,27 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Viewer</title>
+<title>Kid Buu FINAL FIX</title>
 <style>
-body{
-  margin:0;
-  overflow:hidden;
-  background:black;
-}
+body{margin:0;overflow:hidden;background:black;}
 </style>
 </head>
 <body>
 
+<!-- 🔥 IMPORT MAP -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/"
+  }
+}
+</script>
+
 <script type="module">
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/loaders/GLTFLoader.js";
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const scene = new THREE.Scene();
 
@@ -38,7 +44,7 @@ const light = new THREE.DirectionalLight(0xffffff,3);
 light.position.set(5,10,5);
 scene.add(light);
 
-// loader
+// cargar GLB
 const loader = new GLTFLoader();
 
 loader.load(
@@ -49,7 +55,7 @@ loader.load(
   const model = gltf.scene;
   scene.add(model);
 
-  // centrar modelo
+  // centrar automático
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
@@ -67,7 +73,7 @@ loader.load(
 
 undefined,
 
-(err)=>console.error(err)
+(e)=>console.error(e)
 
 );
 
