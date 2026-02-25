@@ -1,0 +1,83 @@
+```html id="p6x4rt"
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Goku Power AR</title>
+
+<script type="module"
+src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+</script>
+
+<style>
+html, body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:black;
+}
+
+/* escena con temblor */
+#scene{
+  width:100%;
+  height:100%;
+  animation: shake 0.08s infinite;
+}
+
+@keyframes shake{
+  0% { transform: translate(0px,0px); }
+  25% { transform: translate(2px,-2px); }
+  50% { transform: translate(-2px,2px); }
+  75% { transform: translate(2px,2px); }
+  100% { transform: translate(-2px,-2px); }
+}
+
+/* aura energética */
+#aura{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: radial-gradient(circle, rgba(255,180,0,0.18), transparent 70%);
+  animation: pulse 1.1s infinite;
+}
+
+@keyframes pulse{
+  0% { opacity:0.2; transform:scale(1); }
+  50% { opacity:0.6; transform:scale(1.05); }
+  100% { opacity:0.2; transform:scale(1); }
+}
+
+model-viewer{
+  width:100%;
+  height:100%;
+}
+</style>
+</head>
+
+<body>
+
+<div id="scene">
+
+<model-viewer
+  src="./goku1.glb"
+  ar
+  ar-modes="webxr scene-viewer quick-look"
+  camera-controls
+  auto-rotate
+  environment-image="neutral"
+  exposure="1.5"
+  shadow-intensity="1"
+  camera-orbit="0deg 75deg 2m"
+  field-of-view="35deg">
+</model-viewer>
+
+</div>
+
+<div id="aura"></div>
+
+</body>
+</html>
+```
