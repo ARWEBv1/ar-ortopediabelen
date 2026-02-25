@@ -15,8 +15,8 @@ body{
 
 <script type="module">
 
-import * as THREE from 'https://unpkg.com/three@0.159.0/build/three.module.js';
-import { GLTFLoader } from 'https://unpkg.com/three@0.159.0/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/loaders/GLTFLoader.js";
 
 const scene = new THREE.Scene();
 
@@ -38,18 +38,18 @@ const light = new THREE.DirectionalLight(0xffffff,3);
 light.position.set(5,10,5);
 scene.add(light);
 
-// loader CORRECTO
+// loader
 const loader = new GLTFLoader();
 
 loader.load(
-'/ar-ortopediabelen/kidbuu/kidbuu1.glb',
+"/ar-ortopediabelen/kidbuu/kidbuu1.glb",
 
 (gltf)=>{
 
   const model = gltf.scene;
   scene.add(model);
 
-  // centrar modelo automatico
+  // centrar modelo
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
@@ -67,7 +67,7 @@ loader.load(
 
 undefined,
 
-(e)=>console.error(e)
+(err)=>console.error(err)
 
 );
 
@@ -76,12 +76,6 @@ function animate(){
  renderer.render(scene,camera);
 }
 animate();
-
-window.addEventListener("resize",()=>{
- camera.aspect = window.innerWidth/window.innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(window.innerWidth,window.innerHeight);
-});
 
 </script>
 
