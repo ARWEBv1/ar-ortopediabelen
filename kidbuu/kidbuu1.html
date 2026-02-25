@@ -2,17 +2,18 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Energy Sphere PRO</title>
+<title>Energy Sphere ULTRA</title>
 <style>
 body{
-    margin:0;
-    overflow:hidden;
-    background: radial-gradient(circle,#001033,#000);
+  margin:0;
+  overflow:hidden;
+  background: radial-gradient(circle,#001033,#000);
 }
 canvas{display:block;}
 </style>
 </head>
 <body>
+
 <canvas id="c"></canvas>
 
 <script>
@@ -26,11 +27,11 @@ function resize(){
 resize();
 addEventListener("resize",resize);
 
-function lightning(x1,y1,x2,y2,intensity=30){
+function lightning(x1,y1,x2,y2,intensity=40){
   ctx.beginPath();
   ctx.moveTo(x1,y1);
 
-  let seg = 25;
+  const seg = 25;
   for(let i=1;i<seg;i++){
     let t=i/seg;
     let x = x1+(x2-x1)*t + (Math.random()-0.5)*intensity;
@@ -40,9 +41,9 @@ function lightning(x1,y1,x2,y2,intensity=30){
 
   ctx.lineTo(x2,y2);
 
-  ctx.strokeStyle="rgba(255,180,255,0.9)";
+  ctx.strokeStyle="rgba(255,180,255,0.95)";
   ctx.lineWidth=2;
-  ctx.shadowBlur=20;
+  ctx.shadowBlur=80;           // 🔥 glow fuerte
   ctx.shadowColor="#ff66ff";
   ctx.stroke();
 }
@@ -55,34 +56,36 @@ function draw(t){
   let cy=canvas.height/2;
   let r=140;
 
-  // pulsación energía
-  let pulse = Math.sin(t*0.003)*15;
+  let pulse=Math.sin(t*0.003)*15;
+
+  // ✨ modo glow acumulado (tipo bloom)
+  ctx.globalCompositeOperation="lighter";
 
   // glow exterior
-  let glow = ctx.createRadialGradient(cx,cy,20,cx,cy,r+80+pulse);
-  glow.addColorStop(0,"rgba(255,255,255,0.9)");
-  glow.addColorStop(0.3,"rgba(255,80,255,0.8)");
+  let glow=ctx.createRadialGradient(cx,cy,20,cx,cy,r+100+pulse);
+  glow.addColorStop(0,"rgba(255,255,255,1)");
+  glow.addColorStop(0.2,"rgba(255,120,255,1)");
   glow.addColorStop(1,"rgba(255,0,255,0)");
 
   ctx.fillStyle=glow;
   ctx.beginPath();
-  ctx.arc(cx,cy,r+80+pulse,0,Math.PI*2);
+  ctx.arc(cx,cy,r+100+pulse,0,Math.PI*2);
   ctx.fill();
 
-  // textura energía interna (ruido fake)
-  for(let i=0;i<40;i++){
+  // energía interna
+  for(let i=0;i<60;i++){
     let a=Math.random()*Math.PI*2;
     let rr=Math.random()*r;
     let x=cx+Math.cos(a)*rr;
     let y=cy+Math.sin(a)*rr;
 
-    ctx.fillStyle="rgba(255,200,255,0.2)";
+    ctx.fillStyle="rgba(255,200,255,0.25)";
     ctx.beginPath();
     ctx.arc(x,y,Math.random()*6,0,Math.PI*2);
     ctx.fill();
   }
 
-  // núcleo
+  // núcleo energético
   let core=ctx.createRadialGradient(cx,cy,10,cx,cy,r);
   core.addColorStop(0,"white");
   core.addColorStop(0.3,"#ff66ff");
@@ -93,7 +96,7 @@ function draw(t){
   ctx.arc(cx,cy,r,0,Math.PI*2);
   ctx.fill();
 
-  // rayos externos
+  // rayos exteriores
   for(let i=0;i<12;i++){
     let ang=(Math.PI*2/12)*i+t*0.0015;
     let dist=300+Math.sin(t*0.004+i)*80;
@@ -102,10 +105,13 @@ function draw(t){
     lightning(cx,cy,x2,y2,40);
   }
 
+  ctx.globalCompositeOperation="source-over";
+
   requestAnimationFrame(draw);
 }
 
 requestAnimationFrame(draw);
 </script>
+
 </body>
 </html>
