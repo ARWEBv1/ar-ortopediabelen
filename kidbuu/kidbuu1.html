@@ -2,13 +2,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Viewer</title>
+<title>Kid Buu Viewer FIX</title>
 <style>
-body{
-  margin:0;
-  overflow:hidden;
-  background:black;
-}
+body{margin:0;overflow:hidden;background:black;}
 </style>
 </head>
 <body>
@@ -18,60 +14,67 @@ body{
 
 <script>
 
-// ESCENA
 const scene = new THREE.Scene();
 
-// CAMARA
 const camera = new THREE.PerspectiveCamera(
 60,
 window.innerWidth/window.innerHeight,
-0.1,
-1000
+0.01,
+10000
 );
-camera.position.z = 5;
 
-// RENDER
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// LUZ SIMPLE
+// luces fuertes
 scene.add(new THREE.AmbientLight(0xffffff,2));
 
-// CARGAR GLB
+const dirLight = new THREE.DirectionalLight(0xffffff,3);
+dirLight.position.set(5,10,5);
+scene.add(dirLight);
+
+// loader
 const loader = new THREE.GLTFLoader();
 
 loader.load(
 "/ar-ortopediabelen/kidbuu/kidbuu1.glb",
 
 (gltf)=>{
-    const model = gltf.scene;
-    scene.add(model);
-    console.log("GLB CARGADO ✅");
+
+  const model = gltf.scene;
+  scene.add(model);
+
+  // 🔥 AUTO CENTER
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+
+  model.position.sub(center);
+
+  // 🔥 AUTO CAMERA
+  const maxDim = Math.max(size.x,size.y,size.z);
+  const fov = camera.fov * (Math.PI/180);
+  let cameraZ = Math.abs(maxDim / Math.sin(fov/2));
+
+  camera.position.set(0,maxDim*0.2,cameraZ*0.8);
+  camera.lookAt(0,0,0);
+
+  console.log("KID BUU ENCONTRADO 🔥");
 },
 
 undefined,
 
-(error)=>{
-    console.error("ERROR:", error);
-}
+(err)=>console.error(err)
+
 );
 
-// ANIMACION
 function animate(){
-  requestAnimationFrame(animate);
-  renderer.render(scene,camera);
+ requestAnimationFrame(animate);
+ renderer.render(scene,camera);
 }
 animate();
 
-// RESIZE
-window.addEventListener("resize",()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
-
 </script>
-
 </body>
 </html>
