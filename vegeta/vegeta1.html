@@ -1,4 +1,4 @@
-```html id="q8h2mn"
+```html id="m7n2pd"
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,12 +12,11 @@ src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
 </script>
 
 <style>
-html, body{
+html,body{
   margin:0;
   width:100%;
   height:100%;
-  background:#222;
-  overflow:hidden;
+  background:#000;
 }
 
 model-viewer{
@@ -30,20 +29,17 @@ model-viewer{
 <body>
 
 <model-viewer
-  src="./vegeta1.glb"
-  ar
-  ar-modes="scene-viewer quick-look webxr"
+  src="https://arwebv1.github.io/ar-ortopediabelen/vegeta/vegeta1.glb"
   camera-controls
   auto-rotate
-  exposure="2.5"
+  ar
+  ar-modes="webxr scene-viewer quick-look"
   environment-image="neutral"
-  skybox-image="neutral"
+  exposure="2"
   shadow-intensity="1"
-  camera-orbit="0deg 75deg 3m"
-  field-of-view="45deg"
-  min-camera-orbit="auto auto 0.5m"
-  max-camera-orbit="auto auto 10m">
-
+  loading="eager"
+  reveal="auto"
+  alt="Vegeta 3D">
 </model-viewer>
 
 </body>
