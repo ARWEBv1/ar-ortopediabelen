@@ -2,16 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Energy Sphere</title>
+<title>Energy Sphere PRO</title>
 <style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: radial-gradient(circle, #001a44, #000);
-  }
-  canvas {
-    display: block;
-  }
+body{
+    margin:0;
+    overflow:hidden;
+    background: radial-gradient(circle,#001033,#000);
+}
+canvas{display:block;}
 </style>
 </head>
 <body>
@@ -21,56 +19,87 @@
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
-resize();
-window.addEventListener("resize", resize);
-
 function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 }
+resize();
+addEventListener("resize",resize);
 
-function lightning(x1,y1,x2,y2){
+function lightning(x1,y1,x2,y2,intensity=30){
   ctx.beginPath();
   ctx.moveTo(x1,y1);
 
-  let segments = 20;
-  for(let i=1;i<segments;i++){
-    let t = i/segments;
-    let x = x1 + (x2-x1)*t + (Math.random()-0.5)*20;
-    let y = y1 + (y2-y1)*t + (Math.random()-0.5)*20;
+  let seg = 25;
+  for(let i=1;i<seg;i++){
+    let t=i/seg;
+    let x = x1+(x2-x1)*t + (Math.random()-0.5)*intensity;
+    let y = y1+(y2-y1)*t + (Math.random()-0.5)*intensity;
     ctx.lineTo(x,y);
   }
 
   ctx.lineTo(x2,y2);
-  ctx.strokeStyle = "rgba(255,120,255,0.9)";
-  ctx.lineWidth = 2;
+
+  ctx.strokeStyle="rgba(255,180,255,0.9)";
+  ctx.lineWidth=2;
+  ctx.shadowBlur=20;
+  ctx.shadowColor="#ff66ff";
   ctx.stroke();
 }
 
 function draw(t){
+
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  let cx = canvas.width/2;
-  let cy = canvas.height/2;
-  let r = 120;
+  let cx=canvas.width/2;
+  let cy=canvas.height/2;
+  let r=140;
 
-  // esfera glow
-  let grad = ctx.createRadialGradient(cx,cy,20,cx,cy,r);
-  grad.addColorStop(0,"#fff");
-  grad.addColorStop(0.3,"#ff66ff");
-  grad.addColorStop(1,"rgba(255,0,255,0)");
+  // pulsación energía
+  let pulse = Math.sin(t*0.003)*15;
 
-  ctx.fillStyle = grad;
+  // glow exterior
+  let glow = ctx.createRadialGradient(cx,cy,20,cx,cy,r+80+pulse);
+  glow.addColorStop(0,"rgba(255,255,255,0.9)");
+  glow.addColorStop(0.3,"rgba(255,80,255,0.8)");
+  glow.addColorStop(1,"rgba(255,0,255,0)");
+
+  ctx.fillStyle=glow;
+  ctx.beginPath();
+  ctx.arc(cx,cy,r+80+pulse,0,Math.PI*2);
+  ctx.fill();
+
+  // textura energía interna (ruido fake)
+  for(let i=0;i<40;i++){
+    let a=Math.random()*Math.PI*2;
+    let rr=Math.random()*r;
+    let x=cx+Math.cos(a)*rr;
+    let y=cy+Math.sin(a)*rr;
+
+    ctx.fillStyle="rgba(255,200,255,0.2)";
+    ctx.beginPath();
+    ctx.arc(x,y,Math.random()*6,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // núcleo
+  let core=ctx.createRadialGradient(cx,cy,10,cx,cy,r);
+  core.addColorStop(0,"white");
+  core.addColorStop(0.3,"#ff66ff");
+  core.addColorStop(1,"rgba(255,0,255,0)");
+
+  ctx.fillStyle=core;
   ctx.beginPath();
   ctx.arc(cx,cy,r,0,Math.PI*2);
   ctx.fill();
 
-  // rayos
-  for(let i=0;i<8;i++){
-    let angle = (Math.PI*2/8)*i + t*0.001;
-    let x2 = cx + Math.cos(angle)*300;
-    let y2 = cy + Math.sin(angle)*300;
-    lightning(cx,cy,x2,y2);
+  // rayos externos
+  for(let i=0;i<12;i++){
+    let ang=(Math.PI*2/12)*i+t*0.0015;
+    let dist=300+Math.sin(t*0.004+i)*80;
+    let x2=cx+Math.cos(ang)*dist;
+    let y2=cy+Math.sin(ang)*dist;
+    lightning(cx,cy,x2,y2,40);
   }
 
   requestAnimationFrame(draw);
