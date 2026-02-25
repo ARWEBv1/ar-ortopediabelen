@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Kid Buu Viewer FIX</title>
-<style>
-body{margin:0;overflow:hidden;background:black;}
-</style>
-</head>
-<body>
+<body style="margin:0;overflow:hidden;background:black">
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/examples/js/loaders/GLTFLoader.js"></script>
@@ -16,25 +9,24 @@ body{margin:0;overflow:hidden;background:black;}
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
-60,
-window.innerWidth/window.innerHeight,
-0.01,
-10000
-);
+const camera = new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.001,100000);
+camera.position.set(0,0,5);
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// luces fuertes
-scene.add(new THREE.AmbientLight(0xffffff,2));
+// luz
+scene.add(new THREE.AmbientLight(0xffffff,5));
 
-const dirLight = new THREE.DirectionalLight(0xffffff,3);
-dirLight.position.set(5,10,5);
-scene.add(dirLight);
+// 🔥 CUBO DE PRUEBA (debe verse SIEMPRE)
+const cube = new THREE.Mesh(
+  new THREE.BoxGeometry(1,1,1),
+  new THREE.MeshBasicMaterial({color:0x00ff00})
+);
+scene.add(cube);
 
-// loader
+// cargar GLB
 const loader = new THREE.GLTFLoader();
 
 loader.load(
@@ -43,38 +35,36 @@ loader.load(
 (gltf)=>{
 
   const model = gltf.scene;
+
+  // FORZAR MATERIAL VISUAL
+  model.traverse(obj=>{
+    if(obj.isMesh){
+      obj.material = new THREE.MeshNormalMaterial();
+    }
+  });
+
   scene.add(model);
 
-  // 🔥 AUTO CENTER
-  const box = new THREE.Box3().setFromObject(model);
-  const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-
-  model.position.sub(center);
-
-  // 🔥 AUTO CAMERA
-  const maxDim = Math.max(size.x,size.y,size.z);
-  const fov = camera.fov * (Math.PI/180);
-  let cameraZ = Math.abs(maxDim / Math.sin(fov/2));
-
-  camera.position.set(0,maxDim*0.2,cameraZ*0.8);
-  camera.lookAt(0,0,0);
-
-  console.log("KID BUU ENCONTRADO 🔥");
+  console.log("GLB SI CARGA 🔥", model);
 },
 
 undefined,
 
-(err)=>console.error(err)
+(e)=>console.error(e)
 
 );
 
 function animate(){
  requestAnimationFrame(animate);
+
+ cube.rotation.x += 0.01;
+ cube.rotation.y += 0.01;
+
  renderer.render(scene,camera);
 }
 animate();
 
 </script>
+
 </body>
 </html>
