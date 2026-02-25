@@ -4,15 +4,19 @@
 <meta charset="UTF-8">
 <title>Kid Buu Viewer</title>
 <style>
-body{margin:0;overflow:hidden;background:black;}
+body{
+  margin:0;
+  overflow:hidden;
+  background:black;
+}
 </style>
 </head>
 <body>
 
 <script type="module">
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.159/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.159/examples/jsm/loaders/GLTFLoader.js";
+import * as THREE from 'https://unpkg.com/three@0.159.0/build/three.module.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.159.0/examples/jsm/loaders/GLTFLoader.js';
 
 const scene = new THREE.Scene();
 
@@ -38,14 +42,14 @@ scene.add(light);
 const loader = new GLTFLoader();
 
 loader.load(
-"/ar-ortopediabelen/kidbuu/kidbuu1.glb",
+'/ar-ortopediabelen/kidbuu/kidbuu1.glb',
 
 (gltf)=>{
 
   const model = gltf.scene;
   scene.add(model);
 
-  // auto center
+  // centrar modelo automatico
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
@@ -53,12 +57,17 @@ loader.load(
   model.position.sub(center);
 
   const maxDim = Math.max(size.x,size.y,size.z);
-  camera.position.set(0,maxDim*0.2,maxDim*2);
 
+  camera.position.set(0,maxDim*0.2,maxDim*2);
   camera.lookAt(0,0,0);
 
-  console.log("KID BUU CARGADO 🔥");
-}
+  console.log("🔥 KID BUU CARGADO");
+
+},
+
+undefined,
+
+(e)=>console.error(e)
 
 );
 
