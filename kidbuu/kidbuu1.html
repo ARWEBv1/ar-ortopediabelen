@@ -2,116 +2,83 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy</title>
+<title>Kid Buu FIX</title>
 <style>
-body{
-  margin:0;
-  overflow:hidden;
-  background:#000;
-}
+body{margin:0;overflow:hidden;background:#000;}
 </style>
 </head>
 <body>
 
-<!-- THREE JS -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
 
-// ---------------------
-// ESCENA
-// ---------------------
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000015);
 
-// CAMARA
 const camera = new THREE.PerspectiveCamera(
-  60,
-  window.innerWidth/window.innerHeight,
-  0.1,
-  1000
+60,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
 );
-camera.position.set(0,1.5,5);
 
-// RENDER
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// ---------------------
-// LUCES
-// ---------------------
-const light = new THREE.PointLight(0xff66ff,4);
-light.position.set(0,3,5);
+// luces
+scene.add(new THREE.AmbientLight(0xffffff,1.5));
+
+const light = new THREE.DirectionalLight(0xffffff,2);
+light.position.set(5,10,5);
 scene.add(light);
 
-const ambient = new THREE.AmbientLight(0xffffff,0.6);
-scene.add(ambient);
-
-// ---------------------
-// CARGAR KID BUU GLB
-// ---------------------
+// loader
 const loader = new THREE.GLTFLoader();
 
-loader.load("kidbuu1.glb",
+loader.load(
+"/ar-ortopediabelen/kidbuu/kidbuu1.glb",
 
-  function(gltf){
-    const model = gltf.scene;
-    model.scale.set(1,1,1);
-    model.position.set(0,0,0);
-    scene.add(model);
-  },
+(gltf)=>{
 
-  undefined,
+  const model = gltf.scene;
+  scene.add(model);
 
-  function(error){
-    console.error("ERROR CARGANDO GLB:", error);
-  }
+  // 🔥 CENTRAR MODELO AUTOMATICAMENTE
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+
+  model.position.sub(center);
+
+  // mover cámara según tamaño
+  const maxDim = Math.max(size.x,size.y,size.z);
+  camera.position.z = maxDim * 2.5;
+  camera.position.y = maxDim * 0.5;
+
+  console.log("KID BUU CARGADO 🔥");
+},
+
+undefined,
+
+(error)=>{ console.error(error); }
+
 );
 
-// ---------------------
-// ESFERA DE ENERGIA
-// ---------------------
-const geo = new THREE.SphereGeometry(1.8,64,64);
-
-const mat = new THREE.MeshBasicMaterial({
-  color:0xff66ff,
-  transparent:true,
-  opacity:0.25
-});
-
-const sphere = new THREE.Mesh(geo,mat);
-scene.add(sphere);
-
-// ---------------------
-// ANIMACION
-// ---------------------
-function animate(t){
-
-  requestAnimationFrame(animate);
-
-  // energía pulsante
-  const s = 1 + Math.sin(t*0.002)*0.05;
-  sphere.scale.set(s,s,s);
-
-  sphere.rotation.y += 0.01;
-
-  renderer.render(scene,camera);
+function animate(){
+ requestAnimationFrame(animate);
+ renderer.render(scene,camera);
 }
 
 animate();
 
-// ---------------------
-// RESIZE
-// ---------------------
 window.addEventListener("resize",()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
+ camera.aspect=window.innerWidth/window.innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(window.innerWidth,window.innerHeight);
 });
 
 </script>
-
 </body>
 </html>
