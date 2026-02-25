@@ -1,39 +1,116 @@
 <!DOCTYPE html>
 <html>
-<body style="margin:0">
+<head>
+<meta charset="UTF-8">
+<title>Kid Buu Energy</title>
+<style>
+body{
+  margin:0;
+  overflow:hidden;
+  background:#000;
+}
+</style>
+</head>
+<body>
 
+<!-- THREE JS -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.159/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
+
+// ---------------------
+// ESCENA
+// ---------------------
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000015);
 
-const camera = new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000);
-camera.position.z = 5;
+// CAMARA
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth/window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(0,1.5,5);
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(innerWidth,innerHeight);
+// RENDER
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xffffff,2));
+// ---------------------
+// LUCES
+// ---------------------
+const light = new THREE.PointLight(0xff66ff,4);
+light.position.set(0,3,5);
+scene.add(light);
 
+const ambient = new THREE.AmbientLight(0xffffff,0.6);
+scene.add(ambient);
+
+// ---------------------
+// CARGAR KID BUU GLB
+// ---------------------
 const loader = new THREE.GLTFLoader();
 
-loader.load(
-"/ar-ortopediabelen/kidbuu/kidbuu1.glb",
-(gltf)=>{
-    scene.add(gltf.scene);
-    console.log("GLB CARGADO 🔥");
-},
-undefined,
-(e)=>console.error(e)
+loader.load("kidbuu1.glb",
+
+  function(gltf){
+    const model = gltf.scene;
+    model.scale.set(1,1,1);
+    model.position.set(0,0,0);
+    scene.add(model);
+  },
+
+  undefined,
+
+  function(error){
+    console.error("ERROR CARGANDO GLB:", error);
+  }
 );
 
-function animate(){
- requestAnimationFrame(animate);
- renderer.render(scene,camera);
+// ---------------------
+// ESFERA DE ENERGIA
+// ---------------------
+const geo = new THREE.SphereGeometry(1.8,64,64);
+
+const mat = new THREE.MeshBasicMaterial({
+  color:0xff66ff,
+  transparent:true,
+  opacity:0.25
+});
+
+const sphere = new THREE.Mesh(geo,mat);
+scene.add(sphere);
+
+// ---------------------
+// ANIMACION
+// ---------------------
+function animate(t){
+
+  requestAnimationFrame(animate);
+
+  // energía pulsante
+  const s = 1 + Math.sin(t*0.002)*0.05;
+  sphere.scale.set(s,s,s);
+
+  sphere.rotation.y += 0.01;
+
+  renderer.render(scene,camera);
 }
+
 animate();
+
+// ---------------------
+// RESIZE
+// ---------------------
+window.addEventListener("resize",()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
 </script>
 
 </body>
