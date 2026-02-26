@@ -2,9 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu REAL Sphere</title>
+<title>Kid Buu Energy GOD MODE</title>
+
 <style>
-body{margin:0;overflow:hidden;background:#111;}
+body{
+  margin:0;
+  overflow:hidden;
+  background:#111;
+}
 </style>
 </head>
 <body>
@@ -26,10 +31,17 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let model;
 let energySphere;
+let energyOrbs = [];
 
+// ---------------------
+// ESCENA
+// ---------------------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
+// ---------------------
+// CAMARA
+// ---------------------
 const camera = new THREE.PerspectiveCamera(
 60,
 innerWidth/innerHeight,
@@ -39,23 +51,38 @@ innerWidth/innerHeight,
 
 camera.position.set(0,1,4);
 
+// ---------------------
+// RENDER
+// ---------------------
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
 document.body.appendChild(renderer.domElement);
 
+// ---------------------
+// CONTROLES
+// ---------------------
 const controls = new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;
+controls.enableDamping = true;
 
-// luces
+// ---------------------
+// LUCES
+// ---------------------
 scene.add(new THREE.AmbientLight(0xffffff,1.5));
 
-const light = new THREE.DirectionalLight(0xffffff,2);
-light.position.set(5,10,5);
-scene.add(light);
+const keyLight = new THREE.DirectionalLight(0xffffff,2);
+keyLight.position.set(5,10,5);
+scene.add(keyLight);
 
-// loader
+const fillLight = new THREE.DirectionalLight(0xffffff,1);
+fillLight.position.set(-5,5,-5);
+scene.add(fillLight);
+
+// ---------------------
+// CARGAR MODELO
+// ---------------------
 const loader = new GLTFLoader();
 
 loader.load(
@@ -66,18 +93,18 @@ loader.load(
   model = gltf.scene;
   scene.add(model);
 
-  // buscar esfera dentro del modelo
+  // buscar tu esfera real
   model.traverse((obj)=>{
 
     if(obj.isMesh){
 
-      // 🔥 detecta esfera por nombre o tamaño
-      if(obj.name.toLowerCase().includes("sphere") ||
-         obj.name.toLowerCase().includes("planet")){
+      if(
+        obj.name.toLowerCase().includes("sphere") ||
+        obj.name.toLowerCase().includes("planet")
+      ){
 
         energySphere = obj;
 
-        // cambiar material a energía
         energySphere.material = new THREE.MeshBasicMaterial({
           color:0xff55ff,
           transparent:true,
@@ -85,36 +112,94 @@ loader.load(
           blending:THREE.AdditiveBlending
         });
 
-        console.log("🔥 ESFERA ENCONTRADA:", obj.name);
+        console.log("🔥 ESFERA ENCONTRADA");
       }
     }
   });
 
   // centrar modelo
-  const box=new THREE.Box3().setFromObject(model);
-  const center=box.getCenter(new THREE.Vector3());
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+
   model.position.sub(center);
 
-});
+  const maxDim = Math.max(size.x,size.y,size.z);
 
-// animación
+  camera.position.set(0,maxDim*0.3,maxDim*2);
+  controls.target.set(0,0,0);
+  controls.update();
+}
+
+);
+
+// ---------------------
+// ORBES EXTRA ENERGIA
+// ---------------------
+const colors = [0x00ffff, 0xff0000, 0x00ff00];
+
+for(let i=0;i<3;i++){
+
+  const orb = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4,32,32),
+    new THREE.MeshBasicMaterial({
+      color:colors[i],
+      transparent:true,
+      opacity:0.7,
+      blending:THREE.AdditiveBlending
+    })
+  );
+
+  scene.add(orb);
+  energyOrbs.push(orb);
+}
+
+// ---------------------
+// ANIMACION
+// ---------------------
 function animate(t){
 
   requestAnimationFrame(animate);
 
-  if(model) model.rotation.y += 0.003;
+  if(model){
+    model.rotation.y += 0.003;
+  }
 
-  // energía viva SOLO en tu esfera
+  // esfera principal viva
   if(energySphere){
     let s = 1 + Math.sin(t*0.002)*0.05;
     energySphere.scale.set(s,s,s);
   }
 
+  // orbres invocando energia
+  energyOrbs.forEach((orb,i)=>{
+
+    const speed = 0.001 + i*0.0005;
+    const radius = 3 + i*0.8;
+
+    orb.position.x = Math.cos(t*speed*1000+i)*radius;
+    orb.position.z = Math.sin(t*speed*1000+i)*radius;
+    orb.position.y = 1 + Math.sin(t*0.003+i)*0.5;
+
+    const s = 1 + Math.sin(t*0.004+i)*0.4;
+    orb.scale.set(s,s,s);
+
+  });
+
   controls.update();
   renderer.render(scene,camera);
 }
+
 animate();
 
+// ---------------------
+window.addEventListener("resize",()=>{
+ camera.aspect = innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
+
 </script>
+
 </body>
 </html>
