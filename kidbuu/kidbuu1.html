@@ -2,19 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Animated</title>
-
+<title>Kid Buu PRO</title>
 <style>
-body{
-  margin:0;
-  overflow:hidden;
-  background:black;
-}
+body{margin:0;overflow:hidden;background:#111;}
 </style>
 </head>
 <body>
 
-<!-- IMPORT MAP -->
 <script type="importmap">
 {
   "imports": {
@@ -28,127 +22,100 @@ body{
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-// ---------------------
-// VARIABLES
-// ---------------------
-let mixer;
-const clock = new THREE.Clock();
+let model;
 
-// ---------------------
-// ESCENA
-// ---------------------
+// escena
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+scene.background = new THREE.Color(0x111111);
 
-// ---------------------
-// CAMARA
-// ---------------------
+// cámara
 const camera = new THREE.PerspectiveCamera(
 60,
 window.innerWidth/window.innerHeight,
 0.01,
-10000
+1000
 );
 
-// ---------------------
-// RENDER
-// ---------------------
+camera.position.set(0,1,4);
+
+// render PRO
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
+
+// ✨ hace que se vea mejor
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
 document.body.appendChild(renderer.domElement);
 
-// ---------------------
-// LUCES
-// ---------------------
-scene.add(new THREE.AmbientLight(0xffffff,2));
+// controles mouse
+const controls = new OrbitControls(camera,renderer.domElement);
+controls.enableDamping = true;
 
-const light = new THREE.DirectionalLight(0xffffff,3);
-light.position.set(5,10,5);
-scene.add(light);
+// luces tipo studio (como modelviewer)
+scene.add(new THREE.AmbientLight(0xffffff,1.5));
 
-// ---------------------
-// CARGAR GLB
-// ---------------------
+const keyLight = new THREE.DirectionalLight(0xffffff,2);
+keyLight.position.set(5,10,5);
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0xffffff,1);
+fillLight.position.set(-5,5,-5);
+scene.add(fillLight);
+
+// cargar GLB
 const loader = new GLTFLoader();
 
 loader.load(
-
 "/ar-ortopediabelen/kidbuu/kidbuu1.glb",
 
 (gltf)=>{
 
-  const model = gltf.scene;
+  model = gltf.scene;
   scene.add(model);
 
-  // CENTRAR MODELO
+  // centrar automático
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
 
   model.position.sub(center);
 
-  // AUTO CAMARA
   const maxDim = Math.max(size.x,size.y,size.z);
 
-  camera.position.set(0,maxDim*0.2,maxDim*2);
-  camera.lookAt(0,0,0);
+  camera.position.set(0,maxDim*0.3,maxDim*2);
 
-  // 🔥 ACTIVAR ANIMACIONES DEL GLB
-  if(gltf.animations.length > 0){
-    mixer = new THREE.AnimationMixer(model);
-    const action = mixer.clipAction(gltf.animations[0]);
-    action.play();
+  controls.target.set(0,0,0);
+  controls.update();
 
-    console.log("🔥 ANIMACION ACTIVADA");
-  }else{
-    console.log("⚠️ EL GLB NO TIENE ANIMACIONES");
-  }
-
-},
-
-undefined,
-
-(error)=>{
-  console.error(error);
+  console.log("🔥 MODELO CARGADO BONITO");
 }
 
 );
 
-// ---------------------
-// SCREENSHOT (P)
-// ---------------------
-window.addEventListener("keydown",(e)=>{
-  if(e.key==="p"){
-    const link=document.createElement("a");
-    link.download="kidbuu.png";
-    link.href=renderer.domElement.toDataURL();
-    link.click();
-  }
-});
-
-// ---------------------
-// ANIMACION LOOP
-// ---------------------
+// animación
 function animate(){
 
   requestAnimationFrame(animate);
 
-  const delta = clock.getDelta();
-  if(mixer) mixer.update(delta);
+  // rotación suave automática
+  if(model){
+    model.rotation.y += 0.003;
+  }
 
+  controls.update();
   renderer.render(scene,camera);
 }
-
 animate();
 
-// ---------------------
-// RESIZE
-// ---------------------
+// resize
 window.addEventListener("resize",()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
+ camera.aspect=window.innerWidth/window.innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(window.innerWidth,window.innerHeight);
 });
 
 </script>
