@@ -2,14 +2,19 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu FINAL FIX</title>
+<title>Kid Buu Viewer</title>
+
 <style>
-body{margin:0;overflow:hidden;background:black;}
+body{
+  margin:0;
+  overflow:hidden;
+  background:black;
+}
 </style>
 </head>
 <body>
 
-<!-- 🔥 IMPORT MAP -->
+<!-- IMPORT MAP (ARREGLA EL ERROR "three") -->
 <script type="importmap">
 {
   "imports": {
@@ -24,8 +29,15 @@ body{margin:0;overflow:hidden;background:black;}
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
+// ---------------------
+// ESCENA
+// ---------------------
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
 
+// ---------------------
+// CAMARA
+// ---------------------
 const camera = new THREE.PerspectiveCamera(
 60,
 window.innerWidth/window.innerHeight,
@@ -33,21 +45,29 @@ window.innerWidth/window.innerHeight,
 10000
 );
 
+// ---------------------
+// RENDER
+// ---------------------
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// luces
+// ---------------------
+// LUCES
+// ---------------------
 scene.add(new THREE.AmbientLight(0xffffff,2));
 
 const light = new THREE.DirectionalLight(0xffffff,3);
 light.position.set(5,10,5);
 scene.add(light);
 
-// cargar GLB
+// ---------------------
+// CARGAR KID BUU
+// ---------------------
 const loader = new GLTFLoader();
 
 loader.load(
+
 "/ar-ortopediabelen/kidbuu/kidbuu1.glb",
 
 (gltf)=>{
@@ -55,16 +75,22 @@ loader.load(
   const model = gltf.scene;
   scene.add(model);
 
-  // centrar automático
+  // CENTRAR AUTOMATICAMENTE
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
 
   model.position.sub(center);
 
+  // CAMARA AUTO
   const maxDim = Math.max(size.x,size.y,size.z);
 
-  camera.position.set(0,maxDim*0.2,maxDim*2);
+  camera.position.set(
+    0,
+    maxDim*0.2,
+    maxDim*2
+  );
+
   camera.lookAt(0,0,0);
 
   console.log("🔥 KID BUU CARGADO");
@@ -73,15 +99,41 @@ loader.load(
 
 undefined,
 
-(e)=>console.error(e)
+(error)=>{
+  console.error(error);
+}
 
 );
 
+// ---------------------
+// SCREENSHOT (TECLA P)
+// ---------------------
+window.addEventListener("keydown",(e)=>{
+  if(e.key==="p"){
+    const link=document.createElement("a");
+    link.download="kidbuu.png";
+    link.href=renderer.domElement.toDataURL();
+    link.click();
+  }
+});
+
+// ---------------------
+// ANIMACION
+// ---------------------
 function animate(){
- requestAnimationFrame(animate);
- renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+  renderer.render(scene,camera);
 }
 animate();
+
+// ---------------------
+// RESIZE
+// ---------------------
+window.addEventListener("resize",()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
 
 </script>
 
