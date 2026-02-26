@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Viewer</title>
+<title>Kid Buu Animated</title>
 
 <style>
 body{
@@ -14,7 +14,7 @@ body{
 </head>
 <body>
 
-<!-- IMPORT MAP (ARREGLA EL ERROR "three") -->
+<!-- IMPORT MAP -->
 <script type="importmap">
 {
   "imports": {
@@ -28,6 +28,12 @@ body{
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+// ---------------------
+// VARIABLES
+// ---------------------
+let mixer;
+const clock = new THREE.Clock();
 
 // ---------------------
 // ESCENA
@@ -62,7 +68,7 @@ light.position.set(5,10,5);
 scene.add(light);
 
 // ---------------------
-// CARGAR KID BUU
+// CARGAR GLB
 // ---------------------
 const loader = new GLTFLoader();
 
@@ -75,25 +81,29 @@ loader.load(
   const model = gltf.scene;
   scene.add(model);
 
-  // CENTRAR AUTOMATICAMENTE
+  // CENTRAR MODELO
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
 
   model.position.sub(center);
 
-  // CAMARA AUTO
+  // AUTO CAMARA
   const maxDim = Math.max(size.x,size.y,size.z);
 
-  camera.position.set(
-    0,
-    maxDim*0.2,
-    maxDim*2
-  );
-
+  camera.position.set(0,maxDim*0.2,maxDim*2);
   camera.lookAt(0,0,0);
 
-  console.log("🔥 KID BUU CARGADO");
+  // 🔥 ACTIVAR ANIMACIONES DEL GLB
+  if(gltf.animations.length > 0){
+    mixer = new THREE.AnimationMixer(model);
+    const action = mixer.clipAction(gltf.animations[0]);
+    action.play();
+
+    console.log("🔥 ANIMACION ACTIVADA");
+  }else{
+    console.log("⚠️ EL GLB NO TIENE ANIMACIONES");
+  }
 
 },
 
@@ -106,7 +116,7 @@ undefined,
 );
 
 // ---------------------
-// SCREENSHOT (TECLA P)
+// SCREENSHOT (P)
 // ---------------------
 window.addEventListener("keydown",(e)=>{
   if(e.key==="p"){
@@ -118,12 +128,18 @@ window.addEventListener("keydown",(e)=>{
 });
 
 // ---------------------
-// ANIMACION
+// ANIMACION LOOP
 // ---------------------
 function animate(){
+
   requestAnimationFrame(animate);
+
+  const delta = clock.getDelta();
+  if(mixer) mixer.update(delta);
+
   renderer.render(scene,camera);
 }
+
 animate();
 
 // ---------------------
