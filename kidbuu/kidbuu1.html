@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy CENTER WORKING</title>
+<title>Kid Buu ENERGY BIG ORBS</title>
 <style>
 body{margin:0;overflow:hidden;background:#111;}
 </style>
@@ -32,6 +32,7 @@ let currentOrb=0;
 let orbStartTime=0;
 const orbDuration=2200;
 
+// ---------- SCENE ----------
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x111111);
 
@@ -85,18 +86,17 @@ loader.load(
   }
  });
 
- // centrar modelo
  const box=new THREE.Box3().setFromObject(model);
  const center=box.getCenter(new THREE.Vector3());
  model.position.sub(center);
 
- // -------- ORBES --------
+ // -------- ORBES GRANDES --------
  const colors=[0x00ffff,0xff0000,0x00ff66];
 
  for(let i=0;i<3;i++){
 
   const orb=new THREE.Mesh(
-    new THREE.SphereGeometry(0.25,32,32),
+    new THREE.SphereGeometry(1,32,32),
     new THREE.MeshBasicMaterial({
       color:colors[i],
       transparent:true,
@@ -107,11 +107,8 @@ loader.load(
 
   orb.visible=false;
 
-  // 🔥 HIJO DE LA ESFERA (ESTO ES LA CLAVE)
-  energySphere.add(orb);
-
-  // 🔥 CENTRO DEL CUERPO (AJUSTE SIMPLE)
-  orb.position.set(0,-0.25,0);
+  // 🔥 se queda en el mundo (NO child)
+  scene.add(orb);
 
   orbs.push(orb);
  }
@@ -130,7 +127,8 @@ function animate(t){
   energySphere.scale.set(s,s,s);
  }
 
- if(orbs.length){
+ // -------- ORBS --------
+ if(orbs.length && energySphere){
 
   if(orbStartTime===0) orbStartTime=t;
 
@@ -139,7 +137,15 @@ function animate(t){
 
   orb.visible=true;
 
-  const scale=0.2 + progress*1.8;
+  // 🔥 POSICIÓN CORRECTA (CENTRO BUU)
+  const pos=new THREE.Vector3();
+  energySphere.getWorldPosition(pos);
+
+  orb.position.copy(pos);
+  orb.position.y -= 1.7; // CENTRO PERSONAJE
+
+  // 🔥 CRECIMIENTO GRANDE (como tu imagen)
+  const scale=0.2 + progress*6;
   orb.scale.set(scale,scale,scale);
 
   orb.material.opacity=1-progress;
