@@ -2,9 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy FINAL</title>
+<title>Kid Buu Energy Center</title>
 <style>
-body{margin:0;overflow:hidden;background:#111;}
+body{
+  margin:0;
+  overflow:hidden;
+  background:#111;
+}
 </style>
 </head>
 <body>
@@ -33,13 +37,16 @@ let orbStartTime=0;
 const orbDuration=2200;
 
 // ----------------
-// SCENE
+// ESCENA
 // ----------------
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x111111);
 
 const camera=new THREE.PerspectiveCamera(
-60,innerWidth/innerHeight,0.01,1000
+60,
+innerWidth/innerHeight,
+0.01,
+1000
 );
 camera.position.set(0,1,4);
 
@@ -61,7 +68,7 @@ light.position.set(5,10,5);
 scene.add(light);
 
 // ----------------
-// LOAD MODEL
+// CARGAR MODELO
 // ----------------
 const loader=new GLTFLoader();
 
@@ -107,11 +114,10 @@ loader.load(
  controls.target.set(0,0,0);
  controls.update();
 
- // -------- CREAR ORBES --------
+ // ----------------
+ // ORBES ENERGIA
+ // ----------------
  const colors=[0x00ffff,0xff0000,0x00ff66];
-
- const sphereBox=new THREE.Box3().setFromObject(energySphere);
- const sphereSize=sphereBox.getSize(new THREE.Vector3());
 
  for(let i=0;i<3;i++){
 
@@ -127,11 +133,11 @@ loader.load(
 
    orb.visible=false;
 
-   // hijo esfera (SIEMPRE CENTRADO)
+   // hijo de esfera principal
    energySphere.add(orb);
 
-   // nace justo debajo
-   orb.position.set(0,-sphereSize.y*0.6,0);
+   // 🔥 CENTRO DE BUU (NO SUELO)
+   orb.position.set(0,-0.3,0);
 
    orbs.push(orb);
  }
@@ -139,7 +145,7 @@ loader.load(
 });
 
 // ----------------
-// ANIMATION
+// ANIMACION
 // ----------------
 function animate(t){
 
@@ -147,13 +153,13 @@ function animate(t){
 
  if(model) model.rotation.y+=0.003;
 
- // pulso esfera
+ // pulsacion esfera
  if(energySphere){
    const s=1+Math.sin(t*0.002)*0.05;
    energySphere.scale.set(s,s,s);
  }
 
- // orbes secuencia
+ // ciclo orbes
  if(orbs.length){
 
    if(orbStartTime===0) orbStartTime=t;
@@ -181,6 +187,7 @@ function animate(t){
 
 animate();
 
+// resize
 addEventListener("resize",()=>{
  camera.aspect=innerWidth/innerHeight;
  camera.updateProjectionMatrix();
@@ -188,5 +195,6 @@ addEventListener("resize",()=>{
 });
 
 </script>
+
 </body>
 </html>
