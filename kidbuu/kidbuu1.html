@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu ENERGY MASTER</title>
+<title>Kid Buu Energy Sequence</title>
 <style>
 body{margin:0;overflow:hidden;background:#111;}
 </style>
@@ -26,7 +26,12 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let model;
 let energySphere;
-let summonOrbs=[];
+
+// ----------- ORBES ----------
+let orbs=[];
+let currentOrb=0;
+let orbStartTime=0;
+const orbDuration=2000; // tiempo crecimiento
 
 // ------------------
 // ESCENA
@@ -75,13 +80,12 @@ loader.load(
    if(obj.isMesh){
 
      if(
-      obj.name.toLowerCase().includes("sphere") ||
-      obj.name.toLowerCase().includes("planet")
+       obj.name.toLowerCase().includes("sphere") ||
+       obj.name.toLowerCase().includes("planet")
      ){
 
        energySphere=obj;
 
-       // energía dentro (NO cambiar)
        energySphere.material=new THREE.MeshBasicMaterial({
          color:0xff55ff,
          transparent:true,
@@ -106,9 +110,8 @@ loader.load(
 });
 
 // ------------------
-// 3 ENERGIAS NUEVAS
+// CREAR 3 ORBES
 // ------------------
-
 const colors=[0x00ffff,0xff0000,0x00ff66];
 
 for(let i=0;i<3;i++){
@@ -123,12 +126,9 @@ for(let i=0;i<3;i++){
    })
  );
 
- orb.userData={
-   phase:Math.random()*2000
- };
-
+ orb.visible=false;
  scene.add(orb);
- summonOrbs.push(orb);
+ orbs.push(orb);
 }
 
 // ------------------
@@ -138,9 +138,7 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- if(model){
-   model.rotation.y+=0.003;
- }
+ if(model) model.rotation.y+=0.003;
 
  // esfera principal viva
  if(energySphere){
@@ -148,28 +146,42 @@ function animate(t){
    energySphere.scale.set(s,s,s);
  }
 
- // -------- ENERGIAS INVOCADAS --------
- summonOrbs.forEach((orb,i)=>{
+ // ---------- CICLO ORBES ----------
+ if(orbs.length>0){
 
-   const cycle=((t+orb.userData.phase)%4000)/4000;
+   if(orbStartTime===0) orbStartTime=t;
 
-   // posicion alrededor
-   const angle=(Math.PI*2/3)*i + t*0.0005;
+   let progress=(t-orbStartTime)/orbDuration;
 
-   orb.position.x=Math.cos(angle)*2.5;
-   orb.position.z=Math.sin(angle)*2.5;
-   orb.position.y=1.2;
+   const orb=orbs[currentOrb];
 
-   // crecer + desaparecer
-   const scale=cycle*3;
+   orb.visible=true;
+
+   // posición fija (punto nacimiento)
+   orb.position.set(0,1.2,0);
+
+   // crecer
+   const scale=progress*4;
    orb.scale.set(scale,scale,scale);
 
-   orb.material.opacity=1-cycle;
- });
+   // fade
+   orb.material.opacity=1-progress;
+
+   // 💥 cuando termina
+   if(progress>=1){
+
+     orb.visible=false;
+
+     // siguiente orb
+     currentOrb=(currentOrb+1)%orbs.length;
+     orbStartTime=t;
+   }
+ }
 
  controls.update();
  renderer.render(scene,camera);
 }
+
 animate();
 
 // resize
