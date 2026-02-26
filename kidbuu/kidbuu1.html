@@ -27,7 +27,7 @@ body{
 </head>
 <body>
 
-<button id="btn">DETENER</button>
+<button id="btn">📸 CAPTURA</button>
 
 <script type="importmap">
 {
@@ -47,9 +47,19 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 const btn=document.getElementById("btn");
 
 let paused=false;
+let freezeTime=0;
+
 btn.onclick=()=>{
+
  paused=!paused;
- btn.textContent=paused?"CONTINUAR":"DETENER";
+
+ if(paused){
+   freezeTime=performance.now();
+   btn.textContent="▶ CONTINUAR";
+ }else{
+   btn.textContent="📸 CAPTURA";
+ }
+
 };
 
 let model;
@@ -63,7 +73,7 @@ let spawnPos=new THREE.Vector3();
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x050005);
 
-// 🔥 CAMARA HEROICA (desde abajo)
+// 🔥 CAMARA DESDE ABAJO
 const camera=new THREE.PerspectiveCamera(
 60,innerWidth/innerHeight,0.01,1000
 );
@@ -77,23 +87,21 @@ document.body.appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
-
-// mirar hacia arriba (pose imponente)
 controls.target.set(0,1,0);
 
-// luces base
+// luces
 scene.add(new THREE.AmbientLight(0xffffff,1.8));
 
 const light=new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,8,5);
 scene.add(light);
 
-// 🌸 AURA ROSADA GLOBAL
+// 🌸 aura rosada
 const auraLight=new THREE.PointLight(0xff33aa,4,20);
 auraLight.position.set(0,2,0);
 scene.add(auraLight);
 
-// ---------- LOAD ----------
+// ---------- LOAD MODEL ----------
 const loader=new GLTFLoader();
 
 loader.load(
@@ -114,7 +122,6 @@ loader.load(
 
     energySphere=obj;
 
-    // esfera energia
     energySphere.material=new THREE.MeshBasicMaterial({
       color:0xff0088,
       transparent:true,
@@ -132,7 +139,7 @@ loader.load(
  modelHeight=size.y;
  model.position.sub(center);
 
- // 🌸 GLOW EXTRA AURA
+ // aura visual extra
  const auraMesh=new THREE.Mesh(
   new THREE.SphereGeometry(3,32,32),
   new THREE.MeshBasicMaterial({
@@ -146,7 +153,7 @@ loader.load(
  auraMesh.position.set(0,1,0);
  scene.add(auraMesh);
 
- // orbs
+ // orbes
  const colors=[0xff0000,0x6600ff,0xffff00];
 
  for(let i=0;i<3;i++){
@@ -198,7 +205,7 @@ function sceneShake(intensity){
 
 }
 
-// ---------- LIGHTNING ----------
+// ---------- RAYOS ----------
 function updateLightning(){
 
  if(!energySphere) return;
@@ -226,11 +233,9 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- // 🛑 PAUSA REAL
+ // 📸 FREEZE FRAME
  if(paused){
-  controls.update();
-  renderer.render(scene,camera);
-  return;
+  t=freezeTime;
  }
 
  if(energySphere){
