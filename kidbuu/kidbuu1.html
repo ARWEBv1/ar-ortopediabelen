@@ -2,9 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy CENTER FIX</title>
+<title>Kid Buu Energy Center FIX REAL</title>
 <style>
-body{margin:0;overflow:hidden;background:#111;}
+body{
+  margin:0;
+  overflow:hidden;
+  background:#111;
+}
 </style>
 </head>
 <body>
@@ -21,8 +25,8 @@ body{margin:0;overflow:hidden;background:#111;}
 <script type="module">
 
 import * as THREE from "three";
-import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
-import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let model;
 let energySphere;
@@ -32,7 +36,7 @@ let currentOrb=0;
 let orbStartTime=0;
 const orbDuration=2200;
 
-// ---------- SCENE ----------
+// ---------- ESCENA ----------
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x111111);
 
@@ -44,22 +48,26 @@ camera.position.set(0,1,4);
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.3;
 document.body.appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
+// luces
 scene.add(new THREE.AmbientLight(0xffffff,1.5));
 
 const light=new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,10,5);
 scene.add(light);
 
-// ---------- LOAD ----------
+// ---------- CARGAR MODELO ----------
 const loader=new GLTFLoader();
 
 loader.load(
 "/ar-ortopediabelen/kidbuu/kidbuu1.glb",
+
 (gltf)=>{
 
  model=gltf.scene;
@@ -67,26 +75,27 @@ loader.load(
 
  model.traverse((obj)=>{
 
-  if(obj.isMesh){
+   if(obj.isMesh){
 
-   if(
-    obj.name.toLowerCase().includes("sphere") ||
-    obj.name.toLowerCase().includes("planet")
-   ){
+     if(
+       obj.name.toLowerCase().includes("sphere") ||
+       obj.name.toLowerCase().includes("planet")
+     ){
 
-    energySphere=obj;
+       energySphere=obj;
 
-    energySphere.material=new THREE.MeshBasicMaterial({
-      color:0xff55ff,
-      transparent:true,
-      opacity:0.5,
-      blending:THREE.AdditiveBlending
-    });
+       // energia dentro esfera
+       energySphere.material=new THREE.MeshBasicMaterial({
+         color:0xff55ff,
+         transparent:true,
+         opacity:0.5,
+         blending:THREE.AdditiveBlending
+       });
+     }
    }
-  }
  });
 
- // centrar
+ // centrar modelo
  const box=new THREE.Box3().setFromObject(model);
  const center=box.getCenter(new THREE.Vector3());
  const size=box.getSize(new THREE.Vector3());
@@ -94,36 +103,35 @@ loader.load(
  model.position.sub(center);
 
  const maxDim=Math.max(size.x,size.y,size.z);
+
  camera.position.set(0,maxDim*0.3,maxDim*2);
  controls.target.set(0,0,0);
  controls.update();
 
- // -------- ORBS ----------
+ // ---------- CREAR ORBES ----------
  const colors=[0x00ffff,0xff0000,0x00ff66];
 
  for(let i=0;i<3;i++){
 
-  const orb=new THREE.Mesh(
-    new THREE.SphereGeometry(0.25,32,32),
-    new THREE.MeshBasicMaterial({
-      color:colors[i],
-      transparent:true,
-      opacity:0,
-      blending:THREE.AdditiveBlending
-    })
-  );
+   const orb=new THREE.Mesh(
+     new THREE.SphereGeometry(0.25,32,32),
+     new THREE.MeshBasicMaterial({
+       color:colors[i],
+       transparent:true,
+       opacity:0,
+       blending:THREE.AdditiveBlending
+     })
+   );
 
-  orb.visible=false;
+   orb.visible=false;
+   scene.add(orb);
 
-  // 🔥 YA NO HIJO DE ESFERA
-  scene.add(orb);
-
-  orbs.push(orb);
+   orbs.push(orb);
  }
 
 });
 
-// ---------- ANIMATE ----------
+// ---------- ANIMACION ----------
 function animate(t){
 
  requestAnimationFrame(animate);
@@ -132,37 +140,38 @@ function animate(t){
 
  // pulso esfera principal
  if(energySphere){
-  const s=1+Math.sin(t*0.002)*0.05;
-  energySphere.scale.set(s,s,s);
+   const s=1+Math.sin(t*0.002)*0.05;
+   energySphere.scale.set(s,s,s);
  }
 
- // -------- ORBS --------
- if(orbs.length && model){
+ // -------- ORBES --------
+ if(orbs.length && energySphere){
 
-  if(orbStartTime===0) orbStartTime=t;
+   if(orbStartTime===0) orbStartTime=t;
 
-  const progress=(t-orbStartTime)/orbDuration;
-  const orb=orbs[currentOrb];
+   const progress=(t-orbStartTime)/orbDuration;
+   const orb=orbs[currentOrb];
 
-  orb.visible=true;
+   orb.visible=true;
 
-  // 💥 CENTRO REAL DE BUU
-  const pos=new THREE.Vector3();
-  model.getWorldPosition(pos);
+   // 🔥 POSICION REAL TORAX DE BUU
+   const pos=new THREE.Vector3();
+   energySphere.getWorldPosition(pos);
 
-  orb.position.copy(pos);
-  orb.position.y += 1.0; // CENTRO TORSO
+   orb.position.copy(pos);
+   orb.position.y -= 1.8; // centro del cuerpo
 
-  const scale=0.2 + progress*1.8;
-  orb.scale.set(scale,scale,scale);
+   // crecer
+   const scale=0.2 + progress*1.8;
+   orb.scale.set(scale,scale,scale);
 
-  orb.material.opacity=1-progress;
+   orb.material.opacity=1-progress;
 
-  if(progress>=1){
-   orb.visible=false;
-   currentOrb=(currentOrb+1)%orbs.length;
-   orbStartTime=t;
-  }
+   if(progress>=1){
+     orb.visible=false;
+     currentOrb=(currentOrb+1)%orbs.length;
+     orbStartTime=t;
+   }
  }
 
  controls.update();
@@ -171,6 +180,7 @@ function animate(t){
 
 animate();
 
+// resize
 addEventListener("resize",()=>{
  camera.aspect=innerWidth/innerHeight;
  camera.updateProjectionMatrix();
@@ -178,5 +188,6 @@ addEventListener("resize",()=>{
 });
 
 </script>
+
 </body>
 </html>
