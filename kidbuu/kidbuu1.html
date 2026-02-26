@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu FINAL BOSS SHAKE</title>
+<title>Kid Buu FINAL BOSS</title>
 <style>
 body{
  margin:0;
@@ -39,12 +39,14 @@ const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x050005);
 
 const camera=new THREE.PerspectiveCamera(
-60,innerWidth/innerHeight,0.01,1000
+60,
+innerWidth/innerHeight,
+0.01,
+1000
 );
 
 camera.position.set(0,1,4);
-
-const baseCamPos = new THREE.Vector3(0,1,4);
+const baseCamPos=new THREE.Vector3(0,1,4);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
@@ -54,13 +56,14 @@ document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
+// luces
 scene.add(new THREE.AmbientLight(0xffffff,2));
 
 const light=new THREE.DirectionalLight(0xff00ff,3);
 light.position.set(5,10,5);
 scene.add(light);
 
-// ---------- LOAD ----------
+// ---------- LOAD MODEL ----------
 const loader=new GLTFLoader();
 
 loader.load(
@@ -100,6 +103,7 @@ loader.load(
 
  controls.target.set(0,0,0);
 
+ // colores desastre
  const colors=[0xff0000,0x6600ff,0xffff00];
 
  for(let i=0;i<3;i++){
@@ -122,7 +126,7 @@ loader.load(
 
 });
 
-// ---------- SHAKE REAL ----------
+// ---------- SHAKE ----------
 function cameraShake(intensity){
 
  camera.position.set(
@@ -131,9 +135,6 @@ function cameraShake(intensity){
   baseCamPos.z + (Math.random()-0.5)*intensity
  );
 
- controls.target.x = (Math.random()-0.5)*intensity;
- controls.target.y = (Math.random()-0.5)*intensity;
- controls.target.z = (Math.random()-0.5)*intensity;
 }
 
 // ---------- ANIMATE ----------
@@ -141,7 +142,7 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- // ❌ NO ROTAR MODELO (queda estatico)
+ // ❌ NO AUTO ROTATE (360 MANUAL)
 
  if(energySphere){
 
@@ -154,7 +155,7 @@ function animate(t){
   spawnPos.y += 3;
  }
 
- // ORBS
+ // ORBS CADENA
  orbs.forEach((orb)=>{
 
   if(!energySphere) return;
@@ -168,9 +169,10 @@ function animate(t){
   orb.scale.set(scale,scale,scale);
 
   orb.material.opacity=1-progress;
+
  });
 
- // 🔥 TEMBLOR REAL
+ // 💥 SHAKE REAL
  cameraShake(0.05);
 
  controls.update();
