@@ -57,9 +57,18 @@ const btn=document.getElementById("btn");
 
 let running=true;
 
+// 🔥 BOTON FIX
 btn.onclick=()=>{
+
  running=!running;
  btn.textContent=running?"DETENER":"CONTINUAR";
+
+ // ocultar flash solo al detener
+ if(!running){
+   flash.style.opacity=0;
+   flashPower=0;
+ }
+
 };
 
 let model;
@@ -201,7 +210,6 @@ function updateLightning(){
 
  lightning.forEach((line)=>{
 
-  // 🔥 MISMA ALTURA QUE ESFERAS
   const start=spawnPos.clone();
 
   const dir=new THREE.Vector3(
