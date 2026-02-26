@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy FINAL</title>
+<title>Kid Buu Energy FINAL FIX</title>
 <style>
 body{margin:0;overflow:hidden;background:#111;}
 </style>
@@ -27,12 +27,15 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 let model;
 let energySphere;
 
+// ORBES
 let orbs=[];
 let currentOrb=0;
 let orbStartTime=0;
-const orbDuration=2200;
+const orbDuration=2000;
 
-// -------- ESCENA ----------
+// ------------------
+// ESCENA
+// ------------------
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x111111);
 
@@ -59,7 +62,9 @@ const light=new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,10,5);
 scene.add(light);
 
-// -------- CARGAR GLB ----------
+// ------------------
+// CARGAR GLB
+// ------------------
 const loader=new GLTFLoader();
 
 loader.load(
@@ -81,6 +86,7 @@ loader.load(
 
        energySphere=obj;
 
+       // energia dentro esfera
        energySphere.material=new THREE.MeshBasicMaterial({
          color:0xff55ff,
          transparent:true,
@@ -98,70 +104,78 @@ loader.load(
  model.position.sub(center);
 
  const maxDim=Math.max(size.x,size.y,size.z);
+
  camera.position.set(0,maxDim*0.3,maxDim*2);
  controls.target.set(0,0,0);
  controls.update();
 
+ // ------------------
+ // CREAR ORBES DENTRO
+ // ------------------
+ const colors=[0x00ffff,0xff0000,0x00ff66];
+
+ for(let i=0;i<3;i++){
+
+   const orb=new THREE.Mesh(
+     new THREE.SphereGeometry(0.4,32,32),
+     new THREE.MeshBasicMaterial({
+       color:colors[i],
+       transparent:true,
+       opacity:0,
+       blending:THREE.AdditiveBlending
+     })
+   );
+
+   orb.visible=false;
+
+   // 🔥 HIJO DE LA ESFERA
+   energySphere.add(orb);
+
+   // nace debajo
+   orb.position.set(0,-1.5,0);
+
+   orbs.push(orb);
+ }
+
 });
 
-// -------- ORBES GRANDES ----------
-const colors=[0x00ffff,0xff0000,0x00ff66];
-
-for(let i=0;i<3;i++){
-
- const orb=new THREE.Mesh(
-   new THREE.SphereGeometry(0.5,32,32),
-   new THREE.MeshBasicMaterial({
-     color:colors[i],
-     transparent:true,
-     opacity:0,
-     blending:THREE.AdditiveBlending
-   })
- );
-
- orb.visible=false;
- scene.add(orb);
- orbs.push(orb);
-}
-
-// -------- ANIMACION ----------
+// ------------------
+// ANIMATE
+// ------------------
 function animate(t){
 
  requestAnimationFrame(animate);
 
  if(model) model.rotation.y+=0.003;
 
- // esfera principal
+ // esfera principal viva
  if(energySphere){
    const s=1+Math.sin(t*0.002)*0.05;
    energySphere.scale.set(s,s,s);
  }
 
- // -------- ORBES VISIBLES --------
- if(orbs.length>0 && energySphere){
+ // -------- ORBES SECUENCIA --------
+ if(orbs.length>0){
 
    if(orbStartTime===0) orbStartTime=t;
 
-   let progress=(t-orbStartTime)/orbDuration;
+   const progress=(t-orbStartTime)/orbDuration;
    const orb=orbs[currentOrb];
 
    orb.visible=true;
 
-   // ⚡ NACEN DEBAJO DE LA ESFERA
-   const pos=new THREE.Vector3();
-   energySphere.getWorldPosition(pos);
-
-   orb.position.copy(pos);
-   orb.position.y -= 2; // BAJA para que se vea
-
-   // 💥 CRECEN MUCHO
-   const scale=progress*8;
+   // crecer grande
+   const scale=progress*6;
    orb.scale.set(scale,scale,scale);
 
+   // fade
    orb.material.opacity=1-progress;
 
+   // siguiente orb
    if(progress>=1){
+
      orb.visible=false;
+
      currentOrb=(currentOrb+1)%orbs.length;
      orbStartTime=t;
    }
