@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu FINAL SHAKE FIX</title>
+<title>Kid Buu PERFECT CONTROL</title>
 <style>
 body{
  margin:0;
@@ -35,28 +35,25 @@ let modelHeight=2;
 let orbs=[];
 let spawnPos=new THREE.Vector3();
 
-// ---------- SCENE ----------
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x050005);
-
-const cameraRig=new THREE.Group();
-scene.add(cameraRig);
 
 const camera=new THREE.PerspectiveCamera(
 60,innerWidth/innerHeight,0.01,1000
 );
 
 camera.position.set(0,1,4);
-cameraRig.add(camera);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
-// ✅ 360 FUNCIONA NORMAL
+// 🔥 CONTROLES LIBRES
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
+controls.enableZoom=true;
+controls.enableRotate=true;
 
 // luces
 scene.add(new THREE.AmbientLight(0xffffff,2));
@@ -127,10 +124,10 @@ loader.load(
 
 });
 
-// ---------- SHAKE REAL ----------
-function cameraShake(intensity){
+// ---------- SHAKE VISUAL ----------
+function sceneShake(intensity){
 
- cameraRig.position.set(
+ scene.position.set(
   (Math.random()-0.5)*intensity,
   (Math.random()-0.5)*intensity,
   (Math.random()-0.5)*intensity
@@ -154,7 +151,7 @@ function animate(t){
   spawnPos.y += 3;
  }
 
- // ORBS CADENA
+ // ORBS
  orbs.forEach((orb)=>{
 
   if(!energySphere) return;
@@ -172,7 +169,7 @@ function animate(t){
  });
 
  // 🔥 SHAKE SIN ROMPER CONTROLES
- cameraShake(0.05);
+ sceneShake(0.03);
 
  controls.update();
  renderer.render(scene,camera);
