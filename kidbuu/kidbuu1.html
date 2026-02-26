@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu ENERGY BIG ORBS</title>
+<title>Kid Buu Energy MID FIX</title>
 <style>
 body{margin:0;overflow:hidden;background:#111;}
 </style>
@@ -26,6 +26,8 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
 let model;
 let energySphere;
+
+let modelHeight = 2;
 
 let orbs=[];
 let currentOrb=0;
@@ -86,11 +88,16 @@ loader.load(
   }
  });
 
+ // centro y tamaño real modelo
  const box=new THREE.Box3().setFromObject(model);
  const center=box.getCenter(new THREE.Vector3());
+ const size=box.getSize(new THREE.Vector3());
+
+ modelHeight = size.y; // 🔥 altura real
+
  model.position.sub(center);
 
- // -------- ORBES GRANDES --------
+ // -------- ORBES --------
  const colors=[0x00ffff,0xff0000,0x00ff66];
 
  for(let i=0;i<3;i++){
@@ -106,8 +113,6 @@ loader.load(
   );
 
   orb.visible=false;
-
-  // 🔥 se queda en el mundo (NO child)
   scene.add(orb);
 
   orbs.push(orb);
@@ -137,14 +142,16 @@ function animate(t){
 
   orb.visible=true;
 
-  // 🔥 POSICIÓN CORRECTA (CENTRO BUU)
+  // 🔥 POSICION BASE = ESFERA
   const pos=new THREE.Vector3();
   energySphere.getWorldPosition(pos);
 
   orb.position.copy(pos);
-  orb.position.y -= 1.7; // CENTRO PERSONAJE
 
-  // 🔥 CRECIMIENTO GRANDE (como tu imagen)
+  // 🔥 SUBIR A MITAD DEL GLB
+  orb.position.y -= modelHeight*0.5;
+
+  // crecimiento gigante
   const scale=0.2 + progress*6;
   orb.scale.set(scale,scale,scale);
 
