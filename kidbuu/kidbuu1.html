@@ -2,16 +2,26 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu APOCALYPSE FINAL</title>
+<title>Kid Buu APOCALYPSE GOD</title>
 <style>
 body{
  margin:0;
  overflow:hidden;
  background:radial-gradient(circle,#120018,#000);
 }
+
+#flash{
+ position:fixed;
+ inset:0;
+ background:white;
+ opacity:0;
+ pointer-events:none;
+}
 </style>
 </head>
 <body>
+
+<div id="flash"></div>
 
 <script type="importmap">
 {
@@ -28,6 +38,8 @@ import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
+const flash=document.getElementById("flash");
+
 let model;
 let energySphere;
 let modelHeight=2;
@@ -35,6 +47,8 @@ let modelHeight=2;
 let orbs=[];
 let lightning=[];
 let spawnPos=new THREE.Vector3();
+
+let flashPower=0;
 
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x050005);
@@ -51,16 +65,14 @@ document.body.appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
-controls.enableZoom=true;
 
-// luces
 scene.add(new THREE.AmbientLight(0xffffff,2));
 
 const light=new THREE.DirectionalLight(0xff00ff,3);
 light.position.set(5,10,5);
 scene.add(light);
 
-// ---------- LOAD MODEL ----------
+// ---------- LOAD ----------
 const loader=new GLTFLoader();
 
 loader.load(
@@ -100,7 +112,6 @@ loader.load(
 
  controls.target.set(0,0,0);
 
- // orbs desastre
  const colors=[0xff0000,0x6600ff,0xffff00];
 
  for(let i=0;i<3;i++){
@@ -120,19 +131,21 @@ loader.load(
   orbs.push(orb);
  }
 
- // ⚡ CREAR RAYOS
- for(let i=0;i<12;i++){
+ // ⚡ rayos
+ for(let i=0;i<16;i++){
 
-  const material=new THREE.LineBasicMaterial({
+  const mat=new THREE.LineBasicMaterial({
    color:0xffffff,
    transparent:true,
    opacity:0.8
   });
 
-  const points=[new THREE.Vector3(),new THREE.Vector3()];
-  const geometry=new THREE.BufferGeometry().setFromPoints(points);
+  const geo=new THREE.BufferGeometry().setFromPoints([
+   new THREE.Vector3(),
+   new THREE.Vector3()
+  ]);
 
-  const line=new THREE.Line(geometry,material);
+  const line=new THREE.Line(geo,mat);
 
   scene.add(line);
   lightning.push(line);
@@ -151,7 +164,17 @@ function sceneShake(intensity){
 
 }
 
-// ---------- LIGHTNING UPDATE ----------
+// ---------- FLASH ----------
+function triggerFlash(){
+ flashPower=1;
+}
+
+function updateFlash(){
+ flashPower*=0.85;
+ flash.style.opacity=flashPower;
+}
+
+// ---------- LIGHTNING ----------
 function updateLightning(){
 
  if(!energySphere) return;
@@ -161,17 +184,25 @@ function updateLightning(){
   const start=new THREE.Vector3();
   energySphere.getWorldPosition(start);
 
+  // 🔥 SUBIR RAYOS Y +2
+  start.y += 2;
+
   const dir=new THREE.Vector3(
-   (Math.random()-0.5),
-   (Math.random()-0.5),
-   (Math.random()-0.5)
+   Math.random()-0.5,
+   Math.random()-0.5,
+   Math.random()-0.5
   ).normalize();
 
-  const end=start.clone().add(dir.multiplyScalar(3+Math.random()*2));
+  const end=start.clone().add(dir.multiplyScalar(3+Math.random()*3));
 
   line.geometry.setFromPoints([start,end]);
 
   line.material.opacity=Math.random();
+
+  if(Math.random()<0.05){
+    triggerFlash();
+  }
+
  });
 
 }
@@ -192,12 +223,11 @@ function animate(t){
   spawnPos.y += 3;
  }
 
- // ORBS
  orbs.forEach((orb)=>{
 
   if(!energySphere) return;
 
-  let time=(t*0.001 + orb.userData.offset);
+  let time=(t*0.001+orb.userData.offset);
   let progress=time%1;
 
   orb.position.copy(spawnPos);
@@ -206,14 +236,14 @@ function animate(t){
   orb.scale.set(scale,scale,scale);
 
   orb.material.opacity=1-progress;
-
  });
 
- // ⚡ rayos
  updateLightning();
 
- // 💥 TEMBLOR FUERTE
- sceneShake(0.08);
+ // 💥 temblor fuerte
+ sceneShake(0.1 + flashPower*0.2);
+
+ updateFlash();
 
  controls.update();
  renderer.render(scene,camera);
