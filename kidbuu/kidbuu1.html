@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu SUBLIMACION MODE</title>
+<title>Kid Buu FINAL BRUTAL</title>
 <style>
 body{
  margin:0;
@@ -10,12 +10,20 @@ body{
  background:radial-gradient(circle,#120018,#000);
 }
 
+#flash{
+ position:fixed;
+ inset:0;
+ background:white;
+ opacity:0;
+ pointer-events:none;
+}
+
 #btn{
  position:fixed;
  top:20px;
  left:20px;
  padding:10px 18px;
- background:#ff0088;
+ background:#ff00aa;
  color:white;
  border:none;
  font-weight:bold;
@@ -27,7 +35,8 @@ body{
 </head>
 <body>
 
-<button id="btn">📸 CAPTURA</button>
+<button id="btn">DETENER</button>
+<div id="flash"></div>
 
 <script type="importmap">
 {
@@ -44,22 +53,14 @@ import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
+const flash=document.getElementById("flash");
 const btn=document.getElementById("btn");
 
 let paused=false;
-let freezeTime=0;
 
 btn.onclick=()=>{
-
  paused=!paused;
-
- if(paused){
-   freezeTime=performance.now();
-   btn.textContent="▶ CONTINUAR";
- }else{
-   btn.textContent="📸 CAPTURA";
- }
-
+ btn.textContent=paused?"CONTINUAR":"DETENER";
 };
 
 let model;
@@ -70,15 +71,16 @@ let orbs=[];
 let lightning=[];
 let spawnPos=new THREE.Vector3();
 
+let flashPower=0;
+
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x050005);
 
-// 🔥 CAMARA DESDE ABAJO
 const camera=new THREE.PerspectiveCamera(
 60,innerWidth/innerHeight,0.01,1000
 );
 
-camera.position.set(0,-1.2,5);
+camera.position.set(0,1,4);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
@@ -87,21 +89,14 @@ document.body.appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
-controls.target.set(0,1,0);
 
-// luces
-scene.add(new THREE.AmbientLight(0xffffff,1.8));
+scene.add(new THREE.AmbientLight(0xffffff,2));
 
-const light=new THREE.DirectionalLight(0xffffff,2);
-light.position.set(5,8,5);
+const light=new THREE.DirectionalLight(0xff00ff,3);
+light.position.set(5,10,5);
 scene.add(light);
 
-// 🌸 aura rosada
-const auraLight=new THREE.PointLight(0xff33aa,4,20);
-auraLight.position.set(0,2,0);
-scene.add(auraLight);
-
-// ---------- LOAD MODEL ----------
+// ---------- LOAD ----------
 const loader=new GLTFLoader();
 
 loader.load(
@@ -139,21 +134,8 @@ loader.load(
  modelHeight=size.y;
  model.position.sub(center);
 
- // aura visual extra
- const auraMesh=new THREE.Mesh(
-  new THREE.SphereGeometry(3,32,32),
-  new THREE.MeshBasicMaterial({
-   color:0xff0099,
-   transparent:true,
-   opacity:0.15,
-   blending:THREE.AdditiveBlending
-  })
- );
+ controls.target.set(0,0,0);
 
- auraMesh.position.set(0,1,0);
- scene.add(auraMesh);
-
- // orbes
  const colors=[0xff0000,0x6600ff,0xffff00];
 
  for(let i=0;i<3;i++){
@@ -174,7 +156,7 @@ loader.load(
  }
 
  // rayos
- for(let i=0;i<12;i++){
+ for(let i=0;i<16;i++){
 
   const mat=new THREE.LineBasicMaterial({
    color:0xffffff,
@@ -188,13 +170,14 @@ loader.load(
   ]);
 
   const line=new THREE.Line(geo,mat);
+
   scene.add(line);
   lightning.push(line);
  }
 
 });
 
-// ---------- SHAKE ----------
+// ---------- FX ----------
 function sceneShake(intensity){
 
  scene.position.set(
@@ -205,7 +188,13 @@ function sceneShake(intensity){
 
 }
 
-// ---------- RAYOS ----------
+function triggerFlash(){ flashPower=1; }
+
+function updateFlash(){
+ flashPower*=0.85;
+ flash.style.opacity=flashPower;
+}
+
 function updateLightning(){
 
  if(!energySphere) return;
@@ -220,10 +209,13 @@ function updateLightning(){
    Math.random()-0.5
   ).normalize();
 
-  const end=start.clone().add(dir.multiplyScalar(3));
+  const end=start.clone().add(dir.multiplyScalar(3+Math.random()*3));
 
   line.geometry.setFromPoints([start,end]);
+
   line.material.opacity=Math.random();
+
+  if(Math.random()<0.04) triggerFlash();
  });
 
 }
@@ -233,9 +225,11 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- // 📸 FREEZE FRAME
+ // 🛑 SI ESTA PAUSADO → SOLO RENDER
  if(paused){
-  t=freezeTime;
+  controls.update();
+  renderer.render(scene,camera);
+  return;
  }
 
  if(energySphere){
@@ -266,7 +260,9 @@ function animate(t){
 
  updateLightning();
 
- sceneShake(0.07);
+ sceneShake(0.1 + flashPower*0.2);
+
+ updateFlash();
 
  controls.update();
  renderer.render(scene,camera);
