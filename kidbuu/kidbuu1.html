@@ -30,11 +30,25 @@ body{
  cursor:pointer;
  z-index:10;
 }
+
+#capture{
+ position:fixed;
+ top:20px;
+ left:150px;
+ padding:10px 18px;
+ background:#00bfff;
+ color:white;
+ border:none;
+ font-weight:bold;
+ cursor:pointer;
+ z-index:10;
+}
 </style>
 </head>
 <body>
 
 <button id="btn">DETENER</button>
+<button id="capture">📸 CAPTURA HD</button>
 <div id="flash"></div>
 
 <script type="importmap">
@@ -54,21 +68,32 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
 const flash=document.getElementById("flash");
 const btn=document.getElementById("btn");
+const captureBtn=document.getElementById("capture");
 
 let running=true;
 
-// 🔥 BOTON FIX
 btn.onclick=()=>{
 
  running=!running;
  btn.textContent=running?"DETENER":"CONTINUAR";
 
- // ocultar flash solo al detener
+ // ocultar flash al pausar
  if(!running){
    flash.style.opacity=0;
    flashPower=0;
  }
 
+};
+
+// 📸 CAPTURA HD
+captureBtn.onclick=()=>{
+
+ renderer.render(scene,camera);
+
+ const link=document.createElement("a");
+ link.download="kidbuu-sublimacion.png";
+ link.href=renderer.domElement.toDataURL("image/png");
+ link.click();
 };
 
 let model;
