@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu FINAL BRUTAL</title>
+<title>Kid Buu FINAL CONTROL</title>
 <style>
 body{
  margin:0;
@@ -29,7 +29,6 @@ body{
  font-weight:bold;
  cursor:pointer;
  z-index:10;
- border-radius:6px;
 }
 </style>
 </head>
@@ -56,11 +55,11 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 const flash=document.getElementById("flash");
 const btn=document.getElementById("btn");
 
-let paused=false;
+let running=true;
 
 btn.onclick=()=>{
- paused=!paused;
- btn.textContent=paused?"CONTINUAR":"DETENER";
+ running=!running;
+ btn.textContent=running?"DETENER":"CONTINUAR";
 };
 
 let model;
@@ -170,14 +169,13 @@ loader.load(
   ]);
 
   const line=new THREE.Line(geo,mat);
-
   scene.add(line);
   lightning.push(line);
  }
 
 });
 
-// ---------- FX ----------
+// ---------- SHAKE ----------
 function sceneShake(intensity){
 
  scene.position.set(
@@ -188,6 +186,7 @@ function sceneShake(intensity){
 
 }
 
+// ---------- FLASH ----------
 function triggerFlash(){ flashPower=1; }
 
 function updateFlash(){
@@ -195,12 +194,14 @@ function updateFlash(){
  flash.style.opacity=flashPower;
 }
 
+// ---------- LIGHTNING ----------
 function updateLightning(){
 
  if(!energySphere) return;
 
  lightning.forEach((line)=>{
 
+  // 🔥 MISMA ALTURA QUE ESFERAS
   const start=spawnPos.clone();
 
   const dir=new THREE.Vector3(
@@ -216,6 +217,7 @@ function updateLightning(){
   line.material.opacity=Math.random();
 
   if(Math.random()<0.04) triggerFlash();
+
  });
 
 }
@@ -225,42 +227,38 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- // 🛑 SI ESTA PAUSADO → SOLO RENDER
- if(paused){
-  controls.update();
-  renderer.render(scene,camera);
-  return;
+ if(running){
+
+  if(energySphere){
+
+   const s=1+Math.sin(t*0.004)*0.08;
+   energySphere.scale.set(s,s,s);
+
+   energySphere.getWorldPosition(spawnPos);
+
+   spawnPos.y -= modelHeight*0.5;
+   spawnPos.y += 3;
+  }
+
+  orbs.forEach((orb)=>{
+
+   if(!energySphere) return;
+
+   let time=(t*0.001+orb.userData.offset);
+   let progress=time%1;
+
+   orb.position.copy(spawnPos);
+
+   const scale=0.4 + progress*9;
+   orb.scale.set(scale,scale,scale);
+
+   orb.material.opacity=1-progress;
+  });
+
+  updateLightning();
+
+  sceneShake(0.1 + flashPower*0.2);
  }
-
- if(energySphere){
-
-  const s=1+Math.sin(t*0.004)*0.08;
-  energySphere.scale.set(s,s,s);
-
-  energySphere.getWorldPosition(spawnPos);
-
-  spawnPos.y -= modelHeight*0.5;
-  spawnPos.y += 3;
- }
-
- orbs.forEach((orb)=>{
-
-  if(!energySphere) return;
-
-  let time=(t*0.001+orb.userData.offset);
-  let progress=time%1;
-
-  orb.position.copy(spawnPos);
-
-  const scale=0.4 + progress*9;
-  orb.scale.set(scale,scale,scale);
-
-  orb.material.opacity=1-progress;
- });
-
- updateLightning();
-
- sceneShake(0.1 + flashPower*0.2);
 
  updateFlash();
 
