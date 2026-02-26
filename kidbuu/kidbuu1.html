@@ -77,7 +77,6 @@ btn.onclick=()=>{
  running=!running;
  btn.textContent=running?"DETENER":"CONTINUAR";
 
- // ocultar flash al pausar
  if(!running){
    flash.style.opacity=0;
    flashPower=0;
@@ -85,7 +84,7 @@ btn.onclick=()=>{
 
 };
 
-// 📸 CAPTURA HD
+// 📸 CAPTURA
 captureBtn.onclick=()=>{
 
  renderer.render(scene,camera);
@@ -197,10 +196,7 @@ loader.load(
    opacity:0.8
   });
 
-  const geo=new THREE.BufferGeometry().setFromPoints([
-   new THREE.Vector3(),
-   new THREE.Vector3()
-  ]);
+  const geo=new THREE.BufferGeometry();
 
   const line=new THREE.Line(geo,mat);
   scene.add(line);
@@ -228,7 +224,7 @@ function updateFlash(){
  flash.style.opacity=flashPower;
 }
 
-// ---------- LIGHTNING ----------
+// ---------- LIGHTNING REAL ----------
 function updateLightning(){
 
  if(!energySphere) return;
@@ -243,11 +239,29 @@ function updateLightning(){
    Math.random()-0.5
   ).normalize();
 
-  const end=start.clone().add(dir.multiplyScalar(3+Math.random()*3));
+  const length=3+Math.random()*3;
+  const end=start.clone().add(dir.multiplyScalar(length));
 
-  line.geometry.setFromPoints([start,end]);
+  // ⚡ zig-zag caótico
+  const points=[];
+  const segments=6;
 
-  line.material.opacity=Math.random();
+  for(let i=0;i<=segments;i++){
+
+    let t=i/segments;
+
+    const p=new THREE.Vector3().lerpVectors(start,end,t);
+
+    p.x += (Math.random()-0.5)*0.6;
+    p.y += (Math.random()-0.5)*0.6;
+    p.z += (Math.random()-0.5)*0.6;
+
+    points.push(p);
+  }
+
+  line.geometry.setFromPoints(points);
+
+  line.material.opacity=0.4+Math.random()*0.6;
 
   if(Math.random()<0.04) triggerFlash();
 
