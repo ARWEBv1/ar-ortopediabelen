@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy FINAL +3</title>
+<title>Kid Buu Energy FINAL FAST</title>
 <style>
 body{
   margin:0;
@@ -36,11 +36,12 @@ let modelHeight = 2;
 let orbs = [];
 let currentOrb = 0;
 let orbStartTime = 0;
-const orbDuration = 2200;
+
+// 🔥 MÁS RAPIDO
+const orbDuration = 1500;
 
 let spawnPos = new THREE.Vector3();
 
-// ---------- ESCENA ----------
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
@@ -61,14 +62,13 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
-// luces
 scene.add(new THREE.AmbientLight(0xffffff,1.5));
 
 const light = new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,10,5);
 scene.add(light);
 
-// ---------- CARGAR GLB ----------
+// ---------- LOAD ----------
 const loader = new GLTFLoader();
 
 loader.load(
@@ -84,13 +84,12 @@ loader.load(
    if(obj.isMesh){
 
      if(
-      obj.name.toLowerCase().includes("sphere") ||
-      obj.name.toLowerCase().includes("planet")
+       obj.name.toLowerCase().includes("sphere") ||
+       obj.name.toLowerCase().includes("planet")
      ){
 
        energySphere = obj;
 
-       // energia interna
        energySphere.material = new THREE.MeshBasicMaterial({
          color:0xff55ff,
          transparent:true,
@@ -101,7 +100,6 @@ loader.load(
    }
  });
 
- // centrar modelo
  const box = new THREE.Box3().setFromObject(model);
  const center = box.getCenter(new THREE.Vector3());
  const size = box.getSize(new THREE.Vector3());
@@ -109,18 +107,11 @@ loader.load(
  modelHeight = size.y;
  model.position.sub(center);
 
- const maxDim=Math.max(size.x,size.y,size.z);
-
- camera.position.set(0,maxDim*0.3,maxDim*2);
- controls.target.set(0,0,0);
- controls.update();
-
- // ---------- ORBES ----------
  const colors=[0x00ffff,0xff0000,0x00ff66];
 
  for(let i=0;i<3;i++){
 
-   const orb=new THREE.Mesh(
+   const orb = new THREE.Mesh(
      new THREE.SphereGeometry(1,32,32),
      new THREE.MeshBasicMaterial({
        color:colors[i],
@@ -145,26 +136,23 @@ function animate(t){
 
  if(model) model.rotation.y += 0.003;
 
- // esfera principal viva
  if(energySphere){
    const s = 1 + Math.sin(t*0.002)*0.05;
    energySphere.scale.set(s,s,s);
  }
 
- // -------- ORBES --------
  if(orbs.length && energySphere){
 
    if(orbStartTime===0){
 
      orbStartTime=t;
 
-     // posición fija
      energySphere.getWorldPosition(spawnPos);
 
      spawnPos.y -= modelHeight*0.5;
 
-     // 🔥 AJUSTE FINAL
-     spawnPos.y += 3;
+     // 🔥 ALTURA FINAL
+     spawnPos.y += 2;
    }
 
    const progress=(t-orbStartTime)/orbDuration;
