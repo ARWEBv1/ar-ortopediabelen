@@ -2,9 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy LOCKED</title>
+<title>Kid Buu Energy FINAL Y+5</title>
 <style>
-body{margin:0;overflow:hidden;background:#111;}
+body{
+  margin:0;
+  overflow:hidden;
+  background:#111;
+}
 </style>
 </head>
 <body>
@@ -21,162 +25,182 @@ body{margin:0;overflow:hidden;background:#111;}
 <script type="module">
 
 import * as THREE from "three";
-import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
-import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let model;
 let energySphere;
 
-let modelHeight=2;
+let modelHeight = 2;
 
-let orbs=[];
-let currentOrb=0;
-let orbStartTime=0;
-const orbDuration=2200;
+let orbs = [];
+let currentOrb = 0;
+let orbStartTime = 0;
+const orbDuration = 2200;
 
-// 🔥 posición fija nacimiento
-let spawnPos=new THREE.Vector3();
+let spawnPos = new THREE.Vector3();
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x111111);
+// ---------- ESCENA ----------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
 
-const camera=new THREE.PerspectiveCamera(
-60,innerWidth/innerHeight,0.01,1000
+const camera = new THREE.PerspectiveCamera(
+  60,
+  innerWidth / innerHeight,
+  0.01,
+  1000
 );
 camera.position.set(0,1,4);
 
-const renderer=new THREE.WebGLRenderer({antialias:true});
+const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
-renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
-const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;
+const controls = new OrbitControls(camera,renderer.domElement);
+controls.enableDamping = true;
 
+// luces
 scene.add(new THREE.AmbientLight(0xffffff,1.5));
 
-const light=new THREE.DirectionalLight(0xffffff,2);
+const light = new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,10,5);
 scene.add(light);
 
-// ---------- LOAD ----------
-const loader=new GLTFLoader();
+// ---------- CARGAR MODELO ----------
+const loader = new GLTFLoader();
 
 loader.load(
 "/ar-ortopediabelen/kidbuu/kidbuu1.glb",
+
 (gltf)=>{
 
- model=gltf.scene;
- scene.add(model);
+  model = gltf.scene;
+  scene.add(model);
 
- model.traverse((obj)=>{
+  model.traverse((obj)=>{
 
-  if(obj.isMesh){
+    if(obj.isMesh){
 
-   if(
-    obj.name.toLowerCase().includes("sphere") ||
-    obj.name.toLowerCase().includes("planet")
-   ){
+      if(
+        obj.name.toLowerCase().includes("sphere") ||
+        obj.name.toLowerCase().includes("planet")
+      ){
 
-    energySphere=obj;
+        energySphere = obj;
 
-    energySphere.material=new THREE.MeshBasicMaterial({
-      color:0xff55ff,
-      transparent:true,
-      opacity:0.5,
-      blending:THREE.AdditiveBlending
-    });
-   }
+        // energia dentro esfera
+        energySphere.material = new THREE.MeshBasicMaterial({
+          color:0xff55ff,
+          transparent:true,
+          opacity:0.5,
+          blending:THREE.AdditiveBlending
+        });
+      }
+    }
+  });
+
+  // centrar modelo
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+
+  modelHeight = size.y;
+  model.position.sub(center);
+
+  const maxDim=Math.max(size.x,size.y,size.z);
+
+  camera.position.set(0,maxDim*0.3,maxDim*2);
+  controls.target.set(0,0,0);
+  controls.update();
+
+  // ---------- CREAR ORBES ----------
+  const colors=[0x00ffff,0xff0000,0x00ff66];
+
+  for(let i=0;i<3;i++){
+
+    const orb = new THREE.Mesh(
+      new THREE.SphereGeometry(1,32,32),
+      new THREE.MeshBasicMaterial({
+        color:colors[i],
+        transparent:true,
+        opacity:0,
+        blending:THREE.AdditiveBlending
+      })
+    );
+
+    orb.visible=false;
+    scene.add(orb);
+
+    orbs.push(orb);
   }
- });
-
- const box=new THREE.Box3().setFromObject(model);
- const center=box.getCenter(new THREE.Vector3());
- const size=box.getSize(new THREE.Vector3());
-
- modelHeight=size.y;
- model.position.sub(center);
-
- // -------- ORBES --------
- const colors=[0x00ffff,0xff0000,0x00ff66];
-
- for(let i=0;i<3;i++){
-
-  const orb=new THREE.Mesh(
-    new THREE.SphereGeometry(1,32,32),
-    new THREE.MeshBasicMaterial({
-      color:colors[i],
-      transparent:true,
-      opacity:0,
-      blending:THREE.AdditiveBlending
-    })
-  );
-
-  orb.visible=false;
-  scene.add(orb);
-
-  orbs.push(orb);
- }
 
 });
 
-// ---------- ANIMATE ----------
+// ---------- ANIMACION ----------
 function animate(t){
 
- requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
- if(model) model.rotation.y+=0.003;
+  if(model) model.rotation.y += 0.003;
 
- if(energySphere){
-  const s=1+Math.sin(t*0.002)*0.05;
-  energySphere.scale.set(s,s,s);
- }
-
- if(orbs.length && energySphere){
-
-  if(orbStartTime===0){
-
-    orbStartTime=t;
-
-    // 🔥 SOLO UNA VEZ (posición fija)
-    energySphere.getWorldPosition(spawnPos);
-    spawnPos.y -= modelHeight*0.5;
+  // pulsacion esfera principal
+  if(energySphere){
+    const s = 1 + Math.sin(t*0.002)*0.05;
+    energySphere.scale.set(s,s,s);
   }
 
-  const progress=(t-orbStartTime)/orbDuration;
-  const orb=orbs[currentOrb];
+  // -------- ORBES --------
+  if(orbs.length && energySphere){
 
-  orb.visible=true;
+    if(orbStartTime===0){
 
-  // posición BLOQUEADA
-  orb.position.copy(spawnPos);
+      orbStartTime=t;
 
-  const scale=0.2 + progress*6;
-  orb.scale.set(scale,scale,scale);
+      // posición fija al nacer
+      energySphere.getWorldPosition(spawnPos);
 
-  orb.material.opacity=1-progress;
+      // mitad del personaje
+      spawnPos.y -= modelHeight*0.5;
 
-  if(progress>=1){
+      // 🔥 SUBIR +5 EN Y
+      spawnPos.y += 5;
+    }
 
-    orb.visible=false;
+    const progress=(t-orbStartTime)/orbDuration;
+    const orb=orbs[currentOrb];
 
-    currentOrb=(currentOrb+1)%orbs.length;
-    orbStartTime=0; // reinicia ciclo
+    orb.visible=true;
+    orb.position.copy(spawnPos);
+
+    const scale=0.2 + progress*6;
+    orb.scale.set(scale,scale,scale);
+
+    orb.material.opacity=1-progress;
+
+    if(progress>=1){
+
+      orb.visible=false;
+
+      currentOrb=(currentOrb+1)%orbs.length;
+      orbStartTime=0;
+    }
   }
- }
 
- controls.update();
- renderer.render(scene,camera);
+  controls.update();
+  renderer.render(scene,camera);
 }
 
 animate();
 
+// resize
 addEventListener("resize",()=>{
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
 });
 
 </script>
+
 </body>
 </html>
