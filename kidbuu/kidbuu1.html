@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy Sequence</title>
+<title>Kid Buu Energy FIX</title>
 <style>
 body{margin:0;overflow:hidden;background:#111;}
 </style>
@@ -27,11 +27,11 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 let model;
 let energySphere;
 
-// ----------- ORBES ----------
+// ORBES
 let orbs=[];
 let currentOrb=0;
 let orbStartTime=0;
-const orbDuration=2000; // tiempo crecimiento
+const orbDuration=2000;
 
 // ------------------
 // ESCENA
@@ -86,6 +86,7 @@ loader.load(
 
        energySphere=obj;
 
+       // energia dentro esfera
        energySphere.material=new THREE.MeshBasicMaterial({
          color:0xff55ff,
          transparent:true,
@@ -110,7 +111,7 @@ loader.load(
 });
 
 // ------------------
-// CREAR 3 ORBES
+// CREAR ORBES
 // ------------------
 const colors=[0x00ffff,0xff0000,0x00ff66];
 
@@ -132,7 +133,7 @@ for(let i=0;i<3;i++){
 }
 
 // ------------------
-// ANIMATE
+// ANIMACION
 // ------------------
 function animate(t){
 
@@ -140,25 +141,26 @@ function animate(t){
 
  if(model) model.rotation.y+=0.003;
 
- // esfera principal viva
+ // esfera principal pulsando
  if(energySphere){
    const s=1+Math.sin(t*0.002)*0.05;
    energySphere.scale.set(s,s,s);
  }
 
- // ---------- CICLO ORBES ----------
- if(orbs.length>0){
+ // -------- ORBES SECUENCIALES --------
+ if(orbs.length>0 && energySphere){
 
    if(orbStartTime===0) orbStartTime=t;
 
    let progress=(t-orbStartTime)/orbDuration;
-
    const orb=orbs[currentOrb];
 
    orb.visible=true;
 
-   // posición fija (punto nacimiento)
-   orb.position.set(0,1.2,0);
+   // 🔥 NACE DESDE LA ESFERA DE BUU
+   const pos=new THREE.Vector3();
+   energySphere.getWorldPosition(pos);
+   orb.position.copy(pos);
 
    // crecer
    const scale=progress*4;
@@ -167,12 +169,9 @@ function animate(t){
    // fade
    orb.material.opacity=1-progress;
 
-   // 💥 cuando termina
+   // fin ciclo
    if(progress>=1){
-
      orb.visible=false;
-
-     // siguiente orb
      currentOrb=(currentOrb+1)%orbs.length;
      orbStartTime=t;
    }
