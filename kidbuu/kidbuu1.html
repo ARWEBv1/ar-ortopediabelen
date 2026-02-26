@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu APOCALYPSE MODE</title>
+<title>Kid Buu FINAL BOSS SHAKE</title>
 <style>
 body{
-  margin:0;
-  overflow:hidden;
-  background:radial-gradient(circle,#120018,#000);
+ margin:0;
+ overflow:hidden;
+ background:radial-gradient(circle,#120018,#000);
 }
 </style>
 </head>
@@ -44,6 +44,8 @@ const camera=new THREE.PerspectiveCamera(
 
 camera.position.set(0,1,4);
 
+const baseCamPos = new THREE.Vector3(0,1,4);
+
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -52,14 +54,13 @@ document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
-// luz intensa
 scene.add(new THREE.AmbientLight(0xffffff,2));
 
 const light=new THREE.DirectionalLight(0xff00ff,3);
 light.position.set(5,10,5);
 scene.add(light);
 
-// ---------- LOAD MODEL ----------
+// ---------- LOAD ----------
 const loader=new GLTFLoader();
 
 loader.load(
@@ -97,12 +98,9 @@ loader.load(
  modelHeight=size.y;
  model.position.sub(center);
 
- // 🔥 COLORES DESASTRE
- const colors=[
-  0xff0000, // rojo peligro
-  0x6600ff, // púrpura oscuro
-  0xffff00  // amarillo alerta
- ];
+ controls.target.set(0,0,0);
+
+ const colors=[0xff0000,0x6600ff,0xffff00];
 
  for(let i=0;i<3;i++){
 
@@ -117,18 +115,25 @@ loader.load(
   );
 
   orb.userData.offset=i*0.5;
+
   scene.add(orb);
   orbs.push(orb);
  }
 
 });
 
-// ---------- SHAKE ----------
+// ---------- SHAKE REAL ----------
 function cameraShake(intensity){
 
- camera.position.x += (Math.random()-0.5)*intensity;
- camera.position.y += (Math.random()-0.5)*intensity;
- camera.position.z += (Math.random()-0.5)*intensity;
+ camera.position.set(
+  baseCamPos.x + (Math.random()-0.5)*intensity,
+  baseCamPos.y + (Math.random()-0.5)*intensity,
+  baseCamPos.z + (Math.random()-0.5)*intensity
+ );
+
+ controls.target.x = (Math.random()-0.5)*intensity;
+ controls.target.y = (Math.random()-0.5)*intensity;
+ controls.target.z = (Math.random()-0.5)*intensity;
 }
 
 // ---------- ANIMATE ----------
@@ -136,7 +141,7 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- if(model) model.rotation.y+=0.003;
+ // ❌ NO ROTAR MODELO (queda estatico)
 
  if(energySphere){
 
@@ -149,7 +154,7 @@ function animate(t){
   spawnPos.y += 3;
  }
 
- // 🔥 ORBS CADENA
+ // ORBS
  orbs.forEach((orb)=>{
 
   if(!energySphere) return;
@@ -165,8 +170,8 @@ function animate(t){
   orb.material.opacity=1-progress;
  });
 
- // 💥 TEMBLOR TIPO GOKU
- cameraShake(0.01);
+ // 🔥 TEMBLOR REAL
+ cameraShake(0.05);
 
  controls.update();
  renderer.render(scene,camera);
@@ -181,6 +186,5 @@ addEventListener("resize",()=>{
 });
 
 </script>
-
 </body>
 </html>
