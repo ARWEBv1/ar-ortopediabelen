@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu Energy MID FIX</title>
+<title>Kid Buu Energy LOCKED</title>
 <style>
 body{margin:0;overflow:hidden;background:#111;}
 </style>
@@ -27,14 +27,16 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 let model;
 let energySphere;
 
-let modelHeight = 2;
+let modelHeight=2;
 
 let orbs=[];
 let currentOrb=0;
 let orbStartTime=0;
 const orbDuration=2200;
 
-// ---------- SCENE ----------
+// 🔥 posición fija nacimiento
+let spawnPos=new THREE.Vector3();
+
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x111111);
 
@@ -88,13 +90,11 @@ loader.load(
   }
  });
 
- // centro y tamaño real modelo
  const box=new THREE.Box3().setFromObject(model);
  const center=box.getCenter(new THREE.Vector3());
  const size=box.getSize(new THREE.Vector3());
 
- modelHeight = size.y; // 🔥 altura real
-
+ modelHeight=size.y;
  model.position.sub(center);
 
  // -------- ORBES --------
@@ -132,35 +132,36 @@ function animate(t){
   energySphere.scale.set(s,s,s);
  }
 
- // -------- ORBS --------
  if(orbs.length && energySphere){
 
-  if(orbStartTime===0) orbStartTime=t;
+  if(orbStartTime===0){
+
+    orbStartTime=t;
+
+    // 🔥 SOLO UNA VEZ (posición fija)
+    energySphere.getWorldPosition(spawnPos);
+    spawnPos.y -= modelHeight*0.5;
+  }
 
   const progress=(t-orbStartTime)/orbDuration;
   const orb=orbs[currentOrb];
 
   orb.visible=true;
 
-  // 🔥 POSICION BASE = ESFERA
-  const pos=new THREE.Vector3();
-  energySphere.getWorldPosition(pos);
+  // posición BLOQUEADA
+  orb.position.copy(spawnPos);
 
-  orb.position.copy(pos);
-
-  // 🔥 SUBIR A MITAD DEL GLB
-  orb.position.y -= modelHeight*0.5;
-
-  // crecimiento gigante
   const scale=0.2 + progress*6;
   orb.scale.set(scale,scale,scale);
 
   orb.material.opacity=1-progress;
 
   if(progress>=1){
-   orb.visible=false;
-   currentOrb=(currentOrb+1)%orbs.length;
-   orbStartTime=t;
+
+    orb.visible=false;
+
+    currentOrb=(currentOrb+1)%orbs.length;
+    orbStartTime=0; // reinicia ciclo
   }
  }
 
