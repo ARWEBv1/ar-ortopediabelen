@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Kid Buu ENERGY SHOCK MODE</title>
+<title>Kid Buu ENERGY CHAIN MODE</title>
 <style>
 body{
   margin:0;
@@ -30,14 +30,9 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let model;
 let energySphere;
-
 let modelHeight=2;
 
 let orbs=[];
-let currentOrb=0;
-let orbStartTime=0;
-
-// 🔥 MUY RAPIDO
 const orbDuration=900;
 
 let spawnPos=new THREE.Vector3();
@@ -46,12 +41,8 @@ const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x050505);
 
 const camera=new THREE.PerspectiveCamera(
-60,
-innerWidth/innerHeight,
-0.01,
-1000
+60,innerWidth/innerHeight,0.01,1000
 );
-
 camera.position.set(0,1,4);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -62,7 +53,6 @@ document.body.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
-// luces fuertes
 scene.add(new THREE.AmbientLight(0xffffff,2));
 
 const light=new THREE.DirectionalLight(0xffffff,3);
@@ -108,7 +98,7 @@ loader.load(
  modelHeight=size.y;
  model.position.sub(center);
 
- // 🔥 COLORES SHOCK
+ // colores shock
  const colors=[0x00ffff,0xff00ff,0xffff00];
 
  for(let i=0;i<3;i++){
@@ -123,9 +113,9 @@ loader.load(
     })
   );
 
-  orb.visible=false;
-  scene.add(orb);
+  orb.userData.offset=i*0.5; // 🔥 inicio desfasado
 
+  scene.add(orb);
   orbs.push(orb);
  }
 
@@ -141,42 +131,29 @@ function animate(t){
  if(energySphere){
   const s=1+Math.sin(t*0.002)*0.05;
   energySphere.scale.set(s,s,s);
+
+  energySphere.getWorldPosition(spawnPos);
+  spawnPos.y -= modelHeight*0.5;
+  spawnPos.y += 3;
  }
 
- if(orbs.length && energySphere){
+ // -------- ORBS CADENA --------
+ orbs.forEach((orb)=>{
 
-  if(orbStartTime===0){
+  if(!energySphere) return;
 
-   orbStartTime=t;
+  // 🔥 ciclo continuo
+  let time=(t*0.001 + orb.userData.offset);
+  let progress=(time % 1);
 
-   energySphere.getWorldPosition(spawnPos);
-
-   spawnPos.y -= modelHeight*0.5;
-
-   // 🔥 ALTURA FINAL
-   spawnPos.y += 3;
-  }
-
-  const progress=(t-orbStartTime)/orbDuration;
-  const orb=orbs[currentOrb];
-
-  orb.visible=true;
   orb.position.copy(spawnPos);
 
-  // 🔥 CRECIMIENTO AGRESIVO
   const scale=0.3 + progress*8;
   orb.scale.set(scale,scale,scale);
 
   orb.material.opacity=1-progress;
 
-  if(progress>=1){
-
-   orb.visible=false;
-
-   currentOrb=(currentOrb+1)%orbs.length;
-   orbStartTime=0;
-  }
- }
+ });
 
  controls.update();
  renderer.render(scene,camera);
