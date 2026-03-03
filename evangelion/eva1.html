@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD</title>
+<title>EVA AT FIELD - RUPTURA</title>
 
 <style>
 body{
@@ -61,7 +61,7 @@ let anillos = [];
 
 const loader = new GLTFLoader();
 
-loader.load("evangelion1.glb?v=6", (gltf)=>{
+loader.load("evangelion1.glb?v=7", (gltf)=>{
 
   const model = gltf.scene;
   scene.add(model);
@@ -70,12 +70,10 @@ loader.load("evangelion1.glb?v=6", (gltf)=>{
 
     if(!obj.isMesh) return;
 
-    // ESCUDOS
     if(obj.name === "escudo1") escudo1 = obj;
     if(obj.name === "escudo2") escudo2 = obj;
     if(obj.name === "escudo3") escudo3 = obj;
 
-    // ANILLOS RGB
     if(obj.name.startsWith("anillo")){
 
       anillos.push(obj);
@@ -83,23 +81,28 @@ loader.load("evangelion1.glb?v=6", (gltf)=>{
       const energyMat = new THREE.MeshStandardMaterial({
         color: 0xffffff,
         emissive: 0xffffff,
-        emissiveIntensity: 3,
+        emissiveIntensity: 6,
         transparent: true,
-        opacity: 1
+        opacity: 1,
+        side: THREE.DoubleSide,
+        depthWrite: false
       });
 
       obj.material = energyMat;
-      obj.material.needsUpdate = true;
     }
 
   });
 
 });
 
-function vibrar(obj, intensidad){
+function romper(obj, base, intensidad, time){
   if(!obj) return;
-  obj.position.x = (Math.random()-0.5)*intensidad;
-  obj.position.y = (Math.random()-0.5)*intensidad;
+
+  obj.position.x = Math.sin(time*40 + base)*intensidad;
+  obj.position.y = Math.cos(time*35 + base)*intensidad;
+
+  const caos = 1 + Math.sin(time*30 + base)*0.02;
+  obj.scale.set(caos, caos, 1 + Math.sin(time*50 + base)*0.01);
 }
 
 function animate(t){
@@ -108,21 +111,22 @@ function animate(t){
 
   const time = t * 0.001;
 
-  // 🔥 Vibración tipo forcejeo
-  vibrar(escudo3, 0.05);
-  vibrar(escudo2, 0.02);
-  vibrar(escudo1, 0.008);
+  // 🔥 Escudos vibrando tipo ruptura
+  romper(escudo3, 0, 0.05, time);
+  romper(escudo2, 2, 0.025, time);
+  romper(escudo1, 4, 0.01, time);
 
-  // 🌈 RGB energético real
+  // 🌈 Anillos RGB inestables
   anillos.forEach((a,i)=>{
 
-    const hue = (time*0.3 + i*0.15) % 1;
+    const hue = (time*0.8 + i*0.2) % 1;
     const color = new THREE.Color().setHSL(hue,1,0.5);
-
     a.material.emissive = color;
 
-    const pulso = 1 + Math.sin(time*4 + i)*0.05;
-    a.scale.set(pulso,pulso,pulso);
+    const pulso = 1 + Math.sin(time*20 + i)*0.03;
+    a.scale.set(pulso, pulso, pulso);
+
+    a.position.z = Math.sin(time*25 + i)*0.01;
 
   });
 
