@@ -1,23 +1,65 @@
-<script>
-window.addEventListener("DOMContentLoaded", () => {
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>EVA AT FIELD</title>
 
-  const viewer = document.getElementById("scene");
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+
+<model-viewer
+  src="evangelion1.glb"
+  camera-controls
+  exposure="1"
+  shadow-intensity="1"
+  environment-image="https://modelviewer.dev/shared-assets/environments/neutral.hdr">
+</model-viewer>
+
+<script>
+window.addEventListener("load", () => {
+
+  const viewer = document.querySelector("model-viewer");
+
+  if (!viewer) {
+    console.error("No se encontró model-viewer");
+    return;
+  }
 
   viewer.addEventListener("load", () => {
 
+    console.log("Modelo cargado");
+
     const materiales = viewer.model.materials;
 
-    // Filtrar SOLO escudo
+    // Detectar materiales del escudo automáticamente
     const escudoMats = materiales.filter(mat =>
-      mat.name.includes("002")
+      mat.name.includes("002") ||
+      mat.name.includes("028") ||
+      mat.name.includes("029")
     );
 
     if (escudoMats.length === 0) {
-      console.warn("No se encontró material del escudo");
+      console.warn("No se encontraron materiales del escudo");
       return;
     }
 
-    // Forzar BLEND solo al escudo
     escudoMats.forEach(mat => {
       mat.alphaMode = "BLEND";
     });
@@ -55,3 +97,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+
+</body>
+</html>
