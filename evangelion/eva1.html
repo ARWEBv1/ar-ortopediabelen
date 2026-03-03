@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>AT Field Vibrante</title>
+<title>Evangelion AT Field</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -24,8 +24,9 @@ model-viewer{
 
 <model-viewer
   id="scene"
-  src="evangelion1.glb?v=7"
+  src="evangelion1.glb?v=3"
   camera-controls
+  auto-rotate
   exposure="1"
   shadow-intensity="1"
   environment-image="neutral"
@@ -37,43 +38,35 @@ const viewer = document.getElementById("scene");
 
 viewer.addEventListener("load", () => {
 
-  const materials = viewer.model.materials;
+  // 🔎 Buscamos el nodo que contenga "redondo"
+  let shieldNode = null;
 
-  materials.forEach((mat) => {
-
-    const pbr = mat.pbrMetallicRoughness;
-
-    // Base sólido suave
-    pbr.setBaseColorFactor([1.0, 0.6, 0.8, 1.0]);
-    pbr.setRoughnessFactor(0.6);
-    pbr.setMetallicFactor(0.0);
-
-    // 🔥 Emisión RGB tipo tubo
-    mat.emissiveFactor = [1.0, 0.2, 0.8];
+  viewer.model.scene.traverse((node) => {
+    if(node.name.toLowerCase().includes("redondo")){
+      shieldNode = node;
+    }
   });
 
-  // 🎬 Animación RGB + vibración
-  let t = 0;
-
-  function animate(){
-    t += 0.05;
-
-    const r = (Math.sin(t) + 1) / 2;
-    const g = (Math.sin(t + 2) + 1) / 2;
-    const b = (Math.sin(t + 4) + 1) / 2;
-
-    materials.forEach((mat) => {
-      mat.emissiveFactor = [r, g, b];
-    });
-
-    // Vibración pequeña tipo forcejeo
-    const scale = 1 + Math.sin(t * 5) * 0.01;
-    viewer.scale = `${scale} ${scale} ${scale}`;
-
-    requestAnimationFrame(animate);
+  if(!shieldNode){
+    console.log("No se encontró el escudo.");
+    return;
   }
 
-  animate();
+  let t = 0;
+
+  function vibrar(){
+    t += 0.1;
+
+    const scaleX = 1 + Math.sin(t * 6) * 0.015;
+    const scaleY = 1 + Math.sin(t * 5) * 0.012;
+    const scaleZ = 1 + Math.sin(t * 7) * 0.010;
+
+    shieldNode.scale.set(scaleX, scaleY, scaleZ);
+
+    requestAnimationFrame(vibrar);
+  }
+
+  vibrar();
 
 });
 </script>
