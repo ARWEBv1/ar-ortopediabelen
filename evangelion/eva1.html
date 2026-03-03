@@ -12,7 +12,6 @@ body{
 }
 </style>
 
-<!-- IMPORTMAP -->
 <script type="importmap">
 {
   "imports": {
@@ -51,7 +50,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+scene.add(new THREE.AmbientLight(0xffffff, 1));
 
 const light = new THREE.DirectionalLight(0xffffff, 2);
 light.position.set(5,10,5);
@@ -62,7 +61,7 @@ let anillos = [];
 
 const loader = new GLTFLoader();
 
-loader.load("evangelion1.glb?v=5", (gltf)=>{
+loader.load("evangelion1.glb?v=6", (gltf)=>{
 
   const model = gltf.scene;
   scene.add(model);
@@ -71,21 +70,26 @@ loader.load("evangelion1.glb?v=5", (gltf)=>{
 
     if(!obj.isMesh) return;
 
-    // 🔥 Escudos
+    // ESCUDOS
     if(obj.name === "escudo1") escudo1 = obj;
     if(obj.name === "escudo2") escudo2 = obj;
     if(obj.name === "escudo3") escudo3 = obj;
 
-    // 🌈 Anillos RGB
+    // ANILLOS RGB
     if(obj.name.startsWith("anillo")){
+
       anillos.push(obj);
 
-      obj.material = new THREE.MeshBasicMaterial({
-        color:0xff00ff,
-        transparent:true,
-        opacity:1,
-        blending:THREE.AdditiveBlending
+      const energyMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 3,
+        transparent: true,
+        opacity: 1
       });
+
+      obj.material = energyMat;
+      obj.material.needsUpdate = true;
     }
 
   });
@@ -109,12 +113,13 @@ function animate(t){
   vibrar(escudo2, 0.02);
   vibrar(escudo1, 0.008);
 
-  // 🌈 RGB dinámico en anillos
+  // 🌈 RGB energético real
   anillos.forEach((a,i)=>{
 
     const hue = (time*0.3 + i*0.15) % 1;
-    const color = new THREE.Color().setHSL(hue,1,0.6);
-    a.material.color = color;
+    const color = new THREE.Color().setHSL(hue,1,0.5);
+
+    a.material.emissive = color;
 
     const pulso = 1 + Math.sin(time*4 + i)*0.05;
     a.scale.set(pulso,pulso,pulso);
