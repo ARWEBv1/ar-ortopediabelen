@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>EVA CINEMÁTICO</title>
+<title>EVA CINEMÁTICO CONTROL</title>
 <style>
 body{
  margin:0;
@@ -65,20 +65,21 @@ loader.load(
 
  model.traverse((obj)=>{
 
-  if(obj.isMesh){
+  if(obj.isMesh && obj.name === "redondo2.001"){
 
-   if(obj.name === "redondo2.001"){
      shieldBig = obj;
 
      shieldBig.material = new THREE.MeshStandardMaterial({
        color:0xff0066,
        emissive:0xff0033,
-       emissiveIntensity:1,
-       roughness:0.4,
+       emissiveIntensity:1.5,
+       roughness:0.35,
        metalness:0
      });
-   }
+
+     console.log("Escudo grande detectado");
   }
+
  });
 
 });
@@ -100,7 +101,6 @@ function spawnLightning(origin){
  ).normalize();
 
  const end = origin.clone().add(dir.multiplyScalar(2 + Math.random()*2));
-
  points.push(end);
 
  const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -108,7 +108,7 @@ function spawnLightning(origin){
  const line = new THREE.Line(geometry, material);
  scene.add(line);
 
- lightning.push({line,life:20});
+ lightning.push({line,life:15});
 }
 
 // --------- ANIMATE ----------
@@ -118,22 +118,23 @@ function animate(t){
 
  if(shieldBig){
 
-   // 1️⃣ Vibración
-   shieldBig.position.x = Math.sin(t*0.01)*0.05;
-   shieldBig.position.y = Math.cos(t*0.012)*0.03;
+   // 🔥 Vibración angular (sin mover posición)
+   shieldBig.rotation.z = Math.sin(t*0.02)*0.04;
+   shieldBig.rotation.x = Math.cos(t*0.018)*0.03;
 
-   // 2️⃣ Pulsación escala
-   let scale = 1 + Math.sin(t*0.006)*0.08;
+   // 🔥 Pulsación fuerte
+   let scale = 1 + Math.sin(t*0.006)*0.15;
    shieldBig.scale.set(scale,scale,scale);
 
-   // 3️⃣ Cambio color presión
+   // 🔥 Cambio de color dinámico
    let r = (Math.sin(t*0.005)+1)/2;
-   shieldBig.material.color.setRGB(1,r*0.2,r*0.4);
+   shieldBig.material.emissive.setRGB(1,r*0.4,r*0.7);
 
-   // 4️⃣ Rayos ocasionales
-   if(Math.random()<0.03){
-     shieldBig.getWorldPosition(new THREE.Vector3());
-     spawnLightning(shieldBig.position.clone());
+   // 🔥 Rayos desde el centro
+   if(Math.random()<0.05){
+     let pos = new THREE.Vector3();
+     shieldBig.getWorldPosition(pos);
+     spawnLightning(pos);
    }
  }
 
