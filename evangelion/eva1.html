@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD REFINED</title>
+<title>EVA AT FIELD - RESET REAL</title>
 
 <style>
 body{
@@ -57,7 +57,7 @@ let anillos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=90",(gltf)=>{
+loader.load("evangelion1.glb?v=100",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -77,11 +77,11 @@ loader.load("evangelion1.glb?v=90",(gltf)=>{
      obj.name==="escudo3"){
 
     const mat = new THREE.MeshStandardMaterial({
-      color: 0xff8800,
+      color: 0xff8800, // color original
       emissive: 0xff5500,
       emissiveIntensity: 0,
       transparent: true,
-      opacity: 0.12, // translúcido base
+      opacity: 0.10, // translúcido base real
       side: THREE.DoubleSide,
       depthWrite: false
     });
@@ -90,7 +90,7 @@ loader.load("evangelion1.glb?v=90",(gltf)=>{
     escudos.push(obj);
   }
 
-  // ANILLOS RGB
+  // ANILLOS
   if(obj.name.includes("anillo")){
     obj.material.emissive = new THREE.Color(0xffaa00);
     obj.material.emissiveIntensity = 3;
@@ -102,14 +102,14 @@ loader.load("evangelion1.glb?v=90",(gltf)=>{
 });
 
 
-// 🎨 Paleta anime profunda
+// 🎨 Paleta anime
 const palette=[
- 0xffb300, // dorado profundo
- 0xff0000, // rojo
- 0x0099ff, // azul
- 0xffcc00, // dorado
- 0xaa00ff, // violeta
- 0xff8800  // dorado fuego
+ 0xffb300,
+ 0xff0000,
+ 0x0099ff,
+ 0xffcc00,
+ 0xaa00ff,
+ 0xff8800
 ];
 
 
@@ -117,51 +117,51 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- const time=t*0.001;
+ const time = t * 0.001;
 
- // 🔥 Reset global cada 2 segundos
- const pausaGlobal = (time % 2) < 0.25;
+ // 🔥 Reset global cada 1 segundo
+ const resetGlobal = (time % 1) < 0.2;
 
  escudos.forEach((obj,i)=>{
 
   if(!obj) return;
 
-  if(pausaGlobal){
+  if(resetGlobal){
+
+    // ESTADO ORIGINAL
     obj.material.emissiveIntensity = 0;
-    obj.material.opacity = 0.12;
+    obj.material.opacity = 0.10;
+    obj.material.color.set(0xff8800);
     obj.scale.set(1,1,1);
+
     return;
   }
 
-  // Ciclo individual 4s desfasado
-  const ciclo=(time + i*1.2) % 4;
+  // Ciclo individual
+  const ciclo = (time + i*0.8) % 3;
 
-  let intensidad=0;
+  let intensidad = 0;
 
-  if(ciclo < 1){
-    intensidad = ciclo;
+  if(ciclo < 0.8){
+    intensidad = ciclo / 0.8;
   }
-  else if(ciclo < 2){
-    intensidad = 1 - (ciclo-1);
+  else if(ciclo < 1.6){
+    intensidad = 1 - ((ciclo-0.8)/0.8);
   }
   else{
     intensidad = 0;
   }
 
-  // Emisión controlada
   obj.material.emissiveIntensity = intensidad * 6;
+  obj.material.opacity = 0.10 + intensidad * 0.30;
 
-  // Opacidad controlada (no tapa modelo)
-  obj.material.opacity = 0.12 + intensidad * 0.35;
-
-  // Vibración leve tipo forcejeo
-  const s = 1 + Math.sin(time*25 + i)*0.01*intensidad;
+  const s = 1 + Math.sin(time*30 + i)*0.01*intensidad;
   obj.scale.set(s,s,s);
 
  });
 
 
- // 🔥 RGB anime en anillos
+ // RGB en anillos
  anillos.forEach((a,i)=>{
 
   const color = new THREE.Color(
@@ -177,7 +177,6 @@ function animate(t){
 
  controls.update();
  renderer.render(scene,camera);
-
 }
 
 animate();
