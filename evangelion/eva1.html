@@ -1,51 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>EVA AR</title>
+
+<script type="module"
+src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+</script>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  overflow: hidden;
+}
+
+model-viewer {
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+</head>
+
+<body>
+
+<model-viewer
+  id="scene"
+  src="evangelion1.glb"
+  camera-controls
+  auto-rotate
+  exposure="1"
+  shadow-intensity="1"
+  ar
+  ar-modes="webxr scene-viewer quick-look"
+  environment-image="neutral"
+>
+</model-viewer>
+
 <script>
-const viewer = document.querySelector("#scene");
+window.addEventListener("DOMContentLoaded", () => {
 
-viewer.addEventListener("load", async () => {
+  const viewer = document.querySelector("#scene");
 
-  console.log("Materiales disponibles:");
-  viewer.model.materials.forEach(mat => console.log(mat.name));
+  viewer.addEventListener("load", () => {
 
-  // Probamos materiales tipo 02X (los del escudo casi seguro)
-  const posibles = ["Material.028", "Material.029", "Material.030", "Material.031"];
+    console.log("Modelo cargado");
 
-  let escudoMaterial = null;
+    viewer.model.materials.forEach(mat =>
+      console.log("Material:", mat.name)
+    );
 
-  for (const nombre of posibles) {
-    const encontrado = viewer.model.materials.find(mat => mat.name === nombre);
-    if (encontrado) {
-      escudoMaterial = encontrado;
-      console.log("Usando material:", nombre);
-      break;
-    }
-  }
+    // Ajustar todos los materiales tipo Material.02X
+    viewer.model.materials.forEach(mat => {
 
-  if (!escudoMaterial) {
-    console.warn("No se encontró material del escudo.");
-    return;
-  }
+      if (mat.name.includes("Material.02")) {
 
-  // 🔥 EFECTO TRANSLÚCIDO + RGB ANIMADO
-  const pbr = escudoMaterial.pbrMetallicRoughness;
+        const pbr = mat.pbrMetallicRoughness;
 
-  pbr.setMetallicFactor(0.0);
-  pbr.setRoughnessFactor(0.1);
-  pbr.setBaseColorFactor([1, 0, 0, 0.35]); // RGBA (alpha 0.35)
+        pbr.setMetallicFactor(0.0);
+        pbr.setRoughnessFactor(0.1);
+        pbr.setBaseColorFactor([1, 0, 0, 0.35]);
 
-  let t = 0;
+        let t = 0;
 
-  function animarRGB() {
-    t += 0.02;
+        function animar() {
+          t += 0.02;
 
-    const r = (Math.sin(t) + 1) / 2;
-    const g = (Math.sin(t + 2) + 1) / 2;
-    const b = (Math.sin(t + 4) + 1) / 2;
+          const r = (Math.sin(t) + 1) / 2;
+          const g = (Math.sin(t + 2) + 1) / 2;
+          const b = (Math.sin(t + 4) + 1) / 2;
 
-    pbr.setBaseColorFactor([r, g, b, 0.35]);
+          pbr.setBaseColorFactor([r, g, b, 0.35]);
 
-    requestAnimationFrame(animarRGB);
-  }
+          requestAnimationFrame(animar);
+        }
 
-  animarRGB();
+        animar();
+      }
+
+    });
+
+  });
+
 });
 </script>
+
+</body>
+</html>
