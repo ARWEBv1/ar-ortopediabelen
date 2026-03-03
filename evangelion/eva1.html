@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD RGB FLOW</title>
+<title>EVA AT FIELD RGB FAST</title>
 
 <style>
 body{
@@ -50,7 +50,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
-// Iluminación EVA (NO SE TOCA)
+// 🔥 Iluminación EVA correcta
 scene.add(new THREE.AmbientLight(0xffffff,0.35));
 const dirLight = new THREE.DirectionalLight(0xffffff,1.4);
 dirLight.position.set(5,10,5);
@@ -60,7 +60,7 @@ let escudos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=900",(gltf)=>{
+loader.load("evangelion1.glb?v=1000",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -85,7 +85,8 @@ loader.load("evangelion1.glb?v=900",(gltf)=>{
 
       uniforms:{
         time:{value:0},
-        offset:{value:0}
+        offset:{value:0},
+        reset:{value:0}
       },
 
       vertexShader:`
@@ -100,10 +101,17 @@ loader.load("evangelion1.glb?v=900",(gltf)=>{
         varying vec2 vUv;
         uniform float time;
         uniform float offset;
+        uniform float reset;
 
         void main(){
 
-          float flow = vUv.y + time*0.5 + offset;
+          if(reset > 0.5){
+            gl_FragColor = vec4(1.0,1.0,1.0,0.05);
+            return;
+          }
+
+          // 🔥 MÁS VELOCIDAD RGB
+          float flow = vUv.y + time*1.5 + offset;
 
           vec3 c1 = vec3(1.0,0.6,0.0);  // dorado
           vec3 c2 = vec3(1.0,0.0,0.0);  // rojo
@@ -119,7 +127,7 @@ loader.load("evangelion1.glb?v=900",(gltf)=>{
           else if(m < 3.0) color = mix(c3,c4,m-2.0);
           else color = mix(c4,c1,m-3.0);
 
-          float alpha = 0.08 + 0.08 * sin(flow*6.0);
+          float alpha = 0.05 + 0.08 * sin(flow*8.0);
 
           gl_FragColor = vec4(color, alpha);
         }
@@ -140,9 +148,13 @@ function animate(t){
 
  const time = t*0.001;
 
+ // 🔥 Reset cada 2 segundos
+ const resetWindow = (time % 2.0) < 0.25;
+
  escudos.forEach((e,i)=>{
    e.material.uniforms.time.value = time;
    e.material.uniforms.offset.value = i*0.8;
+   e.material.uniforms.reset.value = resetWindow ? 1.0 : 0.0;
  });
 
  controls.update();
