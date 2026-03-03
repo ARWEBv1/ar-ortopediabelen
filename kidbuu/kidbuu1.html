@@ -73,24 +73,14 @@ const captureBtn=document.getElementById("capture");
 let running=true;
 
 btn.onclick=()=>{
-
  running=!running;
  btn.textContent=running?"DETENER":"CONTINUAR";
-
- if(!running){
-   flash.style.opacity=0;
-   flashPower=0;
- }
-
 };
 
-// 📸 CAPTURA
 captureBtn.onclick=()=>{
-
  renderer.render(scene,camera);
-
  const link=document.createElement("a");
- link.download="kidbuu.png"; // 🔥 nombre cambiado
+ link.download="kidbuu.png";
  link.href=renderer.domElement.toDataURL("image/png");
  link.click();
 };
@@ -98,11 +88,9 @@ captureBtn.onclick=()=>{
 let model;
 let energySphere;
 let modelHeight=2;
-
 let orbs=[];
 let lightning=[];
 let spawnPos=new THREE.Vector3();
-
 let flashPower=0;
 
 const scene=new THREE.Scene();
@@ -112,7 +100,6 @@ const camera=new THREE.PerspectiveCamera(
 60,innerWidth/innerHeight,0.01,1000
 );
 
-// 🔥 VISTA DESDE ABAJO
 camera.position.set(0,-1.8,4.2);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -153,7 +140,7 @@ loader.load(
     energySphere.material=new THREE.MeshBasicMaterial({
       color:0xff0088,
       transparent:true,
-      opacity:0.6,
+      opacity:0.7,
       blending:THREE.AdditiveBlending
     });
    }
@@ -167,7 +154,6 @@ loader.load(
  modelHeight=size.y;
  model.position.sub(center);
 
- // 🔥 enfoque torso (look anime)
  controls.target.set(0,1.2,0);
 
  const colors=[0xff0000,0x6600ff,0xffff00];
@@ -189,7 +175,6 @@ loader.load(
   orbs.push(orb);
  }
 
- // rayos
  for(let i=0;i<16;i++){
 
   const mat=new THREE.LineBasicMaterial({
@@ -207,17 +192,6 @@ loader.load(
 
 });
 
-// ---------- SHAKE ----------
-function sceneShake(intensity){
-
- scene.position.set(
-  (Math.random()-0.5)*intensity,
-  (Math.random()-0.5)*intensity,
-  (Math.random()-0.5)*intensity
- );
-
-}
-
 // ---------- FLASH ----------
 function triggerFlash(){ flashPower=1; }
 
@@ -226,7 +200,20 @@ function updateFlash(){
  flash.style.opacity=flashPower;
 }
 
-// ---------- LIGHTNING REAL ----------
+// ---------- SHAKE SOLO ESFERA ----------
+function shieldShake(obj,t){
+
+ if(!obj) return;
+
+ const intensity=0.08;
+
+ obj.position.x=Math.sin(t*0.05)*intensity;
+ obj.position.y=Math.cos(t*0.04)*intensity*0.6;
+ obj.position.z=Math.sin(t*0.03)*intensity;
+
+}
+
+// ---------- LIGHTNING ----------
 function updateLightning(){
 
  if(!energySphere) return;
@@ -277,13 +264,15 @@ function animate(t){
 
   if(energySphere){
 
-   const s=1+Math.sin(t*0.004)*0.08;
+   const s=1+Math.sin(t*0.006)*0.18;
    energySphere.scale.set(s,s,s);
 
    energySphere.getWorldPosition(spawnPos);
 
    spawnPos.y -= modelHeight*0.5;
    spawnPos.y += 3;
+
+   shieldShake(energySphere,t);
   }
 
   orbs.forEach((orb)=>{
@@ -302,11 +291,9 @@ function animate(t){
   });
 
   updateLightning();
-  sceneShake(0.1 + flashPower*0.2);
  }
 
  updateFlash();
-
  controls.update();
  renderer.render(scene,camera);
 }
