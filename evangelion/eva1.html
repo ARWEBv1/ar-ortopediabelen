@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>AT Field Web Force</title>
+<title>AT Field Vibrante</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -24,7 +24,7 @@ model-viewer{
 
 <model-viewer
   id="scene"
-  src="evangelion1.glb?v=5"
+  src="evangelion1.glb?v=7"
   camera-controls
   exposure="1"
   shadow-intensity="1"
@@ -43,16 +43,37 @@ viewer.addEventListener("load", () => {
 
     const pbr = mat.pbrMetallicRoughness;
 
-    // ⚡ Campo energético vibrante
+    // Base sólido suave
+    pbr.setBaseColorFactor([1.0, 0.6, 0.8, 1.0]);
+    pbr.setRoughnessFactor(0.6);
     pbr.setMetallicFactor(0.0);
-    pbr.setRoughnessFactor(0.35);
-    pbr.setBaseColorFactor([1.0, 0.8, 0.9, 1.0]);
 
-    if (mat.extensions && mat.extensions.KHR_materials_transmission) {
-      mat.extensions.KHR_materials_transmission.transmissionFactor = 0.45;
-    }
-
+    // 🔥 Emisión RGB tipo tubo
+    mat.emissiveFactor = [1.0, 0.2, 0.8];
   });
+
+  // 🎬 Animación RGB + vibración
+  let t = 0;
+
+  function animate(){
+    t += 0.05;
+
+    const r = (Math.sin(t) + 1) / 2;
+    const g = (Math.sin(t + 2) + 1) / 2;
+    const b = (Math.sin(t + 4) + 1) / 2;
+
+    materials.forEach((mat) => {
+      mat.emissiveFactor = [r, g, b];
+    });
+
+    // Vibración pequeña tipo forcejeo
+    const scale = 1 + Math.sin(t * 5) * 0.01;
+    viewer.scale = `${scale} ${scale} ${scale}`;
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
 
 });
 </script>
