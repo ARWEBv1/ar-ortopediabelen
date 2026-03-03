@@ -61,10 +61,17 @@ let anillos = [];
 
 const loader = new GLTFLoader();
 
-loader.load("evangelion1.glb?v=7", (gltf)=>{
+loader.load("evangelion1.glb?v=9", (gltf)=>{
+
+  // 🔥 CONTENEDOR PARA MOVER TODO
+  const container = new THREE.Group();
+  scene.add(container);
 
   const model = gltf.scene;
-  scene.add(model);
+  container.add(model);
+
+  // 🔥 BAJAR TODO 2 EN Y
+  container.position.y -= 2;
 
   model.traverse((obj)=>{
 
@@ -111,12 +118,10 @@ function animate(t){
 
   const time = t * 0.001;
 
-  // 🔥 Escudos vibrando tipo ruptura
   romper(escudo3, 0, 0.05, time);
   romper(escudo2, 2, 0.025, time);
   romper(escudo1, 4, 0.01, time);
 
-  // 🌈 Anillos RGB inestables
   anillos.forEach((a,i)=>{
 
     const hue = (time*0.8 + i*0.2) % 1;
