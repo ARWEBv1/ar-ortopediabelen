@@ -1,13 +1,51 @@
 <script>
 const viewer = document.querySelector("#scene");
 
-viewer.addEventListener("load", () => {
+viewer.addEventListener("load", async () => {
 
-  console.log("=== LISTA DE MATERIALES ===");
+  console.log("Materiales disponibles:");
+  viewer.model.materials.forEach(mat => console.log(mat.name));
 
-  viewer.model.materials.forEach((mat, index) => {
-    console.log(index + ":", mat.name);
-  });
+  // Probamos materiales tipo 02X (los del escudo casi seguro)
+  const posibles = ["Material.028", "Material.029", "Material.030", "Material.031"];
 
+  let escudoMaterial = null;
+
+  for (const nombre of posibles) {
+    const encontrado = viewer.model.materials.find(mat => mat.name === nombre);
+    if (encontrado) {
+      escudoMaterial = encontrado;
+      console.log("Usando material:", nombre);
+      break;
+    }
+  }
+
+  if (!escudoMaterial) {
+    console.warn("No se encontró material del escudo.");
+    return;
+  }
+
+  // 🔥 EFECTO TRANSLÚCIDO + RGB ANIMADO
+  const pbr = escudoMaterial.pbrMetallicRoughness;
+
+  pbr.setMetallicFactor(0.0);
+  pbr.setRoughnessFactor(0.1);
+  pbr.setBaseColorFactor([1, 0, 0, 0.35]); // RGBA (alpha 0.35)
+
+  let t = 0;
+
+  function animarRGB() {
+    t += 0.02;
+
+    const r = (Math.sin(t) + 1) / 2;
+    const g = (Math.sin(t + 2) + 1) / 2;
+    const b = (Math.sin(t + 4) + 1) / 2;
+
+    pbr.setBaseColorFactor([r, g, b, 0.35]);
+
+    requestAnimationFrame(animarRGB);
+  }
+
+  animarRGB();
 });
 </script>
