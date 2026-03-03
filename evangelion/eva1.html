@@ -2,13 +2,35 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD RGB FAST</title>
+<title>EVA AT FIELD CONTROL</title>
 
 <style>
 body{
   margin:0;
   overflow:hidden;
   background:black;
+}
+
+#btnStop, #btnShot{
+ position:fixed;
+ top:20px;
+ padding:10px 18px;
+ font-weight:bold;
+ border:none;
+ cursor:pointer;
+ z-index:10;
+}
+
+#btnStop{
+ left:20px;
+ background:#ff0055;
+ color:white;
+}
+
+#btnShot{
+ left:160px;
+ background:#00bfff;
+ color:white;
 }
 </style>
 
@@ -24,11 +46,24 @@ body{
 
 <body>
 
+<button id="btnStop">DETENER</button>
+<button id="btnShot">📸 CAPTURA</button>
+
 <script type="module">
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const btnStop = document.getElementById("btnStop");
+const btnShot = document.getElementById("btnShot");
+
+let running = true;
+
+btnStop.onclick = ()=>{
+  running = !running;
+  btnStop.textContent = running ? "DETENER" : "CONTINUAR";
+};
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
@@ -45,12 +80,21 @@ camera.position.set(0,1.5,4);
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.preserveDrawingBuffer = true; // necesario para capturar
 document.body.appendChild(renderer.domElement);
+
+btnShot.onclick = ()=>{
+ renderer.render(scene,camera);
+ const link = document.createElement("a");
+ link.download = "eva_sachiel.png";
+ link.href = renderer.domElement.toDataURL("image/png");
+ link.click();
+};
 
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
-// 🔥 Iluminación EVA correcta
+// iluminación correcta
 scene.add(new THREE.AmbientLight(0xffffff,0.35));
 const dirLight = new THREE.DirectionalLight(0xffffff,1.4);
 dirLight.position.set(5,10,5);
@@ -60,7 +104,7 @@ let escudos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=1000",(gltf)=>{
+loader.load("evangelion1.glb?v=1100",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -110,16 +154,14 @@ loader.load("evangelion1.glb?v=1000",(gltf)=>{
             return;
           }
 
-          // 🔥 MÁS VELOCIDAD RGB
           float flow = vUv.y + time*1.5 + offset;
 
-          vec3 c1 = vec3(1.0,0.6,0.0);  // dorado
-          vec3 c2 = vec3(1.0,0.0,0.0);  // rojo
-          vec3 c3 = vec3(0.0,0.4,1.0);  // azul
-          vec3 c4 = vec3(0.7,0.0,1.0);  // violeta
+          vec3 c1 = vec3(1.0,0.6,0.0);
+          vec3 c2 = vec3(1.0,0.0,0.0);
+          vec3 c3 = vec3(0.0,0.4,1.0);
+          vec3 c4 = vec3(0.7,0.0,1.0);
 
           float m = mod(flow,4.0);
-
           vec3 color;
 
           if(m < 1.0) color = mix(c1,c2,m);
@@ -146,16 +188,18 @@ function animate(t){
 
  requestAnimationFrame(animate);
 
- const time = t*0.001;
+ if(running){
 
- // 🔥 Reset cada 2 segundos
- const resetWindow = (time % 2.0) < 0.25;
+   const time = t*0.001;
+   const resetWindow = (time % 2.0) < 0.25;
 
- escudos.forEach((e,i)=>{
-   e.material.uniforms.time.value = time;
-   e.material.uniforms.offset.value = i*0.8;
-   e.material.uniforms.reset.value = resetWindow ? 1.0 : 0.0;
- });
+   escudos.forEach((e,i)=>{
+     e.material.uniforms.time.value = time;
+     e.material.uniforms.offset.value = i*0.8;
+     e.material.uniforms.reset.value = resetWindow ? 1.0 : 0.0;
+   });
+
+ }
 
  controls.update();
  renderer.render(scene,camera);
