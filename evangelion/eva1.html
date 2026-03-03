@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD - GRIETA UNIFORME</title>
+<title>EVA AT FIELD - GRIETA +5Y</title>
 
 <style>
 body{
@@ -105,16 +105,17 @@ loader.load("evangelion1.glb", (gltf)=>{
 
           void main(){
 
-            // -------- GRIETA EN ESPACIO REAL --------
+            // -------- GRIETA SUBIDA +5 EN Y --------
 
             float width = 0.05 + crackOpen * 0.25;
 
             float centerX = 0.0;
             float dist = abs(vWorldPos.x - centerX);
 
+            // 🔥 nueva altura
             float verticalMask =
-              step(-0.5, vWorldPos.y) *
-              step(vWorldPos.y, 0.5);
+              step(4.5, vWorldPos.y) *
+              step(vWorldPos.y, 5.5);
 
             float noise =
               sin(vWorldPos.y * 30.0 + time * 20.0) * 0.01;
