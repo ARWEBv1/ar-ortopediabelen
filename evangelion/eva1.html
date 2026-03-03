@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD - RGB 2s</title>
+<title>EVA AT FIELD - ANIME TRANSLUCENT</title>
 
 <style>
 body{
@@ -35,7 +35,7 @@ scene.background = new THREE.Color(0x000000);
 
 const camera = new THREE.PerspectiveCamera(
 60,
-window.innerWidth / window.innerHeight,
+window.innerWidth/window.innerHeight,
 0.01,
 1000
 );
@@ -50,15 +50,11 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
-scene.add(new THREE.AmbientLight(0xffffff,0.5));
-scene.add(new THREE.DirectionalLight(0xffffff,2));
-
-let escudo1,escudo2,escudo3;
-let anillos=[];
+let escudos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=50",(gltf)=>{
+loader.load("evangelion1.glb?v=60",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -76,80 +72,32 @@ loader.load("evangelion1.glb?v=50",(gltf)=>{
      obj.name==="escudo2" ||
      obj.name==="escudo3"){
 
-    const mat=new THREE.MeshStandardMaterial({
+    const mat=new THREE.MeshBasicMaterial({
       color:0xffaa00,
-      emissive:0xff6600,
-      emissiveIntensity:0,
       transparent:true,
-      opacity:0.15,
+      opacity:0.25,
+      blending:THREE.AdditiveBlending,
+      depthWrite:false,
       side:THREE.DoubleSide
     });
 
     obj.material=mat;
-
-    if(obj.name==="escudo1") escudo1=obj;
-    if(obj.name==="escudo2") escudo2=obj;
-    if(obj.name==="escudo3") escudo3=obj;
-  }
-
-  if(obj.name.startsWith("anillo")){
-    anillos.push(obj);
-
-    obj.material=new THREE.MeshStandardMaterial({
-      color:0xffffff,
-      emissive:0xffffff,
-      emissiveIntensity:6,
-      transparent:true,
-      opacity:1,
-      side:THREE.DoubleSide,
-      depthWrite:false
-    });
+    escudos.push(obj);
   }
 
  });
 
 });
 
-// 🎨 Paleta Evangelion energética
+// 🎨 Paleta tipo anime
 const palette=[
- new THREE.Color(0xffaa00), // dorado profundo
- new THREE.Color(0xff0000), // rojo
- new THREE.Color(0x00aaff), // azul
- new THREE.Color(0xffcc00), // dorado
- new THREE.Color(0x8800ff), // violeta
- new THREE.Color(0xffaa00)  // dorado cierre
+ new THREE.Color(0xffaa00),
+ new THREE.Color(0xff3300),
+ new THREE.Color(0x00aaff),
+ new THREE.Color(0xffcc00),
+ new THREE.Color(0x8800ff),
+ new THREE.Color(0xffaa00)
 ];
-
-function cicloEscudo(time,offset){
-
- const ciclo=(time-offset+4)%4;
- let intensidad=0;
-
- if(ciclo<0.5){
-  intensidad=ciclo/0.5;
- }
- else if(ciclo<1.2){
-  intensidad=1-((ciclo-0.5)/0.7);
- }
- else if(ciclo<3){
-  intensidad=0.05;
- }
- else{
-  intensidad=(ciclo-3)*0.2;
- }
-
- return intensidad;
-}
-
-function romper(obj,intensidad,time){
- if(!obj) return;
-
- obj.position.x=Math.sin(time*40)*0.02*intensidad;
- obj.position.y=Math.cos(time*35)*0.02*intensidad;
-
- const caos=1+Math.sin(time*30)*0.02*intensidad;
- obj.scale.set(caos,caos,1+Math.sin(time*50)*0.01*intensidad);
-}
 
 function animate(t){
 
@@ -157,56 +105,34 @@ function animate(t){
 
  const time=t*0.001;
 
- // 🔥 RESET GLOBAL CADA 2 SEGUNDOS
+ // pausa global cada 2s
  const pausaGlobal=(time%2)<0.25;
 
- const i1=cicloEscudo(time,0);
- const i2=cicloEscudo(time,1);
- const i3=cicloEscudo(time,2);
+ escudos.forEach((escudo,i)=>{
 
- const escudos=[
-  [escudo1,i1],
-  [escudo2,i2],
-  [escudo3,i3]
- ];
-
- escudos.forEach((pair,index)=>{
-
-  const obj=pair[0];
-  const intensidad=pair[1];
-
-  if(!obj) return;
+  if(!escudo) return;
 
   if(pausaGlobal){
-   obj.material.emissiveIntensity=0;
-   obj.material.opacity=0.15;
-   obj.material.color.set(0xffaa00);
-   obj.material.emissive.set(0xff6600);
-   obj.scale.set(1,1,1);
-   return;
+    escudo.material.opacity=0.18;
+    escudo.material.color.set(0xffaa00);
+    escudo.scale.set(1,1,1);
+    return;
   }
 
-  // 🎨 Color dinámico
-  const colorIndex=Math.floor(time*2+index)%palette.length;
+  // color dinámico
+  const colorIndex=Math.floor(time*1.5+i)%palette.length;
   const color=palette[colorIndex];
+  escudo.material.color.copy(color);
 
-  obj.material.color.copy(color);
-  obj.material.emissive.copy(color);
+  // 🔥 fresnel fake (bordes más fuertes)
+  const intensidad=(Math.sin(time*2+i)+1)/2;
 
-  obj.material.emissiveIntensity=intensidad*14;
-  obj.material.opacity=0.15+intensidad*0.85;
+  escudo.material.opacity=0.18 + intensidad*0.25;
 
-  romper(obj,intensidad,time);
+  // vibración leve
+  const s=1+Math.sin(time*25+i)*0.02;
+  escudo.scale.set(s,s,s);
 
- });
-
- // RGB anillos siguen vivos
- anillos.forEach((a,i)=>{
-  const hue=(time*0.6+i*0.2)%1;
-  a.material.emissive=new THREE.Color().setHSL(hue,1,0.5);
-
-  const pulso=1+Math.sin(time*20+i)*0.03;
-  a.scale.set(pulso,pulso,pulso);
  });
 
  controls.update();
