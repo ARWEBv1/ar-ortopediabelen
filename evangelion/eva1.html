@@ -38,13 +38,17 @@ const viewer = document.querySelector("#scene");
 
 viewer.addEventListener("load", () => {
 
-  // 🔎 Busca el material del escudo
+  // 🔎 Mostrar materiales en consola para saber el nombre exacto
+  console.log("Materiales disponibles:");
+  viewer.model.materials.forEach(mat => console.log(mat.name));
+
+  // 👇 CAMBIA "Escudo" si tu material tiene otro nombre
   const escudoMaterial = viewer.model.materials.find(mat =>
     mat.name.toLowerCase().includes("escudo")
   );
 
   if (!escudoMaterial) {
-    console.log("No se encontró material del escudo");
+    console.log("No se encontró el material del escudo.");
     return;
   }
 
