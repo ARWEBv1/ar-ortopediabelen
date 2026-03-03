@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Evangelion AT Field</title>
+<title>AT Field Forcejeo</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -16,6 +16,12 @@ body{
 model-viewer{
   width:100vw;
   height:100vh;
+  animation: vibrar 0.12s infinite alternate;
+}
+
+@keyframes vibrar {
+  0%   { transform: scale(1) rotateZ(0deg); }
+  100% { transform: scale(1.01) rotateZ(0.2deg); }
 }
 </style>
 </head>
@@ -23,53 +29,12 @@ model-viewer{
 <body>
 
 <model-viewer
-  id="scene"
-  src="evangelion1.glb?v=3"
+  src="evangelion1.glb?v=4"
   camera-controls
-  auto-rotate
   exposure="1"
   shadow-intensity="1"
-  environment-image="neutral"
->
+  environment-image="neutral">
 </model-viewer>
-
-<script>
-const viewer = document.getElementById("scene");
-
-viewer.addEventListener("load", () => {
-
-  // 🔎 Buscamos el nodo que contenga "redondo"
-  let shieldNode = null;
-
-  viewer.model.scene.traverse((node) => {
-    if(node.name.toLowerCase().includes("redondo")){
-      shieldNode = node;
-    }
-  });
-
-  if(!shieldNode){
-    console.log("No se encontró el escudo.");
-    return;
-  }
-
-  let t = 0;
-
-  function vibrar(){
-    t += 0.1;
-
-    const scaleX = 1 + Math.sin(t * 6) * 0.015;
-    const scaleY = 1 + Math.sin(t * 5) * 0.012;
-    const scaleZ = 1 + Math.sin(t * 7) * 0.010;
-
-    shieldNode.scale.set(scaleX, scaleY, scaleZ);
-
-    requestAnimationFrame(vibrar);
-  }
-
-  vibrar();
-
-});
-</script>
 
 </body>
 </html>
