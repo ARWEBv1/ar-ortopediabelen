@@ -2,22 +2,22 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AR</title>
+<title>EVA AT Field</title>
 
 <script type="module"
 src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
 </script>
 
 <style>
-body {
-  margin: 0;
-  background: black;
-  overflow: hidden;
+body{
+  margin:0;
+  background:black;
+  overflow:hidden;
 }
 
-model-viewer {
-  width: 100vw;
-  height: 100vh;
+model-viewer{
+  width:100vw;
+  height:100vh;
 }
 </style>
 </head>
@@ -31,9 +31,9 @@ model-viewer {
   auto-rotate
   exposure="1"
   shadow-intensity="1"
+  environment-image="neutral"
   ar
   ar-modes="webxr scene-viewer quick-look"
-  environment-image="neutral"
 >
 </model-viewer>
 
@@ -50,27 +50,37 @@ window.addEventListener("DOMContentLoaded", () => {
       console.log("Material:", mat.name)
     );
 
-    // Ajustar todos los materiales tipo Material.02X
+    // 🔥 Detectar materiales tipo escudo (Material.02X)
     viewer.model.materials.forEach(mat => {
 
       if (mat.name.includes("Material.02")) {
 
+        console.log("Aplicando efecto a:", mat.name);
+
         const pbr = mat.pbrMetallicRoughness;
 
+        // --- CONFIG BASE ---
         pbr.setMetallicFactor(0.0);
-        pbr.setRoughnessFactor(0.1);
-        pbr.setBaseColorFactor([1, 0, 0, 0.35]);
+        pbr.setRoughnessFactor(0.05);
+        pbr.setBaseColorFactor([1, 0, 0, 0.55]);
 
+        // --- EMISSIVE (brillo energético) ---
+        mat.setEmissiveFactor([1.0, 0.2, 0.6]);
+
+        // --- ANIMACIÓN RGB + PULSO ---
         let t = 0;
 
         function animar() {
-          t += 0.02;
+
+          t += 0.03;
 
           const r = (Math.sin(t) + 1) / 2;
           const g = (Math.sin(t + 2) + 1) / 2;
           const b = (Math.sin(t + 4) + 1) / 2;
 
-          pbr.setBaseColorFactor([r, g, b, 0.35]);
+          const alpha = 0.45 + Math.sin(t * 2) * 0.1;
+
+          pbr.setBaseColorFactor([r, g, b, alpha]);
 
           requestAnimationFrame(animar);
         }
