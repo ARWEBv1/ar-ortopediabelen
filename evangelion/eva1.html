@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD BALANCED</title>
+<title>EVA AT FIELD FINAL</title>
 
 <style>
 body{
@@ -51,7 +51,7 @@ const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
 
-// 🔥 ILUMINACIÓN CORRECTA (DEVUELVE VOLUMEN AL EVA)
+// 🔥 ILUMINACIÓN BUENA (DEVUELVE VOLUMEN)
 
 const ambient = new THREE.AmbientLight(0xffffff, 0.35);
 scene.add(ambient);
@@ -66,7 +66,7 @@ let anillos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=300",(gltf)=>{
+loader.load("evangelion1.glb?v=500",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -80,7 +80,7 @@ loader.load("evangelion1.glb?v=300",(gltf)=>{
 
   if(!obj.isMesh) return;
 
-  // ESCUDOS (energía plana, no afecta iluminación del EVA)
+  // ESCUDOS
   if(obj.name==="escudo1" ||
      obj.name==="escudo2" ||
      obj.name==="escudo3"){
@@ -88,7 +88,7 @@ loader.load("evangelion1.glb?v=300",(gltf)=>{
     const mat = new THREE.MeshBasicMaterial({
       color: 0xff8800,
       transparent: true,
-      opacity: 0.10,
+      opacity: 0.08,
       depthWrite: false,
       side: THREE.DoubleSide
     });
@@ -110,12 +110,12 @@ loader.load("evangelion1.glb?v=300",(gltf)=>{
 });
 
 const palette=[
- 0xffb300,
- 0xff0000,
- 0x0099ff,
- 0xffcc00,
- 0xaa00ff,
- 0xff8800
+ 0xffb300, // dorado profundo
+ 0xff0000, // rojo
+ 0x0066ff, // azul
+ 0xffcc00, // dorado claro
+ 0xaa00ff, // violeta
+ 0xff8800  // naranja dorado
 ];
 
 function animate(t){
@@ -124,15 +124,16 @@ function animate(t){
 
  const time = t * 0.001;
 
- // Reset global cada 1 segundo
- const resetGlobal = (time % 1) < 0.2;
+ // 🔥 cada 1 segundo se apagan (0.18s)
+ const resetWindow = (time % 1) < 0.18;
 
  escudos.forEach((obj,i)=>{
 
-  if(resetGlobal){
+  if(resetWindow){
 
-    obj.material.opacity = 0.10;
-    obj.material.color.set(0xff8800);
+    // SIN COLOR, SOLO TRANSLÚCIDO
+    obj.material.color.set(0xffffff);
+    obj.material.opacity = 0.06;
     obj.scale.set(1,1,1);
     return;
   }
@@ -152,14 +153,14 @@ function animate(t){
     palette[Math.floor(time*1.5 + i) % palette.length]
   );
 
-  obj.material.opacity = 0.10 + intensidad * 0.25;
+  obj.material.opacity = 0.08 + intensidad * 0.25;
 
   const s = 1 + Math.sin(time*30 + i)*0.01*intensidad;
   obj.scale.set(s,s,s);
 
  });
 
- // RGB en anillos
+ // RGB anillos
  anillos.forEach((a,i)=>{
 
   a.material.color.set(
