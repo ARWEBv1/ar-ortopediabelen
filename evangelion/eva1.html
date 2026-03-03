@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD FINAL</title>
+<title>EVA AT FIELD FINAL STABLE</title>
 
 <style>
 body{
@@ -54,7 +54,7 @@ let escudos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=70",(gltf)=>{
+loader.load("evangelion1.glb?v=80",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -62,7 +62,8 @@ loader.load("evangelion1.glb?v=70",(gltf)=>{
  const model=gltf.scene;
  container.add(model);
 
- container.position.y-=2;
+ // Bajamos todo el modelo 2 en Y
+ container.position.y -= 2;
 
  model.traverse((obj)=>{
 
@@ -75,8 +76,8 @@ loader.load("evangelion1.glb?v=70",(gltf)=>{
     const mat=new THREE.MeshBasicMaterial({
       color:0xffaa00,
       transparent:true,
-      opacity:0.08, // 🔥 base translúcida real
-      blending:THREE.AdditiveBlending,
+      opacity:0.15, // translúcido real
+      blending:THREE.NormalBlending, // 🔥 clave
       depthWrite:false,
       side:THREE.DoubleSide
     });
@@ -90,7 +91,7 @@ loader.load("evangelion1.glb?v=70",(gltf)=>{
 });
 
 
-// 🎨 Paleta tipo anime
+// 🎨 Paleta anime
 const palette=[
  new THREE.Color(0xffb300), // dorado profundo
  new THREE.Color(0xff2200), // rojo
@@ -111,30 +112,30 @@ function animate(t){
 
   if(!escudo) return;
 
-  // ciclo de 4 segundos desfasado
+  // Ciclo 4 segundos desfasado
   const ciclo=(time + i*1.2) % 4;
 
   let intensidad=0;
 
   if(ciclo < 1){
-    intensidad = ciclo / 1; // sube
+    intensidad = ciclo; // sube
   }
   else if(ciclo < 2){
-    intensidad = 1 - ((ciclo-1)/1); // baja
+    intensidad = 1 - (ciclo-1); // baja
   }
   else{
-    intensidad = 0; // descanso translúcido
+    intensidad = 0; // descanso
   }
 
   // RGB dinámico
   const colorIndex=Math.floor(time*1.5 + i) % palette.length;
   escudo.material.color.copy(palette[colorIndex]);
 
-  // 🔥 opacidad controlada
-  escudo.material.opacity = 0.08 + intensidad*0.18;
+  // Opacidad controlada
+  escudo.material.opacity = 0.12 + intensidad*0.25;
 
-  // vibración leve tipo forcejeo
-  const s = 1 + Math.sin(time*30 + i)*0.01*intensidad;
+  // Vibración leve tipo forcejeo
+  const s = 1 + Math.sin(time*25 + i)*0.01*intensidad;
   escudo.scale.set(s,s,s);
 
  });
