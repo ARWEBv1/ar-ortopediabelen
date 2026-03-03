@@ -1,102 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>EVA AT FIELD</title>
+<meta charset="UTF-8">
+<title>Evangelion AT Field</title>
 
-  <script type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-  </script>
+<!-- Model Viewer -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      overflow: hidden;
-    }
+<style>
+body{
+  margin:0;
+  background:black;
+  overflow:hidden;
+}
 
-    model-viewer {
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
+model-viewer{
+  width:100vw;
+  height:100vh;
+}
+</style>
 </head>
 
 <body>
 
 <model-viewer
-  src="evangelion1.glb"
+  id="scene"
+  src="evangelion1.glb?v=2"
   camera-controls
+  auto-rotate
   exposure="1"
   shadow-intensity="1"
-  environment-image="https://modelviewer.dev/shared-assets/environments/neutral.hdr">
+  environment-image="neutral"
+  ar
+>
 </model-viewer>
-
-<script>
-window.addEventListener("load", () => {
-
-  const viewer = document.querySelector("model-viewer");
-
-  if (!viewer) {
-    console.error("No se encontró model-viewer");
-    return;
-  }
-
-  viewer.addEventListener("load", () => {
-
-    console.log("Modelo cargado");
-
-    const materiales = viewer.model.materials;
-
-    // Detectar materiales del escudo automáticamente
-    const escudoMats = materiales.filter(mat =>
-      mat.name.includes("002") ||
-      mat.name.includes("028") ||
-      mat.name.includes("029")
-    );
-
-    if (escudoMats.length === 0) {
-      console.warn("No se encontraron materiales del escudo");
-      return;
-    }
-
-    escudoMats.forEach(mat => {
-      mat.alphaMode = "BLEND";
-    });
-
-    let t = 0;
-
-    function animar() {
-
-      t += 0.06;
-
-      const r = (Math.sin(t) + 1) / 2;
-      const g = (Math.sin(t + 2) + 1) / 2;
-      const b = (Math.sin(t + 4) + 1) / 2;
-
-      const intensidad = 2.2;
-
-      const rr = Math.min(r * intensidad, 1);
-      const gg = Math.min(g * intensidad, 1);
-      const bb = Math.min(b * intensidad, 1);
-
-      escudoMats.forEach(mat => {
-
-        const pbr = mat.pbrMetallicRoughness;
-
-        pbr.setBaseColorFactor([rr, gg, bb, 0.6]);
-        mat.setEmissiveFactor([rr, gg, bb]);
-      });
-
-      requestAnimationFrame(animar);
-    }
-
-    animar();
-
-  });
-
-});
-</script>
 
 </body>
 </html>
