@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-<style>
-body{
-  margin:0;
-  background:black;
-  overflow:hidden;
-}
-model-viewer{
-  width:100vw;
-  height:100vh;
-}
-</style>
-</head>
+  <meta charset="UTF-8">
+  <title>EVA AT FIELD</title>
 
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background: black;
+    }
+  </style>
+</head>
 <body>
 
 <model-viewer
@@ -24,42 +30,38 @@ model-viewer{
   camera-controls
   exposure="1"
   shadow-intensity="1"
-  environment-image="https://modelviewer.dev/shared-assets/environments/neutral.hdr"
-  ar>
+  environment-image="https://modelviewer.dev/shared-assets/environments/neutral.hdr">
 </model-viewer>
 
 <script>
 window.addEventListener("DOMContentLoaded", () => {
 
-  const viewer = document.querySelector("#scene");
+  const viewer = document.getElementById("scene");
 
   viewer.addEventListener("load", () => {
 
-    console.log("Modelo cargado");
+    console.log("Modelo cargado correctamente");
 
     const materiales = viewer.model.materials;
 
-    materiales.forEach((mat, index) => {
+    // 🔥 Forzamos transparencia en TODOS
+    materiales.forEach(mat => {
 
-      console.log("Material:", mat.name);
-
-      // 🔥 FORZAR MODO BLEND
+      // Forzar alphaMode a BLEND si viene OPAQUE
       mat.alphaMode = "BLEND";
 
       const pbr = mat.pbrMetallicRoughness;
 
-      // Transparencia inicial fuerte
-      pbr.setBaseColorFactor([1, 0, 0, 0.7]);
-      mat.setEmissiveFactor([1, 0, 0]);
-
-      // Guardamos referencia para animación
-      mat._pbr = pbr;
+      // Ajuste base inicial
+      pbr.setBaseColorFactor([1, 0.2, 0.2, 0.7]);
+      mat.setEmissiveFactor([1, 0.2, 0.2]);
     });
 
     // 🔥 ANIMACIÓN RGB FUERTE
     let t = 0;
 
-    function animar(){
+    function animar() {
+
       t += 0.06;
 
       const r = (Math.sin(t) + 1) / 2;
@@ -72,9 +74,14 @@ window.addEventListener("DOMContentLoaded", () => {
       const gg = Math.min(g * intensidad, 1);
       const bb = Math.min(b * intensidad, 1);
 
-      materiales.forEach(mat=>{
-        const pbr = mat._pbr;
-        pbr.setBaseColorFactor([rr, gg, bb, 0.75]);
+      materiales.forEach(mat => {
+
+        const pbr = mat.pbrMetallicRoughness;
+
+        // Color fuerte + transparencia real
+        pbr.setBaseColorFactor([rr, gg, bb, 0.65]);
+
+        // Glow energético
         mat.setEmissiveFactor([rr, gg, bb]);
       });
 
