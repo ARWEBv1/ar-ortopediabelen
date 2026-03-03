@@ -12,30 +12,30 @@ html, body {
   margin: 0;
   width: 100%;
   height: 100%;
-  background: #000; /* fondo oscuro */
+  background: black; /* fondo oscuro */
   overflow: hidden;
 }
 
 model-viewer {
   width: 100vw;
   height: 100vh;
-  background: #000;
+  background-color: black;
 }
 </style>
 
 </head>
+
 <body>
 
 <model-viewer
   src="evangelion1.glb"
   camera-controls
   auto-rotate
-  exposure="0.8"
-  shadow-intensity="0.4"
+  exposure="0.7"
   environment-image="neutral"
   tone-mapping="neutral"
-  ar
->
+  shadow-intensity="0"
+  ar>
 </model-viewer>
 
 </body>
