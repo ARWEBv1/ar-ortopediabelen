@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Evangelion AT Field</title>
+<title>AT Field Web Force</title>
 
-<!-- Model Viewer -->
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
@@ -25,15 +24,38 @@ model-viewer{
 
 <model-viewer
   id="scene"
-  src="evangelion1.glb?v=2"
+  src="evangelion1.glb?v=5"
   camera-controls
-  auto-rotate
   exposure="1"
   shadow-intensity="1"
   environment-image="neutral"
-  ar
 >
 </model-viewer>
+
+<script>
+const viewer = document.getElementById("scene");
+
+viewer.addEventListener("load", () => {
+
+  const materials = viewer.model.materials;
+
+  materials.forEach((mat) => {
+
+    const pbr = mat.pbrMetallicRoughness;
+
+    // ⚡ Campo energético vibrante
+    pbr.setMetallicFactor(0.0);
+    pbr.setRoughnessFactor(0.35);
+    pbr.setBaseColorFactor([1.0, 0.8, 0.9, 1.0]);
+
+    if (mat.extensions && mat.extensions.KHR_materials_transmission) {
+      mat.extensions.KHR_materials_transmission.transmissionFactor = 0.45;
+    }
+
+  });
+
+});
+</script>
 
 </body>
 </html>
