@@ -1,42 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-<meta charset="UTF-8">
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Evangelion AR</title>
 
-<style>
-body{
-  margin:0;
-  background:black;
-}
+  <!-- Model Viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
-model-viewer{
-  width:100vw;
-  height:100vh;
-  background:black;
-}
-</style>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+    }
+  </style>
 </head>
 
 <body>
 
-<model-viewer
-  src="evangelion1.glb"
+  <model-viewer
+    src="evangelion1.glb"
+    ios-src="evangelion1.usdc"
 
-  camera-controls
-  auto-rotate
+    ar
+    ar-modes="webxr scene-viewer quick-look"
 
-  environment-image="neutral"
-  exposure="1.4"
+    camera-controls
+    auto-rotate
 
-  shadow-intensity="0.8"
-  tone-mapping="commerce"
+    exposure="0.7"
+    shadow-intensity="1"
+    shadow-softness="1"
 
-  interaction-prompt="none"
-  skybox-image=""
->
-</model-viewer>
+    environment-image="https://modelviewer.dev/shared-assets/environments/neutral.hdr"
+
+    tone-mapping="aces"
+  >
+  </model-viewer>
 
 </body>
 </html>
