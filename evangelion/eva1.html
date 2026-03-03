@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD - RESET REAL</title>
+<title>EVA AT FIELD CLEAN</title>
 
 <style>
 body{
@@ -57,7 +57,7 @@ let anillos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=100",(gltf)=>{
+loader.load("evangelion1.glb?v=200",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -76,14 +76,12 @@ loader.load("evangelion1.glb?v=100",(gltf)=>{
      obj.name==="escudo2" ||
      obj.name==="escudo3"){
 
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0xff8800, // color original
-      emissive: 0xff5500,
-      emissiveIntensity: 0,
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xff8800,
       transparent: true,
-      opacity: 0.10, // translúcido base real
-      side: THREE.DoubleSide,
-      depthWrite: false
+      opacity: 0.10,
+      depthWrite: false,
+      side: THREE.DoubleSide
     });
 
     obj.material = mat;
@@ -92,8 +90,9 @@ loader.load("evangelion1.glb?v=100",(gltf)=>{
 
   // ANILLOS
   if(obj.name.includes("anillo")){
-    obj.material.emissive = new THREE.Color(0xffaa00);
-    obj.material.emissiveIntensity = 3;
+    obj.material = new THREE.MeshBasicMaterial({
+      color: 0xffaa00
+    });
     anillos.push(obj);
   }
 
@@ -101,8 +100,6 @@ loader.load("evangelion1.glb?v=100",(gltf)=>{
 
 });
 
-
-// 🎨 Paleta anime
 const palette=[
  0xffb300,
  0xff0000,
@@ -112,35 +109,28 @@ const palette=[
  0xff8800
 ];
 
-
 function animate(t){
 
  requestAnimationFrame(animate);
 
  const time = t * 0.001;
 
- // 🔥 Reset global cada 1 segundo
+ // Reset cada 1 segundo
  const resetGlobal = (time % 1) < 0.2;
 
  escudos.forEach((obj,i)=>{
 
-  if(!obj) return;
-
   if(resetGlobal){
 
-    // ESTADO ORIGINAL
-    obj.material.emissiveIntensity = 0;
     obj.material.opacity = 0.10;
     obj.material.color.set(0xff8800);
     obj.scale.set(1,1,1);
-
     return;
   }
 
-  // Ciclo individual
   const ciclo = (time + i*0.8) % 3;
 
-  let intensidad = 0;
+  let intensidad=0;
 
   if(ciclo < 0.8){
     intensidad = ciclo / 0.8;
@@ -148,27 +138,23 @@ function animate(t){
   else if(ciclo < 1.6){
     intensidad = 1 - ((ciclo-0.8)/0.8);
   }
-  else{
-    intensidad = 0;
-  }
 
-  obj.material.emissiveIntensity = intensidad * 6;
-  obj.material.opacity = 0.10 + intensidad * 0.30;
+  obj.material.color.set(
+    palette[Math.floor(time*1.5 + i) % palette.length]
+  );
+
+  obj.material.opacity = 0.10 + intensidad * 0.25;
 
   const s = 1 + Math.sin(time*30 + i)*0.01*intensidad;
   obj.scale.set(s,s,s);
 
  });
 
-
- // RGB en anillos
  anillos.forEach((a,i)=>{
 
-  const color = new THREE.Color(
+  a.material.color.set(
     palette[Math.floor(time*1.5 + i) % palette.length]
   );
-
-  a.material.emissive = color;
 
   const pulso = 1 + Math.sin(time*20 + i)*0.03;
   a.scale.set(pulso,pulso,pulso);
