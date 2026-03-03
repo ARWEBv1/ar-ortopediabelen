@@ -2,13 +2,39 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD - GRIETA Y=1.4</title>
+<title>EVA AT FIELD</title>
 
 <style>
 body{
   margin:0;
   overflow:hidden;
   background:black;
+}
+
+#btnPause{
+  position:fixed;
+  top:20px;
+  left:20px;
+  padding:10px 18px;
+  background:#ff0066;
+  color:white;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:10;
+}
+
+#btnCapture{
+  position:fixed;
+  top:20px;
+  left:150px;
+  padding:10px 18px;
+  background:#00bfff;
+  color:white;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:10;
 }
 </style>
 
@@ -23,11 +49,24 @@ body{
 </head>
 <body>
 
+<button id="btnPause">PAUSAR</button>
+<button id="btnCapture">📸 CAPTURA</button>
+
 <script type="module">
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+let running = true;
+
+const btnPause = document.getElementById("btnPause");
+const btnCapture = document.getElementById("btnCapture");
+
+btnPause.onclick = ()=>{
+  running = !running;
+  btnPause.textContent = running ? "PAUSAR" : "CONTINUAR";
+};
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
@@ -35,10 +74,21 @@ scene.background = new THREE.Color(0x000000);
 const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.01, 1000);
 camera.position.set(0,1.5,4);
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
+const renderer = new THREE.WebGLRenderer({
+  antialias:true,
+  preserveDrawingBuffer:true
+});
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
+
+btnCapture.onclick = ()=>{
+  renderer.render(scene,camera);
+  const link = document.createElement("a");
+  link.download = "eva_sachiel.png";
+  link.href = renderer.domElement.toDataURL("image/png");
+  link.click();
+};
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -102,9 +152,7 @@ loader.load("evangelion1.glb", (gltf)=>{
 
           void main(){
 
-            // -------- GRIETA HORIZONTAL Y=1.4 --------
-
-            float heightCenter = 1.4; // 🔺 subida 0.4
+            float heightCenter = 1.4;
 
             float width = 0.05 + crackOpen * 0.25;
 
@@ -159,6 +207,11 @@ loader.load("evangelion1.glb", (gltf)=>{
 function animate(t){
 
   requestAnimationFrame(animate);
+
+  if(!running){
+    renderer.render(scene,camera);
+    return;
+  }
 
   const time = t * 0.001;
 
