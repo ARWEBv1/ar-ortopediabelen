@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD FINAL</title>
+<title>EVA AT FIELD TRANSLÚCIDO</title>
 
 <style>
 body{
@@ -50,8 +50,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
-
-// 🔥 ILUMINACIÓN BUENA (DEVUELVE VOLUMEN)
+// 🔥 ILUMINACIÓN REAL (NO PLANA)
 
 const ambient = new THREE.AmbientLight(0xffffff, 0.35);
 scene.add(ambient);
@@ -60,13 +59,12 @@ const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
 dirLight.position.set(5, 10, 5);
 scene.add(dirLight);
 
-
 let escudos=[];
 let anillos=[];
 
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=500",(gltf)=>{
+loader.load("evangelion1.glb?v=800",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -80,20 +78,19 @@ loader.load("evangelion1.glb?v=500",(gltf)=>{
 
   if(!obj.isMesh) return;
 
-  // ESCUDOS
+  // 🔥 ESCUDOS MÁS TRANSLÚCIDOS
   if(obj.name==="escudo1" ||
      obj.name==="escudo2" ||
      obj.name==="escudo3"){
 
-    const mat = new THREE.MeshBasicMaterial({
+    obj.material = new THREE.MeshBasicMaterial({
       color: 0xff8800,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.04,      // 🔥 MÁS TRANSLÚCIDO
       depthWrite: false,
       side: THREE.DoubleSide
     });
 
-    obj.material = mat;
     escudos.push(obj);
   }
 
@@ -124,16 +121,15 @@ function animate(t){
 
  const time = t * 0.001;
 
- // 🔥 cada 1 segundo se apagan (0.18s)
+ // 🔥 Cada 1 segundo se apagan
  const resetWindow = (time % 1) < 0.18;
 
  escudos.forEach((obj,i)=>{
 
   if(resetWindow){
 
-    // SIN COLOR, SOLO TRANSLÚCIDO
     obj.material.color.set(0xffffff);
-    obj.material.opacity = 0.06;
+    obj.material.opacity = 0.04;  // translúcido base
     obj.scale.set(1,1,1);
     return;
   }
@@ -153,14 +149,15 @@ function animate(t){
     palette[Math.floor(time*1.5 + i) % palette.length]
   );
 
-  obj.material.opacity = 0.08 + intensidad * 0.25;
+  // 🔥 OPACIDAD REDUCIDA (YA NO PARED SÓLIDA)
+  obj.material.opacity = 0.04 + intensidad * 0.12;
 
   const s = 1 + Math.sin(time*30 + i)*0.01*intensidad;
   obj.scale.set(s,s,s);
 
  });
 
- // RGB anillos
+ // RGB en anillos
  anillos.forEach((a,i)=>{
 
   a.material.color.set(
