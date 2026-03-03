@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD - GRIETA HORIZONTAL</title>
+<title>EVA AT FIELD - GRIETA HORIZONTAL Y=1</title>
 
 <style>
 body{
@@ -102,9 +102,10 @@ loader.load("evangelion1.glb", (gltf)=>{
 
           void main(){
 
-            // -------- GRIETA HORIZONTAL --------
+            // -------- GRIETA HORIZONTAL BAJADA --------
 
-            float heightCenter = 2.0;   // 🔻 bajada 1 unidad
+            float heightCenter = 1.0; // 🔻 bajada adicional
+
             float width = 0.05 + crackOpen * 0.25;
 
             float dist = abs(vWorldPos.y - heightCenter);
@@ -120,14 +121,10 @@ loader.load("evangelion1.glb", (gltf)=>{
               discard;
             }
 
-            // -------- RESET --------
-
             if(reset > 0.5){
               gl_FragColor = vec4(1.0,1.0,1.0,0.05);
               return;
             }
-
-            // -------- RGB --------
 
             float flow = vUv.y + time*2.0 + offset;
 
