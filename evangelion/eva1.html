@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>EVA AT FIELD FINAL</title>
+<title>EVA AT FIELD VIOLENCE</title>
 
 <style>
 body{
@@ -94,7 +94,7 @@ btnShot.onclick = ()=>{
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enableDamping = true;
 
-// 🔥 Iluminación EVA correcta
+// 🔥 iluminación correcta EVA
 scene.add(new THREE.AmbientLight(0xffffff,0.35));
 const dirLight = new THREE.DirectionalLight(0xffffff,1.4);
 dirLight.position.set(5,10,5);
@@ -103,9 +103,46 @@ scene.add(dirLight);
 let escudos=[];
 let anillos=[];
 
+// 🔥 POLVO EN LA BASE
+let dust;
+let dustPositions;
+const dustCount = 250;
+
+function createDust(){
+
+  const geometry = new THREE.BufferGeometry();
+  dustPositions = new Float32Array(dustCount * 3);
+
+  for(let i=0;i<dustCount;i++){
+
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * 0.5;
+
+    dustPositions[i*3]   = Math.cos(angle) * radius;
+    dustPositions[i*3+1] = 0;
+    dustPositions[i*3+2] = Math.sin(angle) * radius;
+  }
+
+  geometry.setAttribute("position", new THREE.BufferAttribute(dustPositions,3));
+
+  const material = new THREE.PointsMaterial({
+    color:0xffffff,
+    size:0.05,
+    transparent:true,
+    opacity:0.6,
+    depthWrite:false
+  });
+
+  dust = new THREE.Points(geometry,material);
+  dust.position.set(0,-2,0);
+  scene.add(dust);
+}
+
+createDust();
+
 const loader=new GLTFLoader();
 
-loader.load("evangelion1.glb?v=1500",(gltf)=>{
+loader.load("evangelion1.glb?v=2000",(gltf)=>{
 
  const container=new THREE.Group();
  scene.add(container);
@@ -182,7 +219,7 @@ loader.load("evangelion1.glb?v=1500",(gltf)=>{
     escudos.push(obj);
   }
 
-  // 🔥 ANILLOS RGB FLUYENDO
+  // 🔥 ANILLOS RGB
   if(obj.name.includes("anillo")){
 
     const ringIndex = anillos.length;
@@ -263,6 +300,31 @@ function animate(t){
      const pulse = 1 + Math.sin(time*3 + i)*0.05;
      a.scale.set(pulse,pulse,pulse);
    });
+
+   // 💥 POLVO
+   if(dust){
+     const positions = dust.geometry.attributes.position.array;
+
+     for(let i=0;i<dustCount;i++){
+
+       let x = positions[i*3];
+       let z = positions[i*3+2];
+
+       positions[i*3]   += x * 0.02;
+       positions[i*3+2] += z * 0.02;
+       positions[i*3+1] += 0.01;
+
+       if(Math.sqrt(x*x+z*z) > 2){
+         const angle = Math.random()*Math.PI*2;
+         const radius = Math.random()*0.5;
+         positions[i*3]   = Math.cos(angle)*radius;
+         positions[i*3+1] = 0;
+         positions[i*3+2] = Math.sin(angle)*radius;
+       }
+     }
+
+     dust.geometry.attributes.position.needsUpdate = true;
+   }
  }
 
  controls.update();
