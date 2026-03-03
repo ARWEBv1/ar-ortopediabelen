@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Kid Buu FINAL CONTROL</title>
+<style>
+body{
+ margin:0;
+ overflow:hidden;
+ background:radial-gradient(circle,#120018,#000);
+}
+
+#flash{
+ position:fixed;
+ inset:0;
+ background:white;
+ opacity:0;
+ pointer-events:none;
+}
+
+#btn{
+ position:fixed;
+ top:20px;
+ left:20px;
+ padding:10px 18px;
+ background:#ff00aa;
+ color:white;
+ border:none;
+ font-weight:bold;
+ cursor:pointer;
+ z-index:10;
+}
+
+#capture{
+ position:fixed;
+ top:20px;
+ left:150px;
+ padding:10px 18px;
+ background:#00bfff;
+ color:white;
+ border:none;
+ font-weight:bold;
+ cursor:pointer;
+ z-index:10;
+}
+</style>
+</head>
+<body>
+
+<button id="btn">DETENER</button>
+<button id="capture">📸 CAPTURA HD</button>
+<div id="flash"></div>
+
+<script type="importmap">
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/"
+ }
+}
+</script>
+
+<script type="module">
+
+import * as THREE from "three";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+
+const flash=document.getElementById("flash");
+const btn=document.getElementById("btn");
+const captureBtn=document.getElementById("capture");
+
+let running=true;
+
+btn.onclick=()=>{
+
+ running=!running;
+ btn.textContent=running?"DETENER":"CONTINUAR";
+
+ if(!running){
+   flash.style.opacity=0;
+   flashPower=0;
+ }
+
+};
+
+// 📸 CAPTURA
+captureBtn.onclick=()=>{
+
+ renderer.render(scene,camera);
+
+ const link=document.createElement("a");
+ link.download="kidbuu.png"; // 🔥 nombre cambiado
+ link.href=renderer.domElement.toDataURL("image/png");
+ link.click();
+};
+
+let model;
+let energySphere;
+let modelHeight=2;
+
+let orbs=[];
+let lightning=[];
+let spawnPos=new THREE.Vector3();
+
+let flashPower=0;
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x050005);
+
+const camera=new THREE.PerspectiveCamera(
+60,innerWidth/innerHeight,0.01,1000
+);
+
+// 🔥 VISTA DESDE ABAJO
+camera.position.set(0,-1.8,4.2);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+
+scene.add(new THREE.AmbientLight(0xffffff,2));
+
+const light=new THREE.DirectionalLight(0xff00ff,3);
+light.position.set(5,10,5);
+scene.add(light);
+
+// ---------- LOAD ----------
+const loader=new GLTFLoader();
+
+loader.load(
+"/ar-ortopediabelen/kidbuu/kidbuu1.glb",
+(gltf)=>{
+
+ model=gltf.scene;
+ scene.add(model);
+
+ model.traverse((obj)=>{
+
+  if(obj.isMesh){
+
+   if(
+    obj.name.toLowerCase().includes("sphere") ||
+    obj.name.toLowerCase().includes("planet")
+   ){
+
+    energySphere=obj;
+
+    energySphere.material=new THREE.MeshBasicMaterial({
+      color:0xff0088,
+      transparent:true,
+      opacity:0.6,
+      blending:THREE.AdditiveBlending
+    });
+   }
+  }
+ });
+
+ const box=new THREE.Box3().setFromObject(model);
+ const center=box.getCenter(new THREE.Vector3());
+ const size=box.getSize(new THREE.Vector3());
+
+ modelHeight=size.y;
+ model.position.sub(center);
+
+ // 🔥 enfoque torso (look anime)
+ controls.target.set(0,1.2,0);
+
+ const colors=[0xff0000,0x6600ff,0xffff00];
+
+ for(let i=0;i<3;i++){
+
+  const orb=new THREE.Mesh(
+   new THREE.SphereGeometry(1,32,32),
+   new THREE.MeshBasicMaterial({
+    color:colors[i],
+    transparent:true,
+    opacity:0,
+    blending:THREE.AdditiveBlending
+   })
+  );
+
+  orb.userData.offset=i*0.5;
+  scene.add(orb);
+  orbs.push(orb);
+ }
+
+ // rayos
+ for(let i=0;i<16;i++){
+
+  const mat=new THREE.LineBasicMaterial({
+   color:0xffffff,
+   transparent:true,
+   opacity:0.8
+  });
+
+  const geo=new THREE.BufferGeometry();
+  const line=new THREE.Line(geo,mat);
+
+  scene.add(line);
+  lightning.push(line);
+ }
+
+});
+
+// ---------- SHAKE ----------
+function sceneShake(intensity){
+
+ scene.position.set(
+  (Math.random()-0.5)*intensity,
+  (Math.random()-0.5)*intensity,
+  (Math.random()-0.5)*intensity
+ );
+
+}
+
+// ---------- FLASH ----------
+function triggerFlash(){ flashPower=1; }
+
+function updateFlash(){
+ flashPower*=0.85;
+ flash.style.opacity=flashPower;
+}
+
+// ---------- LIGHTNING REAL ----------
+function updateLightning(){
+
+ if(!energySphere) return;
+
+ lightning.forEach((line)=>{
+
+  const start=spawnPos.clone();
+
+  const dir=new THREE.Vector3(
+   Math.random()-0.5,
+   Math.random()-0.5,
+   Math.random()-0.5
+  ).normalize();
+
+  const length=3+Math.random()*3;
+  const end=start.clone().add(dir.multiplyScalar(length));
+
+  const points=[];
+  const segments=6;
+
+  for(let i=0;i<=segments;i++){
+
+    let t=i/segments;
+    const p=new THREE.Vector3().lerpVectors(start,end,t);
+
+    p.x+=(Math.random()-0.5)*0.6;
+    p.y+=(Math.random()-0.5)*0.6;
+    p.z+=(Math.random()-0.5)*0.6;
+
+    points.push(p);
+  }
+
+  line.geometry.setFromPoints(points);
+  line.material.opacity=0.4+Math.random()*0.6;
+
+  if(Math.random()<0.04) triggerFlash();
+
+ });
+
+}
+
+// ---------- ANIMATE ----------
+function animate(t){
+
+ requestAnimationFrame(animate);
+
+ if(running){
+
+  if(energySphere){
+
+   const s=1+Math.sin(t*0.004)*0.08;
+   energySphere.scale.set(s,s,s);
+
+   energySphere.getWorldPosition(spawnPos);
+
+   spawnPos.y -= modelHeight*0.5;
+   spawnPos.y += 3;
+  }
+
+  orbs.forEach((orb)=>{
+
+   if(!energySphere) return;
+
+   let time=(t*0.001+orb.userData.offset);
+   let progress=time%1;
+
+   orb.position.copy(spawnPos);
+
+   const scale=0.4 + progress*9;
+   orb.scale.set(scale,scale,scale);
+
+   orb.material.opacity=1-progress;
+  });
+
+  updateLightning();
+  sceneShake(0.1 + flashPower*0.2);
+ }
+
+ updateFlash();
+
+ controls.update();
+ renderer.render(scene,camera);
+}
+
+animate();
+
+addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
+
+</script>
+</body>
+</html>
