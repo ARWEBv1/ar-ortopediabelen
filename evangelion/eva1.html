@@ -1,4 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>EVA AT FIELD</title>
+
+<style>
+body{
+  margin:0;
+  overflow:hidden;
+  background:black;
+}
+</style>
+
+<!-- IMPORTMAP -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/"
+  }
+}
+</script>
+
+</head>
+<body>
+
 <script type="module">
+
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -7,21 +35,25 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
 const camera = new THREE.PerspectiveCamera(
-60, innerWidth/innerHeight, 0.01, 1000
+  60,
+  window.innerWidth / window.innerHeight,
+  0.01,
+  1000
 );
-camera.position.set(0,1.5,4);
+
+camera.position.set(0, 1.5, 4);
 
 const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(innerWidth, innerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-scene.add(new THREE.AmbientLight(0xffffff,1.5));
+scene.add(new THREE.AmbientLight(0xffffff, 1.5));
 
-const light = new THREE.DirectionalLight(0xffffff,2);
+const light = new THREE.DirectionalLight(0xffffff, 2);
 light.position.set(5,10,5);
 scene.add(light);
 
@@ -30,20 +62,22 @@ let anillos = [];
 
 const loader = new GLTFLoader();
 
-loader.load("evangelion1.glb?v=3",(gltf)=>{
+loader.load("evangelion1.glb?v=5", (gltf)=>{
 
- const model = gltf.scene;
- scene.add(model);
+  const model = gltf.scene;
+  scene.add(model);
 
- model.traverse((obj)=>{
+  model.traverse((obj)=>{
 
-   if(!obj.isMesh) return;
+    if(!obj.isMesh) return;
 
-   if(obj.name === "escudo1") escudo1 = obj;
-   if(obj.name === "escudo2") escudo2 = obj;
-   if(obj.name === "escudo3") escudo3 = obj;
+    // 🔥 Escudos
+    if(obj.name === "escudo1") escudo1 = obj;
+    if(obj.name === "escudo2") escudo2 = obj;
+    if(obj.name === "escudo3") escudo3 = obj;
 
-   if(obj.name.startsWith("anillo")){
+    // 🌈 Anillos RGB
+    if(obj.name.startsWith("anillo")){
       anillos.push(obj);
 
       obj.material = new THREE.MeshBasicMaterial({
@@ -52,48 +86,57 @@ loader.load("evangelion1.glb?v=3",(gltf)=>{
         opacity:1,
         blending:THREE.AdditiveBlending
       });
-   }
+    }
 
- });
+  });
 
 });
 
 function vibrar(obj, intensidad){
- if(!obj) return;
- obj.position.x = (Math.random()-0.5)*intensidad;
- obj.position.y = (Math.random()-0.5)*intensidad;
+  if(!obj) return;
+  obj.position.x = (Math.random()-0.5)*intensidad;
+  obj.position.y = (Math.random()-0.5)*intensidad;
 }
 
 function animate(t){
 
- requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 
- const time = t * 0.001;
+  const time = t * 0.001;
 
- // 🔥 Vibración escalonada
- vibrar(escudo3, 0.05); // el grande tiembla fuerte
- vibrar(escudo2, 0.02);
- vibrar(escudo1, 0.008);
+  // 🔥 Vibración tipo forcejeo
+  vibrar(escudo3, 0.05);
+  vibrar(escudo2, 0.02);
+  vibrar(escudo1, 0.008);
 
- // 🌈 RGB tubular en anillos
- anillos.forEach((a,i)=>{
-   const hue = (time*0.3 + i*0.15) % 1;
-   const color = new THREE.Color().setHSL(hue,1,0.6);
-   a.material.color = color;
+  // 🌈 RGB dinámico en anillos
+  anillos.forEach((a,i)=>{
 
-   const pulso = 1 + Math.sin(time*4 + i)*0.05;
-   a.scale.set(pulso,pulso,pulso);
- });
+    const hue = (time*0.3 + i*0.15) % 1;
+    const color = new THREE.Color().setHSL(hue,1,0.6);
+    a.material.color = color;
 
- controls.update();
- renderer.render(scene,camera);
+    const pulso = 1 + Math.sin(time*4 + i)*0.05;
+    a.scale.set(pulso,pulso,pulso);
+
+  });
+
+  controls.update();
+  renderer.render(scene,camera);
+
 }
 
 animate();
 
-addEventListener("resize",()=>{
- camera.aspect = innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
+window.addEventListener("resize", ()=>{
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
 });
+
 </script>
+
+</body>
+</html>
