@@ -2,23 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Tanjiro – Web</title>
+  <title>Tanjiro AR</title>
 
-  <script type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-  </script>
+  <!-- Model Viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
+      background-color: #000;
     }
+
     model-viewer {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
     }
   </style>
 </head>
@@ -26,26 +23,17 @@
 <body>
 
   <model-viewer
-    src="models/Tanjiro Constant Flux.glb"
-
-    bounds="tight"
+    src="Tanjiro1.glb"
+    ios-src="Tanjiro1.usdc"
+    alt="Tanjiro Demon Slayer"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
     camera-controls
     auto-rotate
-
-    camera-orbit="0deg 75deg 2.5m"
-    camera-target="0m 1m 0m"
-    field-of-view="45deg"
-
-    exposure="1"
     shadow-intensity="1"
-
+    exposure="1"
     environment-image="neutral"
-    skybox-image="">
-
-    <div style="color:white;text-align:center;">
-      Cargando AR…
-    </div>
-
+  >
   </model-viewer>
 
 </body>
