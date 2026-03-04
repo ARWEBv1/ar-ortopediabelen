@@ -41,9 +41,10 @@ let light = new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,5,5);
 scene.add(light);
 
-// DRAGON PARTS
+// DRAGON
 let dragonParts = [];
 let dragonFloor = null;
+let dragonVisible = false;
 
 let loader = new THREE.GLTFLoader();
 
@@ -72,7 +73,12 @@ n.includes("dragon dientes") ||
 n.includes("dragon ojos") ||
 n.includes("flash")
 ){
+
 dragonParts.push(obj);
+
+// ocultar dragón al inicio
+obj.visible = false;
+
 }
 
 if(n.includes("dragon agua piso")){
@@ -98,18 +104,30 @@ function getColor(t){
 return colors[Math.floor(t)%colors.length];
 }
 
-let clock=new THREE.Clock();
+let clock = new THREE.Clock();
+
+// activar dragón con click
+window.addEventListener("click",()=>{
+
+dragonVisible = true;
+
+dragonParts.forEach(part=>{
+part.visible = true;
+});
+
+});
 
 function animate(){
 
 requestAnimationFrame(animate);
 
-let t=clock.getElapsedTime();
+let t = clock.getElapsedTime();
+
+if(dragonVisible){
 
 let energy=(Math.sin(t*2)+1)/2;
 
-// DRAGON COMO UNA SOLA PIEZA
-dragonParts.forEach((part)=>{
+dragonParts.forEach(part=>{
 
 part.material.emissive = new THREE.Color(0x66ccff);
 part.material.emissiveIntensity = energy*2;
@@ -118,7 +136,9 @@ part.material.color.copy(getColor(t)).multiplyScalar(energy+0.3);
 
 });
 
-// RGB PISO DRAGON AGUA
+}
+
+// RGB piso dragón
 if(dragonFloor){
 
 let r=(Math.sin(t)+1)/2;
