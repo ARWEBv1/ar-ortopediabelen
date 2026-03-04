@@ -2,22 +2,20 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Water Dragon</title>
+<title>Water Dragon Energy</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
-
 body{
 margin:0;
-background:radial-gradient(circle,#001a2d,#000);
+background:black;
 }
 
 model-viewer{
 width:100vw;
 height:100vh;
 }
-
 </style>
 </head>
 
@@ -26,7 +24,6 @@ height:100vh;
 <model-viewer
 id="dragon"
 src="./Tanjiro1.glb"
-ios-src="./Tanjiro1.usdc"
 camera-controls
 environment-image="neutral"
 exposure="1.8">
@@ -40,78 +37,54 @@ model.addEventListener("load",()=>{
 
 const materials=model.model.materials
 
-const boca=materials.find(m=>m.name==="dragon boca")
-const cabeza=materials.find(m=>m.name==="dragon cabeza")
-const cuerpo=materials.find(m=>m.name==="dragon cuerpo largo")
+// detectar materiales correctamente
+const boca=materials.find(m=>m.name.toLowerCase().includes("dragon boca"))
+const cabeza=materials.find(m=>m.name.toLowerCase().includes("dragon cabeza"))
+const cuerpo=materials.find(m=>m.name.toLowerCase().includes("dragon cuerpo largo"))
+
+console.log("boca:",boca)
+console.log("cabeza:",cabeza)
+console.log("cuerpo:",cuerpo)
 
 let t=0
 
-function waterPalette(v){
+// colores agua
+const colores=[
+[0.6,0.9,1],   // celeste
+[0.2,0.5,1],   // azul
+[0.05,0.1,0.4],// azul marino
+[1,1,1],       // blanco
+[0,1,0.9]      // calipso
+]
 
-// paleta agua
-let celeste=[0.4,0.8,1]
-let azul=[0.2,0.4,1]
-let marino=[0.05,0.1,0.5]
-let blanco=[1,1,1]
-let calipso=[0,1,0.9]
+function getColor(time){
 
-let colores=[celeste,azul,marino,blanco,calipso]
-
-let i=Math.floor(v)%colores.length
-
+let i=Math.floor(time)%colores.length
 return colores[i]
 
 }
 
 function animate(){
 
-t+=0.06
+t+=0.05
 
-// fases para que la energía viaje
 let faseBoca=t
-let faseCabeza=t-1.5
-let faseCuerpo=t-3
+let faseCabeza=t-1
+let faseCuerpo=t-2
 
-// boca
 if(boca){
-
-let color=waterPalette(faseBoca)
-
-boca.pbrMetallicRoughness.setBaseColorFactor([
-color[0],
-color[1],
-color[2],
-1
-])
-
+let c=getColor(faseBoca)
+boca.pbrMetallicRoughness.setBaseColorFactor([c[0],c[1],c[2],1])
 }
 
-// cabeza
 if(cabeza){
-
-let color=waterPalette(faseCabeza)
-
-cabeza.pbrMetallicRoughness.setBaseColorFactor([
-color[0],
-color[1],
-color[2],
-1
-])
-
+let c=getColor(faseCabeza)
+cabeza.pbrMetallicRoughness.setBaseColorFactor([c[0],c[1],c[2],1])
 }
 
-// cuerpo largo
 if(cuerpo){
-
-let color=waterPalette(faseCuerpo)
-
-cuerpo.pbrMetallicRoughness.setBaseColorFactor([
-color[0],
-color[1],
-color[2],
-1
-])
-
+let c=getColor(faseCuerpo)
+cuerpo.pbrMetallicRoughness.setBaseColorFactor([c[0],c[1],c[2],1])
 }
 
 requestAnimationFrame(animate)
