@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon Energy</title>
+<title>Tanjiro Water Dragon Energy</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -32,7 +32,6 @@ camera-controls
 exposure="2"
 shadow-intensity="1"
 environment-image="neutral">
-
 </model-viewer>
 
 <script>
@@ -43,77 +42,69 @@ model.addEventListener("load",()=>{
 
 const materials=model.model.materials
 
-// materiales confirmados
 const boca=materials.find(m=>m.name==="dragon boca")
 const cabeza=materials.find(m=>m.name==="dragon cabeza")
 const cuerpo=materials.find(m=>m.name==="dragon cuerpo largo")
 
-// piso RGB
-const piso=materials.find(m=>m.name==="Material.005")
-
 let t=0
+
+function waterColor(t){
+
+let r = 0.3 + Math.sin(t)*0.2
+let g = 0.7 + Math.sin(t+1)*0.2
+let b = 1
+
+return [r,g,b]
+
+}
 
 function animate(){
 
-t+=0.08
+t += 0.06
 
-// energía que viaja por el dragón
-let energia1=(Math.sin(t)+1)/2
-let energia2=(Math.sin(t+1.5)+1)/2
-let energia3=(Math.sin(t+3)+1)/2
+// retrasos para crear movimiento de energía
+let faseBoca = t
+let faseCabeza = t - 1.2
+let faseCuerpo = t - 2.4
 
-// cuerpo (base)
-if(cuerpo){
-
-cuerpo.emissiveFactor=[
-0,
-energia1*2,
-energia1*3
-]
-
-}
-
-// cabeza (recibe energía después)
-if(cabeza){
-
-cabeza.emissiveFactor=[
-0.2,
-energia2*3,
-energia2*4
-]
-
-}
-
-// boca (explosión de energía)
+// boca (inicio energía)
 if(boca){
 
-boca.emissiveFactor=[
-0.5,
-energia3*4,
-energia3*5
+let intensidad = (Math.sin(faseBoca)+1)/2
+let color = waterColor(faseBoca)
+
+boca.emissiveFactor = [
+color[0]*intensidad*4,
+color[1]*intensidad*4,
+color[2]*intensidad*4
 ]
 
 }
 
-// RGB en el piso
+// cabeza (energía después)
+if(cabeza){
 
-if(piso){
+let intensidad = (Math.sin(faseCabeza)+1)/2
+let color = waterColor(faseCabeza)
 
-let r=(Math.sin(t*0.7)+1)/2
-let g=(Math.sin(t*0.7+2)+1)/2
-let b=(Math.sin(t*0.7+4)+1)/2
+cabeza.emissiveFactor = [
+color[0]*intensidad*3,
+color[1]*intensidad*3,
+color[2]*intensidad*3
+]
 
-piso.pbrMetallicRoughness.setBaseColorFactor([
-r,
-g,
-b,
-1
-])
+}
 
-piso.emissiveFactor=[
-r*3,
-g*3,
-b*3
+// cuerpo largo (última ola)
+if(cuerpo){
+
+let intensidad = (Math.sin(faseCuerpo)+1)/2
+let color = waterColor(faseCuerpo)
+
+cuerpo.emissiveFactor = [
+color[0]*intensidad*2,
+color[1]*intensidad*2,
+color[2]*intensidad*2
 ]
 
 }
