@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Water Dragon</title>
+<title>Tanjiro Water Dragon Cinematic</title>
 
 <style>
 body{
@@ -15,6 +15,9 @@ background:black;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
 </head>
 
@@ -78,8 +81,22 @@ if(n.includes("dragon cuerpo largo")) cuerpo=obj;
 
 });
 
-let clock=new THREE.Clock();
+// bloom
+let composer = new THREE.EffectComposer(renderer);
 
+let renderPass = new THREE.RenderPass(scene,camera);
+composer.addPass(renderPass);
+
+let bloomPass = new THREE.UnrealBloomPass(
+new THREE.Vector2(window.innerWidth,window.innerHeight),
+1.5,
+0.4,
+0.1
+);
+
+composer.addPass(bloomPass);
+
+// colores agua
 let colors=[
 new THREE.Color(0.6,0.9,1),
 new THREE.Color(0.2,0.5,1),
@@ -93,8 +110,9 @@ return colors[Math.floor(t)%colors.length];
 }
 
 // partículas agua
-let particleCount=200;
-let particles=new THREE.BufferGeometry();
+let particlesGeometry=new THREE.BufferGeometry();
+let particleCount=300;
+
 let positions=[];
 
 for(let i=0;i<particleCount;i++){
@@ -107,21 +125,21 @@ Math.random()*2,
 
 }
 
-particles.setAttribute(
-"position",
+particlesGeometry.setAttribute(
+'position',
 new THREE.Float32BufferAttribute(positions,3)
 );
 
-let particleMaterial=new THREE.PointsMaterial({
+let particlesMaterial=new THREE.PointsMaterial({
 color:0x66ccff,
 size:0.03
 });
 
-let particleSystem=new THREE.Points(particles,particleMaterial);
+let particleSystem=new THREE.Points(particlesGeometry,particlesMaterial);
 scene.add(particleSystem);
 
 // piso ondas
-let floorGeometry=new THREE.PlaneGeometry(10,10,50,50);
+let floorGeometry=new THREE.PlaneGeometry(10,10,60,60);
 let floorMaterial=new THREE.MeshBasicMaterial({
 color:0x001a2d,
 wireframe:true
@@ -132,31 +150,33 @@ floor.rotation.x=-Math.PI/2;
 floor.position.y=-1;
 scene.add(floor);
 
+let clock=new THREE.Clock();
+
 function animate(){
 
 requestAnimationFrame(animate);
 
 let t=clock.getElapsedTime();
 
-// energía dragón
 let e1=(Math.sin(t)+1)/2;
 let e2=(Math.sin(t-1)+1)/2;
 let e3=(Math.sin(t-2)+1)/2;
 
+// energía dragón
 if(boca){
-boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.4);
+boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.5);
 }
 
 if(cabeza){
-cabeza.material.color.copy(getColor(t-1)).multiplyScalar(e2+0.4);
+cabeza.material.color.copy(getColor(t-1)).multiplyScalar(e2+0.5);
 }
 
 if(cuerpo){
-cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.4);
+cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.5);
 }
 
-// animar partículas
-particleSystem.rotation.y+=0.002;
+// partículas
+particleSystem.rotation.y += 0.002;
 
 // ondas piso
 let verts=floor.geometry.attributes.position;
@@ -164,8 +184,7 @@ let verts=floor.geometry.attributes.position;
 for(let i=0;i<verts.count;i++){
 
 let x=verts.getX(i);
-let y=verts.getY(i);
-let wave=Math.sin(x*2+t)*0.1;
+let wave=Math.sin(x*2+t)*0.15;
 
 verts.setZ(i,wave);
 
@@ -174,7 +193,7 @@ verts.setZ(i,wave);
 verts.needsUpdate=true;
 
 controls.update();
-renderer.render(scene,camera);
+composer.render();
 
 }
 
