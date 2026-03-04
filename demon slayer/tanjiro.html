@@ -8,13 +8,13 @@
 body{
 margin:0;
 overflow:hidden;
-background:black;
+background:#111;
 }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
 
 </head>
 
@@ -116,6 +116,7 @@ if(cuerpo){
 cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.3);
 }
 
+controls.update();
 renderer.render(scene,camera);
 
 }
