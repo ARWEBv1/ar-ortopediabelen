@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Water Dragon</title>
+<title>Tanjiro Dragon Summon</title>
 
 <style>
 body{
@@ -25,17 +25,11 @@ background:black;
 let scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
-let camera = new THREE.PerspectiveCamera(
-60,
-window.innerWidth/window.innerHeight,
-0.1,
-100
-);
-
+let camera = new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,100);
 camera.position.set(0,1.5,4);
 
 let renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
 let controls = new THREE.OrbitControls(camera,renderer.domElement);
@@ -51,7 +45,7 @@ let boca,cabeza,cuerpo;
 
 let loader = new THREE.GLTFLoader();
 
-loader.load("Tanjiro1.glb",function(gltf){
+loader.load("Tanjiro1.glb",(gltf)=>{
 
 let model=gltf.scene;
 scene.add(model);
@@ -62,7 +56,7 @@ let center=box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
 // detectar partes del dragón
-model.traverse(function(obj){
+model.traverse((obj)=>{
 
 if(obj.isMesh){
 
@@ -80,38 +74,36 @@ if(n.includes("dragon cuerpo largo")) cuerpo=obj;
 
 let clock=new THREE.Clock();
 
+let summonProgress=0;
+
 // colores agua
 let colors=[
 new THREE.Color(0.6,0.9,1),
 new THREE.Color(0.2,0.5,1),
 new THREE.Color(0,1,0.9),
-new THREE.Color(1,1,1),
-new THREE.Color(0.05,0.1,0.4)
+new THREE.Color(1,1,1)
 ];
 
 function getColor(t){
 return colors[Math.floor(t)%colors.length];
 }
 
-// partículas agua
-let particleCount=300;
+// partículas
+let particleCount=400;
 let particles=new THREE.BufferGeometry();
 let positions=[];
 
 for(let i=0;i<particleCount;i++){
 
 positions.push(
-(Math.random()-0.5)*4,
-Math.random()*2,
-(Math.random()-0.5)*4
+(Math.random()-0.5)*6,
+Math.random()*3,
+(Math.random()-0.5)*6
 )
 
 }
 
-particles.setAttribute(
-"position",
-new THREE.Float32BufferAttribute(positions,3)
-);
+particles.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
 
 let particleMaterial=new THREE.PointsMaterial({
 color:0x66ccff,
@@ -121,8 +113,8 @@ size:0.03
 let particleSystem=new THREE.Points(particles,particleMaterial);
 scene.add(particleSystem);
 
-// piso ondas
-let floorGeometry=new THREE.PlaneGeometry(10,10,60,60);
+// piso
+let floorGeometry=new THREE.PlaneGeometry(10,10,80,80);
 let floorMaterial=new THREE.MeshBasicMaterial({
 color:0x001a2d,
 wireframe:true
@@ -139,15 +131,17 @@ requestAnimationFrame(animate);
 
 let t=clock.getElapsedTime();
 
+summonProgress += 0.002;
+
 // energía dragón
-let e1=(Math.sin(t)+1)/2;
-let e2=(Math.sin(t-1)+1)/2;
-let e3=(Math.sin(t-2)+1)/2;
+let e1=Math.max(0,(summonProgress*3)-0.2);
+let e2=Math.max(0,(summonProgress*3)-1);
+let e3=Math.max(0,(summonProgress*3)-2);
 
 if(boca){
 
-boca.material.emissive = new THREE.Color(0x66ccff);
-boca.material.emissiveIntensity = e1*2;
+boca.material.emissive=new THREE.Color(0x66ccff);
+boca.material.emissiveIntensity=e1*3;
 
 boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.4);
 
@@ -155,40 +149,40 @@ boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.4);
 
 if(cabeza){
 
-cabeza.material.emissive = new THREE.Color(0x66ccff);
-cabeza.material.emissiveIntensity = e2*2;
+cabeza.material.emissive=new THREE.Color(0x66ccff);
+cabeza.material.emissiveIntensity=e2*3;
 
-cabeza.material.color.copy(getColor(t-1)).multiplyScalar(e2+0.4);
+cabeza.material.color.copy(getColor(t)).multiplyScalar(e2+0.4);
 
 }
 
 if(cuerpo){
 
-cuerpo.material.emissive = new THREE.Color(0x66ccff);
-cuerpo.material.emissiveIntensity = e3*2;
+cuerpo.material.emissive=new THREE.Color(0x66ccff);
+cuerpo.material.emissiveIntensity=e3*3;
 
-cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.4);
+cuerpo.material.color.copy(getColor(t)).multiplyScalar(e3+0.4);
 
 }
 
-// partículas vapor agua
-let pos = particleSystem.geometry.attributes.position;
+// partículas agua
+let pos=particleSystem.geometry.attributes.position;
 
 for(let i=0;i<pos.count;i++){
 
-let y = pos.getY(i);
+let y=pos.getY(i);
 
-y += 0.002;
+y+=0.004;
 
-if(y > 2) y = 0;
+if(y>3) y=0;
 
 pos.setY(i,y);
 
 }
 
-pos.needsUpdate = true;
+pos.needsUpdate=true;
 
-// ondas agua piso
+// ondas piso
 let verts=floor.geometry.attributes.position;
 
 for(let i=0;i<verts.count;i++){
@@ -196,7 +190,7 @@ for(let i=0;i<verts.count;i++){
 let x=verts.getX(i);
 let y=verts.getY(i);
 
-let wave=Math.sin((x+y)*2+t)*0.15;
+let wave=Math.sin((x+y)*3+t*2)*0.15;
 
 verts.setZ(i,wave);
 
