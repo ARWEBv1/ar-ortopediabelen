@@ -2,102 +2,128 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Water Dragon - Three.js</title>
+<title>Tanjiro Dragon</title>
+
 <style>
-  body { margin:0; overflow:hidden; background:black; }
-  canvas { display:block; }
+body{
+margin:0;
+overflow:hidden;
+background:black;
+}
+canvas{
+display:block;
+}
 </style>
 </head>
+
 <body>
 
 <script type="module">
 
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
-import { GLTFLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
-import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+import {GLTFLoader} from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import {OrbitControls} from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-let scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000000);
+let scene=new THREE.Scene();
+scene.background=new THREE.Color(0x000000);
 
-let camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 100);
-camera.position.set(0,1.5,3);
+let camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,100);
+camera.position.set(0,1.5,4);
 
-let renderer = new THREE.WebGLRenderer({antialias:true});
+let renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 document.body.appendChild(renderer.domElement);
 
-let controls = new OrbitControls(camera,renderer.domElement);
+let controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
-let light = new THREE.HemisphereLight(0xffffff,0x444444,2);
-scene.add(light);
+let light1=new THREE.HemisphereLight(0xffffff,0x444444,2);
+scene.add(light1);
 
-let loader = new GLTFLoader();
+let light2=new THREE.DirectionalLight(0xffffff,2);
+light2.position.set(3,5,3);
+scene.add(light2);
 
-let boca, cabeza, cuerpo;
+let loader=new GLTFLoader();
+
+let boca,cabeza,cuerpo;
 
 loader.load("Tanjiro1.glb",(gltf)=>{
 
-    let model = gltf.scene;
-    scene.add(model);
+let model=gltf.scene;
 
-    model.traverse((obj)=>{
+// CENTRAR MODELO
+const box=new THREE.Box3().setFromObject(model);
+const center=box.getCenter(new THREE.Vector3());
+model.position.sub(center);
 
-        if(obj.isMesh){
+// ESCALAR MODELO
+const size=box.getSize(new THREE.Vector3()).length();
+const scale=2/size;
+model.scale.setScalar(scale);
 
-            let name = obj.name.toLowerCase();
+scene.add(model);
 
-            if(name.includes("dragon boca")) boca=obj;
-            if(name.includes("dragon cabeza")) cabeza=obj;
-            if(name.includes("dragon cuerpo largo")) cuerpo=obj;
+// detectar partes del dragón
+model.traverse(obj=>{
 
-        }
+if(obj.isMesh){
 
-    });
+let name=obj.name.toLowerCase();
+
+if(name.includes("dragon boca")) boca=obj;
+if(name.includes("dragon cabeza")) cabeza=obj;
+if(name.includes("dragon cuerpo largo")) cuerpo=obj;
+
+}
 
 });
 
-let clock = new THREE.Clock();
+});
+
+let clock=new THREE.Clock();
 
 const waterColors=[
- new THREE.Color(0.6,0.9,1),   // celeste
- new THREE.Color(0.2,0.5,1),   // azul
- new THREE.Color(0,1,0.9),     // calipso
- new THREE.Color(1,1,1),       // blanco
- new THREE.Color(0.05,0.1,0.4) // azul marino
+new THREE.Color(0.6,0.9,1),
+new THREE.Color(0.2,0.5,1),
+new THREE.Color(0,1,0.9),
+new THREE.Color(1,1,1),
+new THREE.Color(0.05,0.1,0.4)
 ];
 
-function colorCycle(t){
- return waterColors[Math.floor(t)%waterColors.length];
+function getColor(t){
+
+return waterColors[Math.floor(t)%waterColors.length];
+
 }
 
 function animate(){
 
- requestAnimationFrame(animate);
+requestAnimationFrame(animate);
 
- let t = clock.getElapsedTime();
+let t=clock.getElapsedTime();
 
- let faseBoca = Math.sin(t)*0.5+0.5;
- let faseCabeza = Math.sin(t-1.2)*0.5+0.5;
- let faseCuerpo = Math.sin(t-2.4)*0.5+0.5;
+let e1=(Math.sin(t)+1)/2;
+let e2=(Math.sin(t-1)+1)/2;
+let e3=(Math.sin(t-2)+1)/2;
 
- if(boca){
-   let c=colorCycle(t);
-   boca.material.color.set(c.clone().multiplyScalar(faseBoca+0.3));
- }
+if(boca){
+let c=getColor(t);
+boca.material.color.copy(c).multiplyScalar(e1+0.3);
+}
 
- if(cabeza){
-   let c=colorCycle(t-1);
-   cabeza.material.color.set(c.clone().multiplyScalar(faseCabeza+0.3));
- }
+if(cabeza){
+let c=getColor(t-1);
+cabeza.material.color.copy(c).multiplyScalar(e2+0.3);
+}
 
- if(cuerpo){
-   let c=colorCycle(t-2);
-   cuerpo.material.color.set(c.clone().multiplyScalar(faseCuerpo+0.3));
- }
+if(cuerpo){
+let c=getColor(t-2);
+cuerpo.material.color.copy(c).multiplyScalar(e3+0.3);
+}
 
- controls.update();
- renderer.render(scene,camera);
+controls.update();
+renderer.render(scene,camera);
 
 }
 
