@@ -2,34 +2,30 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon Test</title>
+<title>Tanjiro Dragon</title>
 
 <style>
 body{
 margin:0;
 overflow:hidden;
-background:#111;
-}
-canvas{
-display:block;
+background:black;
 }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
 </head>
 
 <body>
 
-<script type="module">
+<script>
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-import {GLTFLoader} from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
-import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+let scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
 
-console.log("Three cargado");
-
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x222222);
-
-const camera=new THREE.PerspectiveCamera(
+let camera = new THREE.PerspectiveCamera(
 60,
 window.innerWidth/window.innerHeight,
 0.1,
@@ -38,47 +34,43 @@ window.innerWidth/window.innerHeight,
 
 camera.position.set(0,1.5,4);
 
-const renderer=new THREE.WebGLRenderer({antialias:true});
+let renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;
+let controls = new THREE.OrbitControls(camera,renderer.domElement);
 
-// luces fuertes para evitar negro
-const ambient=new THREE.AmbientLight(0xffffff,3);
+let ambient = new THREE.AmbientLight(0xffffff,2);
 scene.add(ambient);
 
-const dir=new THREE.DirectionalLight(0xffffff,2);
-dir.position.set(5,5,5);
-scene.add(dir);
+let light = new THREE.DirectionalLight(0xffffff,2);
+light.position.set(5,5,5);
+scene.add(light);
 
-let boca,cabeza,cuerpo;
+let boca, cabeza, cuerpo;
 
-const loader=new GLTFLoader();
+let loader = new THREE.GLTFLoader();
 
-loader.load("Tanjiro1.glb",(gltf)=>{
+loader.load("Tanjiro1.glb",function(gltf){
 
-console.log("Modelo cargado");
-
-const model=gltf.scene;
+let model = gltf.scene;
 scene.add(model);
 
 // centrar modelo
-const box=new THREE.Box3().setFromObject(model);
-const center=box.getCenter(new THREE.Vector3());
+let box = new THREE.Box3().setFromObject(model);
+let center = box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
-// detectar partes del dragón
-model.traverse((obj)=>{
+// buscar partes del dragón
+model.traverse(function(obj){
 
 if(obj.isMesh){
 
-let n=obj.name.toLowerCase();
+let n = obj.name.toLowerCase();
 
-if(n.includes("dragon boca")) boca=obj;
-if(n.includes("dragon cabeza")) cabeza=obj;
-if(n.includes("dragon cuerpo largo")) cuerpo=obj;
+if(n.includes("dragon boca")) boca = obj;
+if(n.includes("dragon cabeza")) cabeza = obj;
+if(n.includes("dragon cuerpo largo")) cuerpo = obj;
 
 }
 
@@ -86,9 +78,9 @@ if(n.includes("dragon cuerpo largo")) cuerpo=obj;
 
 });
 
-const clock=new THREE.Clock();
+let clock = new THREE.Clock();
 
-const colors=[
+let colors = [
 new THREE.Color(0.6,0.9,1),
 new THREE.Color(0.2,0.5,1),
 new THREE.Color(0,1,0.9),
@@ -97,18 +89,20 @@ new THREE.Color(0.05,0.1,0.4)
 ];
 
 function getColor(t){
+
 return colors[Math.floor(t)%colors.length];
+
 }
 
 function animate(){
 
 requestAnimationFrame(animate);
 
-const t=clock.getElapsedTime();
+let t = clock.getElapsedTime();
 
-const e1=(Math.sin(t)+1)/2;
-const e2=(Math.sin(t-1)+1)/2;
-const e3=(Math.sin(t-2)+1)/2;
+let e1 = (Math.sin(t)+1)/2;
+let e2 = (Math.sin(t-1)+1)/2;
+let e3 = (Math.sin(t-2)+1)/2;
 
 if(boca){
 boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.3);
@@ -122,7 +116,6 @@ if(cuerpo){
 cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.3);
 }
 
-controls.update();
 renderer.render(scene,camera);
 
 }
