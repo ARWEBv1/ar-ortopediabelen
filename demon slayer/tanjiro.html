@@ -58,36 +58,33 @@ let box=new THREE.Box3().setFromObject(model);
 let center=box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
-// buscar piezas
+// recorrer todo el modelo
 model.traverse((obj)=>{
 
 if(obj.isMesh){
 
 let n = obj.name.toLowerCase();
 
-if(
-n.includes("dragon boca") ||
-n.includes("dragon cabeza") ||
-n.includes("dragon cuerpo largo") ||
-n.includes("dragon dientes") ||
-n.includes("dragon ojos") ||
-n.includes("flash")
-){
+// detectar TODO el dragón
+if(n.includes("dragon")){
 
 dragonParts.push(obj);
 
-// ocultar dragón al inicio
+// ocultar al inicio
 obj.visible = false;
 
 }
 
-if(n.includes("dragon agua piso")){
+// detectar piso
+if(n.includes("agua") || n.includes("piso")){
 dragonFloor = obj;
 }
 
 }
 
 });
+
+console.log("PARTES DRAGON:",dragonParts);
 
 });
 
@@ -106,7 +103,7 @@ return colors[Math.floor(t)%colors.length];
 
 let clock = new THREE.Clock();
 
-// activar dragón con click
+// activar dragón
 window.addEventListener("click",()=>{
 
 dragonVisible = true;
@@ -138,7 +135,7 @@ part.material.color.copy(getColor(t)).multiplyScalar(energy+0.3);
 
 }
 
-// RGB piso dragón
+// RGB piso
 if(dragonFloor){
 
 let r=(Math.sin(t)+1)/2;
@@ -148,11 +145,6 @@ let b=(Math.sin(t+4)+1)/2;
 dragonFloor.material.color.setRGB(r,g,b);
 
 }
-
-// leve movimiento del dragón
-dragonParts.forEach((part)=>{
-part.rotation.z = Math.sin(t)*0.02;
-});
 
 controls.update();
 renderer.render(scene,camera);
