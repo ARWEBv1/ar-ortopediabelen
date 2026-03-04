@@ -68,7 +68,15 @@ model.addEventListener("load", () => {
   const crestas = materials.find(m => m.name.toLowerCase().includes("agua cuerpo"));
   const cabeza = materials.find(m => m.name.toLowerCase().includes("cabeza"));
   const ojos = materials.find(m => m.name.toLowerCase().includes("ojos"));
-  const piso = materials.find(m => m.name.toLowerCase().includes("agua piso"));
+  // Intentamos detectar correctamente el material del piso
+  console.log("Materiales disponibles:");
+  materials.forEach(m => console.log(m.name));
+
+  const piso = materials.find(m => 
+    m.name.toLowerCase().includes("piso") ||
+    m.name.toLowerCase().includes("agua_piso") ||
+    m.name.toLowerCase().includes("dragon agua piso")
+  );
 
   let t = 0;
 
