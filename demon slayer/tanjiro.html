@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon Summon</title>
+<title>Tanjiro Dragon Energy</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -11,7 +11,7 @@
 body{
 margin:0;
 overflow:hidden;
-background:radial-gradient(circle at center,#001a2d 0%,#000000 70%);
+background:radial-gradient(circle,#001a2d,#000);
 }
 
 model-viewer{
@@ -19,30 +19,16 @@ width:100vw;
 height:100vh;
 }
 
-.flash-screen{
-position:fixed;
-inset:0;
-background:white;
-opacity:0;
-pointer-events:none;
-transition:opacity .2s;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="flash-screen" id="flash"></div>
-
 <model-viewer
 id="dragon"
 src="./Tanjiro1.glb"
 ios-src="./Tanjiro1.usdc"
-ar
 camera-controls
-auto-rotate
-auto-rotate-delay="0"
 exposure="1.8"
 shadow-intensity="1"
 environment-image="neutral">
@@ -52,44 +38,12 @@ environment-image="neutral">
 <script>
 
 const model=document.querySelector("#dragon")
-const flashScreen=document.getElementById("flash")
-
-let charge=0
-let charging=false
-let godMode=false
-
-let dragonStage=0
-let summonEnergy=0
-let awakened=false
-
-let mouseX=0
-let mouseY=0
-
-document.addEventListener("mousemove",e=>{
-
-mouseX=(e.clientX/window.innerWidth)-0.5
-mouseY=(e.clientY/window.innerHeight)-0.5
-
-})
-
-model.addEventListener("mousedown",activateDragon)
-model.addEventListener("touchstart",activateDragon)
-model.addEventListener("wheel",activateDragon)
-
-function activateDragon(){
-
-if(awakened)return
-
-awakened=true
-dragonStage=1
-
-}
 
 model.addEventListener("load",()=>{
 
 const materials=model.model.materials
 
-console.log("Materiales disponibles:")
+console.log("Materiales:")
 materials.forEach(m=>console.log(m.name))
 
 const cuerpo=materials.find(m=>m.name.toLowerCase().includes("cuerpo"))
@@ -103,105 +57,57 @@ m.name==="Material.008"||
 m.name.toLowerCase().includes("water")
 )
 
-if(cuerpo)cuerpo.emissiveFactor=[0,0,0]
-if(crestas)crestas.emissiveFactor=[0,0,0]
-if(cabeza)cabeza.emissiveFactor=[0,0,0]
-
 let t=0
 
 function animate(){
 
 t+=0.05
 
-const wave=(Math.sin(t)+1)/2
-const pulseFast=(Math.sin(t*2)+1)/2
+// energía que rota por el dragón
+let sector1=(Math.sin(t)+1)/2
+let sector2=(Math.sin(t+2)+1)/2
+let sector3=(Math.sin(t+4)+1)/2
 
-// INVOCACIÓN
-
-if(dragonStage===1){
-
-summonEnergy+=0.03
-
+// CUERPO
 if(cuerpo){
 
 cuerpo.emissiveFactor=[
 0,
-summonEnergy*1.5,
-summonEnergy*2
+sector1*1.5,
+sector2*2
 ]
 
 }
 
-if(crestas && summonEnergy>0.3){
-
-crestas.emissiveFactor=[
-0.2,
-summonEnergy*2,
-summonEnergy*2.5
-]
-
-}
-
-if(cabeza && summonEnergy>0.6){
-
-cabeza.emissiveFactor=[
-0.5,
-summonEnergy*3,
-summonEnergy*3
-]
-
-}
-
-if(summonEnergy>1){
-
-dragonStage=2
-godMode=true
-
-flashScreen.style.opacity=0.9
-setTimeout(()=>flashScreen.style.opacity=0,120)
-
-}
-
-}
-
-// ENERGÍA NORMAL
-
-if(cuerpo){
-
-cuerpo.emissiveFactor=[
-0,
-0.6*wave+charge,
-1.2*pulseFast+charge
-]
-
-}
-
+// CRESTAS
 if(crestas){
 
 crestas.emissiveFactor=[
-0.3+charge,
-1.8*pulseFast+charge,
-1.5
+0.3,
+sector2*2,
+sector3*2
 ]
 
 }
 
+// CABEZA
 if(cabeza){
 
 cabeza.emissiveFactor=[
-0.5+charge,
-2.5*pulseFast+charge,
-1.8
+0.4,
+sector3*2,
+sector1*2
 ]
 
 }
 
+// OJOS
 if(ojos){
 
 ojos.emissiveFactor=[
-0.8+charge,
-3.5*pulseFast+charge*2,
-2.5
+0.7,
+sector1*3,
+sector2*3
 ]
 
 }
@@ -221,17 +127,13 @@ b*2
 ]
 
 piso.pbrMetallicRoughness.setBaseColorFactor([
-r*0.5,
-g*0.5,
-b*0.7,
+r*0.4,
+g*0.4,
+b*0.6,
 1
 ])
 
 }
-
-// CÁMARA REACTIVA
-
-model.cameraTarget=`${mouseX*0.3}m ${mouseY*0.3}m 0m`
 
 requestAnimationFrame(animate)
 
