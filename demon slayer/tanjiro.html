@@ -29,7 +29,7 @@ id="dragon"
 src="./Tanjiro1.glb"
 ios-src="./Tanjiro1.usdc"
 camera-controls
-exposure="1.8"
+exposure="2"
 shadow-intensity="1"
 environment-image="neutral">
 
@@ -42,9 +42,6 @@ const model=document.querySelector("#dragon")
 model.addEventListener("load",()=>{
 
 const materials=model.model.materials
-
-console.log("Materiales:")
-materials.forEach(m=>console.log(m.name))
 
 const cuerpo=materials.find(m=>m.name.toLowerCase().includes("cuerpo"))
 const crestas=materials.find(m=>m.name.toLowerCase().includes("agua cuerpo"))
@@ -61,75 +58,78 @@ let t=0
 
 function animate(){
 
-t+=0.05
+t+=0.08
 
-// energía que rota por el dragón
-let sector1=(Math.sin(t)+1)/2
-let sector2=(Math.sin(t+2)+1)/2
-let sector3=(Math.sin(t+4)+1)/2
+// energía que viaja como ola
+let wave=(Math.sin(t)+1)/2
+let wave2=(Math.sin(t+1.5)+1)/2
+let wave3=(Math.sin(t+3)+1)/2
 
-// CUERPO
+// cuerpo oscuro + brillo viajando
 if(cuerpo){
 
 cuerpo.emissiveFactor=[
 0,
-sector1*1.5,
-sector2*2
+wave*2,
+wave*3
 ]
 
 }
 
-// CRESTAS
+// crestas brillan después
 if(crestas){
 
 crestas.emissiveFactor=[
-0.3,
-sector2*2,
-sector3*2
+0.2,
+wave2*3,
+wave2*4
 ]
 
 }
 
-// CABEZA
+// cabeza recibe energía final
 if(cabeza){
 
 cabeza.emissiveFactor=[
 0.4,
-sector3*2,
-sector1*2
+wave3*4,
+wave3*5
 ]
 
 }
 
-// OJOS
+// ojos brillan intermitente
 if(ojos){
 
+let blink=(Math.sin(t*3)+1)/2
+
 ojos.emissiveFactor=[
-0.7,
-sector1*3,
-sector2*3
+1,
+blink*5,
+blink*5
 ]
 
 }
 
-// RGB EN EL PISO
+// RGB fuerte en piso
 
 if(piso){
 
-let r=(Math.sin(t)+1)/2
-let g=(Math.sin(t+2)+1)/2
-let b=(Math.sin(t+4)+1)/2
+let r=(Math.sin(t*0.7)+1)/2
+let g=(Math.sin(t*0.7+2)+1)/2
+let b=(Math.sin(t*0.7+4)+1)/2
 
+// emisión fuerte visible
 piso.emissiveFactor=[
-r*2,
-g*2,
-b*2
+r*4,
+g*4,
+b*4
 ]
 
 piso.pbrMetallicRoughness.setBaseColorFactor([
-r*0.4,
-g*0.4,
-b*0.6,
+r*0.6,
+g*0.6,
+b*0.8,
 1
 ])
 
