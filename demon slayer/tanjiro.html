@@ -1,37 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Tanjiro AR</title>
+<meta charset="UTF-8">
+<title>Tanjiro Dragon Energy</title>
 
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      background-color: #000;
-    }
-    model-viewer {
-      width: 100vw;
-      height: 100vh;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  background:black;
+}
+model-viewer{
+  width:100vw;
+  height:100vh;
+}
+</style>
 </head>
 
 <body>
 
-  <model-viewer
-    src="./Tanjiro1.glb"
-    ios-src="./Tanjiro1.usdc"
-    alt="Tanjiro Demon Slayer"
-    ar
-    ar-modes="webxr scene-viewer quick-look"
-    camera-controls
-    auto-rotate
-    shadow-intensity="1"
-    exposure="1"
-    environment-image="neutral">
-  </model-viewer>
+<model-viewer
+  id="dragon"
+  src="./Tanjiro1.glb"
+  ios-src="./Tanjiro1.usdc"
+  ar
+  camera-controls
+  exposure="1.3"
+  shadow-intensity="1"
+  environment-image="neutral">
+</model-viewer>
+
+<script>
+const model = document.querySelector("#dragon");
+
+model.addEventListener("load", () => {
+
+  const materials = model.model.materials;
+
+  const cuerpo = materials.find(m => m.name.toLowerCase().includes("cuerpo"));
+  const crestas = materials.find(m => m.name.toLowerCase().includes("agua cuerpo"));
+  const cabeza = materials.find(m => m.name.toLowerCase().includes("cabeza"));
+  const ojos = materials.find(m => m.name.toLowerCase().includes("ojos"));
+
+  let t = 0;
+
+  function animate() {
+    t += 0.05;
+    const pulse = (Math.sin(t) + 1) / 2;
+
+    if (cuerpo) {
+      cuerpo.emissiveFactor = [0, 0.5 * pulse, 1 * pulse];
+    }
+
+    if (crestas) {
+      crestas.emissiveFactor = [0.2, 1 * pulse, 1];
+    }
+
+    if (cabeza) {
+      cabeza.emissiveFactor = [0.3, 1.2 * pulse, 1];
+    }
+
+    if (ojos) {
+      ojos.emissiveFactor = [0.5, 2 * pulse, 2 * pulse];
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+});
+</script>
 
 </body>
 </html>
