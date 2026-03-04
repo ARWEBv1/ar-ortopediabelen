@@ -2,31 +2,32 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon RGB GOD MODE</title>
+<title>Tanjiro Dragon Summon</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
+
 body{
-  margin:0;
-  overflow:hidden;
-  background: radial-gradient(circle at center, #001a2d 0%, #000000 70%);
+margin:0;
+overflow:hidden;
+background:radial-gradient(circle at center,#001a2d 0%,#000000 70%);
 }
 
 model-viewer{
-  width:100vw;
-  height:100vh;
-  transition: filter 0.2s ease;
+width:100vw;
+height:100vh;
 }
 
 .flash-screen{
-  position:fixed;
-  inset:0;
-  background:white;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 0.15s ease;
+position:fixed;
+inset:0;
+background:white;
+opacity:0;
+pointer-events:none;
+transition:opacity .2s;
 }
+
 </style>
 </head>
 
@@ -35,137 +36,211 @@ model-viewer{
 <div class="flash-screen" id="flash"></div>
 
 <model-viewer
-  id="dragon"
-  src="./Tanjiro1.glb"
-  ios-src="./Tanjiro1.usdc"
-  ar
-  camera-controls
-  exposure="1.8"
-  shadow-intensity="1"
-  environment-image="neutral"
-  auto-rotate
-  auto-rotate-delay="0">
+id="dragon"
+src="./Tanjiro1.glb"
+ios-src="./Tanjiro1.usdc"
+ar
+camera-controls
+auto-rotate
+auto-rotate-delay="0"
+exposure="1.8"
+shadow-intensity="1"
+environment-image="neutral">
+
 </model-viewer>
 
 <script>
-const model = document.querySelector("#dragon");
-const flashScreen = document.getElementById("flash");
 
-let charge = 0;
-let charging = false;
-let godMode = false;
+const model=document.querySelector("#dragon")
+const flashScreen=document.getElementById("flash")
 
-model.addEventListener("click", () => {
-  charging = true;
-  charge = 0;
-});
+let charge=0
+let charging=false
+let godMode=false
 
-model.addEventListener("load", () => {
+let dragonStage=0
+let summonEnergy=0
+let awakened=false
 
-  const materials = model.model.materials;
+let mouseX=0
+let mouseY=0
 
-  const cuerpo = materials.find(m => m.name.toLowerCase().includes("cuerpo"));
-  const crestas = materials.find(m => m.name.toLowerCase().includes("agua cuerpo"));
-  const cabeza = materials.find(m => m.name.toLowerCase().includes("cabeza"));
-  const ojos = materials.find(m => m.name.toLowerCase().includes("ojos"));
-  // Intentamos detectar correctamente el material del piso
-  console.log("Materiales disponibles:");
-  materials.forEach(m => console.log(m.name));
+document.addEventListener("mousemove",e=>{
 
-  // Detectamos correctamente el material del piso (según tu consola probablemente sea Material.005 o similar blanco)
-  const piso = materials.find(m => 
-    m.name === "Material.005" ||
-    m.name === "Material.008" ||
-    m.name.toLowerCase().includes("water")
-  );
+mouseX=(e.clientX/window.innerWidth)-0.5
+mouseY=(e.clientY/window.innerHeight)-0.5
 
-  let t = 0;
+})
 
-  function animate(){
-    t += 0.05;
+model.addEventListener("mousedown",activateDragon)
+model.addEventListener("touchstart",activateDragon)
+model.addEventListener("wheel",activateDragon)
 
-    const wave = (Math.sin(t) + 1) / 2;
-    const pulseFast = (Math.sin(t*2) + 1) / 2;
+function activateDragon(){
 
-    // 🔥 CUERPO con zonas más intensas
-    if(cuerpo){
-      cuerpo.emissiveFactor = [
-        0,
-        0.6 * wave + charge,
-        1.2 * pulseFast + charge
-      ];
-    }
+if(awakened)return
 
-    if(crestas){
-      crestas.emissiveFactor = [
-        0.3 + charge,
-        1.8 * pulseFast + charge,
-        1.5
-      ];
-    }
+awakened=true
+dragonStage=1
 
-    if(cabeza){
-      cabeza.emissiveFactor = [
-        0.5 + charge,
-        2.5 * pulseFast + charge,
-        1.8
-      ];
-    }
+}
 
-    if(ojos){
-      ojos.emissiveFactor = [
-        0.8 + charge,
-        3.5 * pulseFast + charge * 2,
-        2.5
-      ];
-    }
+model.addEventListener("load",()=>{
 
-    // 🌈 RGB DINÁMICO EN DRAGON AGUA PISO
-    if(piso){
-      const r = (Math.sin(t) + 1) / 2;
-      const g = (Math.sin(t + 2) + 1) / 2;
-      const b = (Math.sin(t + 4) + 1) / 2;
+const materials=model.model.materials
 
-      // Mezcla hacia tonos: celeste, azul, blanco, violeta, negro
-      piso.emissiveFactor = [
-        r * 1.2,
-        g * 1.2,
-        b * 1.2
-      ];
+console.log("Materiales disponibles:")
+materials.forEach(m=>console.log(m.name))
 
-      piso.pbrMetallicRoughness.setBaseColorFactor([
-        r * 0.6,
-        g * 0.6,
-        b * 0.8,
-        1
-      ]);
-    }
+const cuerpo=materials.find(m=>m.name.toLowerCase().includes("cuerpo"))
+const crestas=materials.find(m=>m.name.toLowerCase().includes("agua cuerpo"))
+const cabeza=materials.find(m=>m.name.toLowerCase().includes("cabeza"))
+const ojos=materials.find(m=>m.name.toLowerCase().includes("ojos"))
 
-    // ⚡ CARGA
-    if(charging){
-      charge += 0.04;
-      model.style.filter = `brightness(${1 + charge})`;
+const piso=materials.find(m=>
+m.name==="Material.005"||
+m.name==="Material.008"||
+m.name.toLowerCase().includes("water")
+)
 
-      if(charge > 1.3){
-        charging = false;
-        godMode = true;
-        flashScreen.style.opacity = 0.9;
-        setTimeout(()=> flashScreen.style.opacity = 0, 120);
-      }
-    }
+if(cuerpo)cuerpo.emissiveFactor=[0,0,0]
+if(crestas)crestas.emissiveFactor=[0,0,0]
+if(cabeza)cabeza.emissiveFactor=[0,0,0]
 
-    // 🔥 GOD MODE estable (sin perder brillo al rotar)
-    if(godMode){
-      const godPulse = (Math.sin(t*1.5) + 1) / 2;
-      model.style.filter = `brightness(${1.8 + godPulse}) contrast(1.3) saturate(1.3)`;
-      model.cameraOrbit = `${40 + godPulse * 15}deg 75deg 105%`;
-    }
+let t=0
 
-    requestAnimationFrame(animate);
-  }
+function animate(){
 
-  animate();
-});
+t+=0.05
+
+const wave=(Math.sin(t)+1)/2
+const pulseFast=(Math.sin(t*2)+1)/2
+
+// INVOCACIÓN
+
+if(dragonStage===1){
+
+summonEnergy+=0.03
+
+if(cuerpo){
+
+cuerpo.emissiveFactor=[
+0,
+summonEnergy*1.5,
+summonEnergy*2
+]
+
+}
+
+if(crestas && summonEnergy>0.3){
+
+crestas.emissiveFactor=[
+0.2,
+summonEnergy*2,
+summonEnergy*2.5
+]
+
+}
+
+if(cabeza && summonEnergy>0.6){
+
+cabeza.emissiveFactor=[
+0.5,
+summonEnergy*3,
+summonEnergy*3
+]
+
+}
+
+if(summonEnergy>1){
+
+dragonStage=2
+godMode=true
+
+flashScreen.style.opacity=0.9
+setTimeout(()=>flashScreen.style.opacity=0,120)
+
+}
+
+}
+
+// ENERGÍA NORMAL
+
+if(cuerpo){
+
+cuerpo.emissiveFactor=[
+0,
+0.6*wave+charge,
+1.2*pulseFast+charge
+]
+
+}
+
+if(crestas){
+
+crestas.emissiveFactor=[
+0.3+charge,
+1.8*pulseFast+charge,
+1.5
+]
+
+}
+
+if(cabeza){
+
+cabeza.emissiveFactor=[
+0.5+charge,
+2.5*pulseFast+charge,
+1.8
+]
+
+}
+
+if(ojos){
+
+ojos.emissiveFactor=[
+0.8+charge,
+3.5*pulseFast+charge*2,
+2.5
+]
+
+}
+
+// RGB EN EL PISO
+
+if(piso){
+
+let r=(Math.sin(t)+1)/2
+let g=(Math.sin(t+2)+1)/2
+let b=(Math.sin(t+4)+1)/2
+
+piso.emissiveFactor=[
+r*2,
+g*2,
+b*2
+]
+
+piso.pbrMetallicRoughness.setBaseColorFactor([
+r*0.5,
+g*0.5,
+b*0.7,
+1
+])
+
+}
+
+// CÁMARA REACTIVA
+
+model.cameraTarget=`${mouseX*0.3}m ${mouseY*0.3}m 0m`
+
+requestAnimationFrame(animate)
+
+}
+
+animate()
+
+})
+
 </script>
 
 </body>
