@@ -2,11 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Water Dragon Energy</title>
+<title>Water Dragon Flow</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
+
 body{
 margin:0;
 background:black;
@@ -16,6 +17,7 @@ model-viewer{
 width:100vw;
 height:100vh;
 }
+
 </style>
 </head>
 
@@ -26,7 +28,7 @@ id="dragon"
 src="./Tanjiro1.glb"
 camera-controls
 environment-image="neutral"
-exposure="1.8">
+exposure="2">
 </model-viewer>
 
 <script>
@@ -37,7 +39,6 @@ model.addEventListener("load",()=>{
 
 const materials=model.model.materials
 
-// detectar materiales correctamente
 const boca=materials.find(m=>m.name.toLowerCase().includes("dragon boca"))
 const cabeza=materials.find(m=>m.name.toLowerCase().includes("dragon cabeza"))
 const cuerpo=materials.find(m=>m.name.toLowerCase().includes("dragon cuerpo largo"))
@@ -48,13 +49,13 @@ console.log("cuerpo:",cuerpo)
 
 let t=0
 
-// colores agua
+// paleta agua
 const colores=[
 [0.6,0.9,1],   // celeste
 [0.2,0.5,1],   // azul
-[0.05,0.1,0.4],// azul marino
+[0,1,0.9],     // calipso
 [1,1,1],       // blanco
-[0,1,0.9]      // calipso
+[0.05,0.1,0.4] // azul marino
 ]
 
 function getColor(time){
@@ -66,25 +67,53 @@ return colores[i]
 
 function animate(){
 
-t+=0.05
+t+=0.07
 
-let faseBoca=t
-let faseCabeza=t-1
-let faseCuerpo=t-2
+// intensidad de energía
+let energiaBoca=(Math.sin(t)+1)/2
+let energiaCabeza=(Math.sin(t-1.2)+1)/2
+let energiaCuerpo=(Math.sin(t-2.4)+1)/2
 
+// boca
 if(boca){
-let c=getColor(faseBoca)
-boca.pbrMetallicRoughness.setBaseColorFactor([c[0],c[1],c[2],1])
+
+let c=getColor(t)
+
+boca.pbrMetallicRoughness.setBaseColorFactor([
+c[0]*energiaBoca,
+c[1]*energiaBoca,
+c[2]*energiaBoca,
+1
+])
+
 }
 
+// cabeza
 if(cabeza){
-let c=getColor(faseCabeza)
-cabeza.pbrMetallicRoughness.setBaseColorFactor([c[0],c[1],c[2],1])
+
+let c=getColor(t-1)
+
+cabeza.pbrMetallicRoughness.setBaseColorFactor([
+c[0]*energiaCabeza,
+c[1]*energiaCabeza,
+c[2]*energiaCabeza,
+1
+])
+
 }
 
+// cuerpo largo
 if(cuerpo){
-let c=getColor(faseCuerpo)
-cuerpo.pbrMetallicRoughness.setBaseColorFactor([c[0],c[1],c[2],1])
+
+let c=getColor(t-2)
+
+cuerpo.pbrMetallicRoughness.setBaseColorFactor([
+c[0]*energiaCuerpo,
+c[1]*energiaCuerpo,
+c[2]*energiaCuerpo,
+1
+])
+
 }
 
 requestAnimationFrame(animate)
