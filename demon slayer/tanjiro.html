@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon Energy</title>
+<title>Material Scanner</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -10,8 +10,7 @@
 
 body{
 margin:0;
-overflow:hidden;
-background:radial-gradient(circle,#001a2d,#000);
+background:black;
 }
 
 model-viewer{
@@ -27,12 +26,10 @@ height:100vh;
 <model-viewer
 id="dragon"
 src="./Tanjiro1.glb"
-ios-src="./Tanjiro1.usdc"
 camera-controls
 exposure="2"
 shadow-intensity="1"
 environment-image="neutral">
-
 </model-viewer>
 
 <script>
@@ -43,103 +40,47 @@ model.addEventListener("load",()=>{
 
 const materials=model.model.materials
 
-const cuerpo=materials.find(m=>m.name.toLowerCase().includes("cuerpo"))
-const crestas=materials.find(m=>m.name.toLowerCase().includes("agua cuerpo"))
-const cabeza=materials.find(m=>m.name.toLowerCase().includes("cabeza"))
-const ojos=materials.find(m=>m.name.toLowerCase().includes("ojos"))
+console.log("MATERIALES DETECTADOS")
 
-const piso=materials.find(m=>
-m.name==="Material.005"||
-m.name==="Material.008"||
-m.name.toLowerCase().includes("water")
-)
+materials.forEach((m,i)=>{
 
-let t=0
+console.log(i,m.name)
 
-function animate(){
+})
 
-t+=0.08
+let index=0
 
-// energía que viaja como ola
-let wave=(Math.sin(t)+1)/2
-let wave2=(Math.sin(t+1.5)+1)/2
-let wave3=(Math.sin(t+3)+1)/2
+function scan(){
 
-// cuerpo oscuro + brillo viajando
-if(cuerpo){
+// reset todos
+materials.forEach(m=>{
+m.emissiveFactor=[0,0,0]
+})
 
-cuerpo.emissiveFactor=[
-0,
-wave*2,
-wave*3
-]
+// ilumina uno
+let mat=materials[index]
+
+if(mat){
+
+mat.emissiveFactor=[5,0,0]
+
+console.log("Material activo:",index,mat.name)
 
 }
 
-// crestas brillan después
-if(crestas){
+index++
 
-crestas.emissiveFactor=[
-0.2,
-wave2*3,
-wave2*4
-]
+if(index>=materials.length){
+
+index=0
 
 }
 
-// cabeza recibe energía final
-if(cabeza){
-
-cabeza.emissiveFactor=[
-0.4,
-wave3*4,
-wave3*5
-]
+setTimeout(scan,1500)
 
 }
 
-// ojos brillan intermitente
-if(ojos){
-
-let blink=(Math.sin(t*3)+1)/2
-
-ojos.emissiveFactor=[
-1,
-blink*5,
-blink*5
-]
-
-}
-
-// RGB fuerte en piso
-
-if(piso){
-
-let r=(Math.sin(t*0.7)+1)/2
-let g=(Math.sin(t*0.7+2)+1)/2
-let b=(Math.sin(t*0.7+4)+1)/2
-
-// emisión fuerte visible
-piso.emissiveFactor=[
-r*4,
-g*4,
-b*4
-]
-
-piso.pbrMetallicRoughness.setBaseColorFactor([
-r*0.6,
-g*0.6,
-b*0.8,
-1
-])
-
-}
-
-requestAnimationFrame(animate)
-
-}
-
-animate()
+scan()
 
 })
 
