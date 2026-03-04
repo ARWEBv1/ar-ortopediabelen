@@ -10,6 +10,7 @@
 body{
   margin:0;
   background:black;
+  overflow:hidden;
 }
 model-viewer{
   width:100vw;
@@ -26,13 +27,21 @@ model-viewer{
   ios-src="./Tanjiro1.usdc"
   ar
   camera-controls
-  exposure="1.3"
+  exposure="1.4"
   shadow-intensity="1"
   environment-image="neutral">
 </model-viewer>
 
 <script>
 const model = document.querySelector("#dragon");
+
+let chargeLevel = 0;
+let charging = false;
+
+model.addEventListener("click", () => {
+  charging = true;
+  chargeLevel = 0;
+});
 
 model.addEventListener("load", () => {
 
@@ -47,22 +56,59 @@ model.addEventListener("load", () => {
 
   function animate() {
     t += 0.05;
-    const pulse = (Math.sin(t) + 1) / 2;
+
+    // 🌊 ONDA RECORRIENDO EL CUERPO
+    const wave = (Math.sin(t) + 1) / 2;
 
     if (cuerpo) {
-      cuerpo.emissiveFactor = [0, 0.5 * pulse, 1 * pulse];
+      cuerpo.emissiveFactor = [
+        0,
+        0.4 * wave + chargeLevel,
+        0.9 * wave + chargeLevel
+      ];
     }
 
     if (crestas) {
-      crestas.emissiveFactor = [0.2, 1 * pulse, 1];
+      crestas.emissiveFactor = [
+        0.2 + chargeLevel,
+        1.2 * wave + chargeLevel,
+        1
+      ];
     }
 
     if (cabeza) {
-      cabeza.emissiveFactor = [0.3, 1.2 * pulse, 1];
+      cabeza.emissiveFactor = [
+        0.3 + chargeLevel,
+        1.5 * wave + chargeLevel,
+        1.2
+      ];
     }
 
     if (ojos) {
-      ojos.emissiveFactor = [0.5, 2 * pulse, 2 * pulse];
+      ojos.emissiveFactor = [
+        0.5 + chargeLevel,
+        2 * wave + chargeLevel * 2,
+        2
+      ];
+    }
+
+    // ⚡ MODO CARGA AL HACER CLICK
+    if (charging) {
+      chargeLevel += 0.02;
+
+      if (chargeLevel > 1.5) {
+        charging = false;
+
+        // pequeña explosión luminosa
+        if (cuerpo) cuerpo.emissiveFactor = [0, 3, 4];
+        if (crestas) crestas.emissiveFactor = [1, 4, 4];
+        if (cabeza) cabeza.emissiveFactor = [1, 5, 5];
+        if (ojos) ojos.emissiveFactor = [2, 6, 6];
+
+        setTimeout(() => {
+          chargeLevel = 0;
+        }, 300);
+      }
     }
 
     requestAnimationFrame(animate);
