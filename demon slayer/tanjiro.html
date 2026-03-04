@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon GOD MODE</title>
+<title>Tanjiro Dragon RGB GOD MODE</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -16,7 +16,7 @@ body{
 model-viewer{
   width:100vw;
   height:100vh;
-  transition: filter 0.3s ease;
+  transition: filter 0.2s ease;
 }
 
 .flash-screen{
@@ -25,7 +25,7 @@ model-viewer{
   background:white;
   opacity:0;
   pointer-events:none;
-  transition:opacity 0.2s ease;
+  transition:opacity 0.15s ease;
 }
 </style>
 </head>
@@ -40,7 +40,7 @@ model-viewer{
   ios-src="./Tanjiro1.usdc"
   ar
   camera-controls
-  exposure="1.6"
+  exposure="1.8"
   shadow-intensity="1"
   environment-image="neutral"
   auto-rotate
@@ -63,54 +63,93 @@ model.addEventListener("click", () => {
 model.addEventListener("load", () => {
 
   const materials = model.model.materials;
+
   const cuerpo = materials.find(m => m.name.toLowerCase().includes("cuerpo"));
   const crestas = materials.find(m => m.name.toLowerCase().includes("agua cuerpo"));
   const cabeza = materials.find(m => m.name.toLowerCase().includes("cabeza"));
   const ojos = materials.find(m => m.name.toLowerCase().includes("ojos"));
+  const piso = materials.find(m => m.name.toLowerCase().includes("agua piso"));
 
   let t = 0;
 
   function animate(){
-    t += 0.06;
+    t += 0.05;
 
     const wave = (Math.sin(t) + 1) / 2;
+    const pulseFast = (Math.sin(t*2) + 1) / 2;
 
+    // 🔥 CUERPO con zonas más intensas
     if(cuerpo){
-      cuerpo.emissiveFactor = [0, 0.5 * wave + charge, 1 * wave + charge];
+      cuerpo.emissiveFactor = [
+        0,
+        0.6 * wave + charge,
+        1.2 * pulseFast + charge
+      ];
     }
 
     if(crestas){
-      crestas.emissiveFactor = [0.2 + charge, 1.5 * wave + charge, 1];
+      crestas.emissiveFactor = [
+        0.3 + charge,
+        1.8 * pulseFast + charge,
+        1.5
+      ];
     }
 
     if(cabeza){
-      cabeza.emissiveFactor = [0.3 + charge, 2 * wave + charge, 1.3];
+      cabeza.emissiveFactor = [
+        0.5 + charge,
+        2.5 * pulseFast + charge,
+        1.8
+      ];
     }
 
     if(ojos){
-      ojos.emissiveFactor = [0.5 + charge, 3 * wave + charge * 2, 2];
+      ojos.emissiveFactor = [
+        0.8 + charge,
+        3.5 * pulseFast + charge * 2,
+        2.5
+      ];
+    }
+
+    // 🌈 RGB DINÁMICO EN DRAGON AGUA PISO
+    if(piso){
+      const r = (Math.sin(t) + 1) / 2;
+      const g = (Math.sin(t + 2) + 1) / 2;
+      const b = (Math.sin(t + 4) + 1) / 2;
+
+      // Mezcla hacia tonos: celeste, azul, blanco, violeta, negro
+      piso.emissiveFactor = [
+        r * 1.2,
+        g * 1.2,
+        b * 1.2
+      ];
+
+      piso.pbrMetallicRoughness.setBaseColorFactor([
+        r * 0.6,
+        g * 0.6,
+        b * 0.8,
+        1
+      ]);
     }
 
     // ⚡ CARGA
     if(charging){
-      charge += 0.03;
-
+      charge += 0.04;
       model.style.filter = `brightness(${1 + charge})`;
 
-      if(charge > 1.2){
+      if(charge > 1.3){
         charging = false;
         godMode = true;
-
-        flashScreen.style.opacity = 0.8;
-        setTimeout(()=> flashScreen.style.opacity = 0, 150);
+        flashScreen.style.opacity = 0.9;
+        setTimeout(()=> flashScreen.style.opacity = 0, 120);
       }
     }
 
-    // 🔥 GOD MODE PULSO
+    // 🔥 GOD MODE estable (sin perder brillo al rotar)
     if(godMode){
-      const godPulse = (Math.sin(t * 2) + 1) / 2;
-      model.style.filter = `brightness(${1.5 + godPulse}) contrast(1.2)`;
-      model.cameraOrbit = `${30 + godPulse * 10}deg 75deg 105%`;
+      const godPulse = (Math.sin(t*1.5) + 1) / 2;
+      model.style.filter = `brightness(${1.8 + godPulse}) contrast(1.3) saturate(1.3)`;
+      model.cameraOrbit = `${40 + godPulse * 15}deg 75deg 105%`;
     }
 
     requestAnimationFrame(animate);
