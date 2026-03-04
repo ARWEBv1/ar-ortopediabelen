@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon</title>
+<title>Tanjiro Water Dragon</title>
 
 <style>
 body{
 margin:0;
 overflow:hidden;
-background:#111;
+background:black;
 }
 </style>
 
@@ -23,7 +23,7 @@ background:#111;
 <script>
 
 let scene = new THREE.Scene();
-scene.background = new THREE.Color(0x111111);
+scene.background = new THREE.Color(0x000000);
 
 let camera = new THREE.PerspectiveCamera(
 60,
@@ -47,30 +47,30 @@ let light = new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,5,5);
 scene.add(light);
 
-let boca, cabeza, cuerpo;
+let boca,cabeza,cuerpo;
 
 let loader = new THREE.GLTFLoader();
 
 loader.load("Tanjiro1.glb",function(gltf){
 
-let model = gltf.scene;
+let model=gltf.scene;
 scene.add(model);
 
 // centrar modelo
-let box = new THREE.Box3().setFromObject(model);
-let center = box.getCenter(new THREE.Vector3());
+let box=new THREE.Box3().setFromObject(model);
+let center=box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
-// buscar partes del dragón
+// detectar partes
 model.traverse(function(obj){
 
 if(obj.isMesh){
 
-let n = obj.name.toLowerCase();
+let n=obj.name.toLowerCase();
 
-if(n.includes("dragon boca")) boca = obj;
-if(n.includes("dragon cabeza")) cabeza = obj;
-if(n.includes("dragon cuerpo largo")) cuerpo = obj;
+if(n.includes("dragon boca")) boca=obj;
+if(n.includes("dragon cabeza")) cabeza=obj;
+if(n.includes("dragon cuerpo largo")) cuerpo=obj;
 
 }
 
@@ -78,9 +78,9 @@ if(n.includes("dragon cuerpo largo")) cuerpo = obj;
 
 });
 
-let clock = new THREE.Clock();
+let clock=new THREE.Clock();
 
-let colors = [
+let colors=[
 new THREE.Color(0.6,0.9,1),
 new THREE.Color(0.2,0.5,1),
 new THREE.Color(0,1,0.9),
@@ -89,32 +89,89 @@ new THREE.Color(0.05,0.1,0.4)
 ];
 
 function getColor(t){
-
 return colors[Math.floor(t)%colors.length];
+}
+
+// partículas agua
+let particleCount=200;
+let particles=new THREE.BufferGeometry();
+let positions=[];
+
+for(let i=0;i<particleCount;i++){
+
+positions.push(
+(Math.random()-0.5)*4,
+Math.random()*2,
+(Math.random()-0.5)*4
+)
 
 }
+
+particles.setAttribute(
+"position",
+new THREE.Float32BufferAttribute(positions,3)
+);
+
+let particleMaterial=new THREE.PointsMaterial({
+color:0x66ccff,
+size:0.03
+});
+
+let particleSystem=new THREE.Points(particles,particleMaterial);
+scene.add(particleSystem);
+
+// piso ondas
+let floorGeometry=new THREE.PlaneGeometry(10,10,50,50);
+let floorMaterial=new THREE.MeshBasicMaterial({
+color:0x001a2d,
+wireframe:true
+});
+
+let floor=new THREE.Mesh(floorGeometry,floorMaterial);
+floor.rotation.x=-Math.PI/2;
+floor.position.y=-1;
+scene.add(floor);
 
 function animate(){
 
 requestAnimationFrame(animate);
 
-let t = clock.getElapsedTime();
+let t=clock.getElapsedTime();
 
-let e1 = (Math.sin(t)+1)/2;
-let e2 = (Math.sin(t-1)+1)/2;
-let e3 = (Math.sin(t-2)+1)/2;
+// energía dragón
+let e1=(Math.sin(t)+1)/2;
+let e2=(Math.sin(t-1)+1)/2;
+let e3=(Math.sin(t-2)+1)/2;
 
 if(boca){
-boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.3);
+boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.4);
 }
 
 if(cabeza){
-cabeza.material.color.copy(getColor(t-1)).multiplyScalar(e2+0.3);
+cabeza.material.color.copy(getColor(t-1)).multiplyScalar(e2+0.4);
 }
 
 if(cuerpo){
-cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.3);
+cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.4);
 }
+
+// animar partículas
+particleSystem.rotation.y+=0.002;
+
+// ondas piso
+let verts=floor.geometry.attributes.position;
+
+for(let i=0;i<verts.count;i++){
+
+let x=verts.getX(i);
+let y=verts.getY(i);
+let wave=Math.sin(x*2+t)*0.1;
+
+verts.setZ(i,wave);
+
+}
+
+verts.needsUpdate=true;
 
 controls.update();
 renderer.render(scene,camera);
