@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Water Dragon Energy</title>
+<title>Tanjiro Water Dragon</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
@@ -10,7 +10,6 @@
 
 body{
 margin:0;
-overflow:hidden;
 background:radial-gradient(circle,#001a2d,#000);
 }
 
@@ -29,9 +28,8 @@ id="dragon"
 src="./Tanjiro1.glb"
 ios-src="./Tanjiro1.usdc"
 camera-controls
-exposure="2"
-shadow-intensity="1"
-environment-image="neutral">
+environment-image="neutral"
+exposure="1.8">
 </model-viewer>
 
 <script>
@@ -48,64 +46,71 @@ const cuerpo=materials.find(m=>m.name==="dragon cuerpo largo")
 
 let t=0
 
-function waterColor(t){
+function waterPalette(v){
 
-let r = 0.3 + Math.sin(t)*0.2
-let g = 0.7 + Math.sin(t+1)*0.2
-let b = 1
+// paleta agua
+let celeste=[0.4,0.8,1]
+let azul=[0.2,0.4,1]
+let marino=[0.05,0.1,0.5]
+let blanco=[1,1,1]
+let calipso=[0,1,0.9]
 
-return [r,g,b]
+let colores=[celeste,azul,marino,blanco,calipso]
+
+let i=Math.floor(v)%colores.length
+
+return colores[i]
 
 }
 
 function animate(){
 
-t += 0.06
+t+=0.06
 
-// retrasos para crear movimiento de energía
-let faseBoca = t
-let faseCabeza = t - 1.2
-let faseCuerpo = t - 2.4
+// fases para que la energía viaje
+let faseBoca=t
+let faseCabeza=t-1.5
+let faseCuerpo=t-3
 
-// boca (inicio energía)
+// boca
 if(boca){
 
-let intensidad = (Math.sin(faseBoca)+1)/2
-let color = waterColor(faseBoca)
+let color=waterPalette(faseBoca)
 
-boca.emissiveFactor = [
-color[0]*intensidad*4,
-color[1]*intensidad*4,
-color[2]*intensidad*4
-]
+boca.pbrMetallicRoughness.setBaseColorFactor([
+color[0],
+color[1],
+color[2],
+1
+])
 
 }
 
-// cabeza (energía después)
+// cabeza
 if(cabeza){
 
-let intensidad = (Math.sin(faseCabeza)+1)/2
-let color = waterColor(faseCabeza)
+let color=waterPalette(faseCabeza)
 
-cabeza.emissiveFactor = [
-color[0]*intensidad*3,
-color[1]*intensidad*3,
-color[2]*intensidad*3
-]
+cabeza.pbrMetallicRoughness.setBaseColorFactor([
+color[0],
+color[1],
+color[2],
+1
+])
 
 }
 
-// cuerpo largo (última ola)
+// cuerpo largo
 if(cuerpo){
 
-let intensidad = (Math.sin(faseCuerpo)+1)/2
-let color = waterColor(faseCuerpo)
+let color=waterPalette(faseCuerpo)
 
-cuerpo.emissiveFactor = [
-color[0]*intensidad*2,
-color[1]*intensidad*2,
-color[2]*intensidad*2
-]
+cuerpo.pbrMetallicRoughness.setBaseColorFactor([
+color[0],
+color[1],
+color[2],
+1
+])
 
 }
 
