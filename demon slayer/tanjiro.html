@@ -2,127 +2,106 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Water Dragon Flow</title>
-
-<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
+<title>Tanjiro Water Dragon - Three.js</title>
 <style>
-
-body{
-margin:0;
-background:black;
-}
-
-model-viewer{
-width:100vw;
-height:100vh;
-}
-
+  body { margin:0; overflow:hidden; background:black; }
+  canvas { display:block; }
 </style>
 </head>
-
 <body>
 
-<model-viewer
-id="dragon"
-src="./Tanjiro1.glb"
-camera-controls
-environment-image="neutral"
-exposure="2">
-</model-viewer>
+<script type="module">
 
-<script>
+import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+import { GLTFLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const model=document.querySelector("#dragon")
+let scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
 
-model.addEventListener("load",()=>{
+let camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0,1.5,3);
 
-const materials=model.model.materials
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+document.body.appendChild(renderer.domElement);
 
-const boca=materials.find(m=>m.name.toLowerCase().includes("dragon boca"))
-const cabeza=materials.find(m=>m.name.toLowerCase().includes("dragon cabeza"))
-const cuerpo=materials.find(m=>m.name.toLowerCase().includes("dragon cuerpo largo"))
+let controls = new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
 
-console.log("boca:",boca)
-console.log("cabeza:",cabeza)
-console.log("cuerpo:",cuerpo)
+let light = new THREE.HemisphereLight(0xffffff,0x444444,2);
+scene.add(light);
 
-let t=0
+let loader = new GLTFLoader();
 
-// paleta agua
-const colores=[
-[0.6,0.9,1],   // celeste
-[0.2,0.5,1],   // azul
-[0,1,0.9],     // calipso
-[1,1,1],       // blanco
-[0.05,0.1,0.4] // azul marino
-]
+let boca, cabeza, cuerpo;
 
-function getColor(time){
+loader.load("Tanjiro1.glb",(gltf)=>{
 
-let i=Math.floor(time)%colores.length
-return colores[i]
+    let model = gltf.scene;
+    scene.add(model);
 
+    model.traverse((obj)=>{
+
+        if(obj.isMesh){
+
+            let name = obj.name.toLowerCase();
+
+            if(name.includes("dragon boca")) boca=obj;
+            if(name.includes("dragon cabeza")) cabeza=obj;
+            if(name.includes("dragon cuerpo largo")) cuerpo=obj;
+
+        }
+
+    });
+
+});
+
+let clock = new THREE.Clock();
+
+const waterColors=[
+ new THREE.Color(0.6,0.9,1),   // celeste
+ new THREE.Color(0.2,0.5,1),   // azul
+ new THREE.Color(0,1,0.9),     // calipso
+ new THREE.Color(1,1,1),       // blanco
+ new THREE.Color(0.05,0.1,0.4) // azul marino
+];
+
+function colorCycle(t){
+ return waterColors[Math.floor(t)%waterColors.length];
 }
 
 function animate(){
 
-t+=0.07
+ requestAnimationFrame(animate);
 
-// intensidad de energía
-let energiaBoca=(Math.sin(t)+1)/2
-let energiaCabeza=(Math.sin(t-1.2)+1)/2
-let energiaCuerpo=(Math.sin(t-2.4)+1)/2
+ let t = clock.getElapsedTime();
 
-// boca
-if(boca){
+ let faseBoca = Math.sin(t)*0.5+0.5;
+ let faseCabeza = Math.sin(t-1.2)*0.5+0.5;
+ let faseCuerpo = Math.sin(t-2.4)*0.5+0.5;
 
-let c=getColor(t)
+ if(boca){
+   let c=colorCycle(t);
+   boca.material.color.set(c.clone().multiplyScalar(faseBoca+0.3));
+ }
 
-boca.pbrMetallicRoughness.setBaseColorFactor([
-c[0]*energiaBoca,
-c[1]*energiaBoca,
-c[2]*energiaBoca,
-1
-])
+ if(cabeza){
+   let c=colorCycle(t-1);
+   cabeza.material.color.set(c.clone().multiplyScalar(faseCabeza+0.3));
+ }
 
-}
+ if(cuerpo){
+   let c=colorCycle(t-2);
+   cuerpo.material.color.set(c.clone().multiplyScalar(faseCuerpo+0.3));
+ }
 
-// cabeza
-if(cabeza){
-
-let c=getColor(t-1)
-
-cabeza.pbrMetallicRoughness.setBaseColorFactor([
-c[0]*energiaCabeza,
-c[1]*energiaCabeza,
-c[2]*energiaCabeza,
-1
-])
+ controls.update();
+ renderer.render(scene,camera);
 
 }
 
-// cuerpo largo
-if(cuerpo){
-
-let c=getColor(t-2)
-
-cuerpo.pbrMetallicRoughness.setBaseColorFactor([
-c[0]*energiaCuerpo,
-c[1]*energiaCuerpo,
-c[2]*energiaCuerpo,
-1
-])
-
-}
-
-requestAnimationFrame(animate)
-
-}
-
-animate()
-
-})
+animate();
 
 </script>
 
