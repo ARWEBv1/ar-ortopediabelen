@@ -72,10 +72,11 @@ model.addEventListener("load", () => {
   console.log("Materiales disponibles:");
   materials.forEach(m => console.log(m.name));
 
+  // Detectamos correctamente el material del piso (según tu consola probablemente sea Material.005 o similar blanco)
   const piso = materials.find(m => 
-    m.name.toLowerCase().includes("piso") ||
-    m.name.toLowerCase().includes("agua_piso") ||
-    m.name.toLowerCase().includes("dragon agua piso")
+    m.name === "Material.005" ||
+    m.name === "Material.008" ||
+    m.name.toLowerCase().includes("water")
   );
 
   let t = 0;
