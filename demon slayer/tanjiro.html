@@ -2,24 +2,37 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon Energy</title>
+<title>Tanjiro Dragon GOD MODE</title>
 
 <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <style>
 body{
   margin:0;
-  background:black;
   overflow:hidden;
+  background: radial-gradient(circle at center, #001a2d 0%, #000000 70%);
 }
+
 model-viewer{
   width:100vw;
   height:100vh;
+  transition: filter 0.3s ease;
+}
+
+.flash-screen{
+  position:fixed;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.2s ease;
 }
 </style>
 </head>
 
 <body>
+
+<div class="flash-screen" id="flash"></div>
 
 <model-viewer
   id="dragon"
@@ -27,26 +40,29 @@ model-viewer{
   ios-src="./Tanjiro1.usdc"
   ar
   camera-controls
-  exposure="1.4"
+  exposure="1.6"
   shadow-intensity="1"
-  environment-image="neutral">
+  environment-image="neutral"
+  auto-rotate
+  auto-rotate-delay="0">
 </model-viewer>
 
 <script>
 const model = document.querySelector("#dragon");
+const flashScreen = document.getElementById("flash");
 
-let chargeLevel = 0;
+let charge = 0;
 let charging = false;
+let godMode = false;
 
 model.addEventListener("click", () => {
   charging = true;
-  chargeLevel = 0;
+  charge = 0;
 });
 
 model.addEventListener("load", () => {
 
   const materials = model.model.materials;
-
   const cuerpo = materials.find(m => m.name.toLowerCase().includes("cuerpo"));
   const crestas = materials.find(m => m.name.toLowerCase().includes("agua cuerpo"));
   const cabeza = materials.find(m => m.name.toLowerCase().includes("cabeza"));
@@ -54,61 +70,47 @@ model.addEventListener("load", () => {
 
   let t = 0;
 
-  function animate() {
-    t += 0.05;
+  function animate(){
+    t += 0.06;
 
-    // 🌊 ONDA RECORRIENDO EL CUERPO
     const wave = (Math.sin(t) + 1) / 2;
 
-    if (cuerpo) {
-      cuerpo.emissiveFactor = [
-        0,
-        0.4 * wave + chargeLevel,
-        0.9 * wave + chargeLevel
-      ];
+    if(cuerpo){
+      cuerpo.emissiveFactor = [0, 0.5 * wave + charge, 1 * wave + charge];
     }
 
-    if (crestas) {
-      crestas.emissiveFactor = [
-        0.2 + chargeLevel,
-        1.2 * wave + chargeLevel,
-        1
-      ];
+    if(crestas){
+      crestas.emissiveFactor = [0.2 + charge, 1.5 * wave + charge, 1];
     }
 
-    if (cabeza) {
-      cabeza.emissiveFactor = [
-        0.3 + chargeLevel,
-        1.5 * wave + chargeLevel,
-        1.2
-      ];
+    if(cabeza){
+      cabeza.emissiveFactor = [0.3 + charge, 2 * wave + charge, 1.3];
     }
 
-    if (ojos) {
-      ojos.emissiveFactor = [
-        0.5 + chargeLevel,
-        2 * wave + chargeLevel * 2,
-        2
-      ];
+    if(ojos){
+      ojos.emissiveFactor = [0.5 + charge, 3 * wave + charge * 2, 2];
     }
 
-    // ⚡ MODO CARGA AL HACER CLICK
-    if (charging) {
-      chargeLevel += 0.02;
+    // ⚡ CARGA
+    if(charging){
+      charge += 0.03;
 
-      if (chargeLevel > 1.5) {
+      model.style.filter = `brightness(${1 + charge})`;
+
+      if(charge > 1.2){
         charging = false;
+        godMode = true;
 
-        // pequeña explosión luminosa
-        if (cuerpo) cuerpo.emissiveFactor = [0, 3, 4];
-        if (crestas) crestas.emissiveFactor = [1, 4, 4];
-        if (cabeza) cabeza.emissiveFactor = [1, 5, 5];
-        if (ojos) ojos.emissiveFactor = [2, 6, 6];
-
-        setTimeout(() => {
-          chargeLevel = 0;
-        }, 300);
+        flashScreen.style.opacity = 0.8;
+        setTimeout(()=> flashScreen.style.opacity = 0, 150);
       }
+    }
+
+    // 🔥 GOD MODE PULSO
+    if(godMode){
+      const godPulse = (Math.sin(t * 2) + 1) / 2;
+      model.style.filter = `brightness(${1.5 + godPulse}) contrast(1.2)`;
+      model.cameraOrbit = `${30 + godPulse * 10}deg 75deg 105%`;
     }
 
     requestAnimationFrame(animate);
