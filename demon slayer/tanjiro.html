@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon Summon</title>
+<title>Tanjiro Dragon Control</title>
 
 <style>
 body{
@@ -41,13 +41,15 @@ let light = new THREE.DirectionalLight(0xffffff,2);
 light.position.set(5,5,5);
 scene.add(light);
 
-let boca,cabeza,cuerpo;
+// DRAGON PARTS
+let dragonParts = [];
+let dragonFloor = null;
 
 let loader = new THREE.GLTFLoader();
 
 loader.load("Tanjiro1.glb",(gltf)=>{
 
-let model=gltf.scene;
+let model = gltf.scene;
 scene.add(model);
 
 // centrar modelo
@@ -55,75 +57,48 @@ let box=new THREE.Box3().setFromObject(model);
 let center=box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
-// detectar partes del dragón
+// buscar piezas
 model.traverse((obj)=>{
 
 if(obj.isMesh){
 
-let n=obj.name.toLowerCase();
+let n = obj.name.toLowerCase();
 
-if(n.includes("dragon boca")) boca=obj;
-if(n.includes("dragon cabeza")) cabeza=obj;
-if(n.includes("dragon cuerpo largo")) cuerpo=obj;
+if(
+n.includes("dragon boca") ||
+n.includes("dragon cabeza") ||
+n.includes("dragon cuerpo largo") ||
+n.includes("dragon dientes") ||
+n.includes("dragon ojos") ||
+n.includes("flash")
+){
+dragonParts.push(obj);
+}
+
+if(n.includes("dragon agua piso")){
+dragonFloor = obj;
+}
 
 }
 
 });
 
 });
-
-let clock=new THREE.Clock();
-
-let summonProgress=0;
 
 // colores agua
 let colors=[
 new THREE.Color(0.6,0.9,1),
 new THREE.Color(0.2,0.5,1),
 new THREE.Color(0,1,0.9),
-new THREE.Color(1,1,1)
+new THREE.Color(1,1,1),
+new THREE.Color(0.05,0.1,0.4)
 ];
 
 function getColor(t){
 return colors[Math.floor(t)%colors.length];
 }
 
-// partículas
-let particleCount=400;
-let particles=new THREE.BufferGeometry();
-let positions=[];
-
-for(let i=0;i<particleCount;i++){
-
-positions.push(
-(Math.random()-0.5)*6,
-Math.random()*3,
-(Math.random()-0.5)*6
-)
-
-}
-
-particles.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
-
-let particleMaterial=new THREE.PointsMaterial({
-color:0x66ccff,
-size:0.03
-});
-
-let particleSystem=new THREE.Points(particles,particleMaterial);
-scene.add(particleSystem);
-
-// piso
-let floorGeometry=new THREE.PlaneGeometry(10,10,80,80);
-let floorMaterial=new THREE.MeshBasicMaterial({
-color:0x001a2d,
-wireframe:true
-});
-
-let floor=new THREE.Mesh(floorGeometry,floorMaterial);
-floor.rotation.x=-Math.PI/2;
-floor.position.y=-1;
-scene.add(floor);
+let clock=new THREE.Clock();
 
 function animate(){
 
@@ -131,72 +106,33 @@ requestAnimationFrame(animate);
 
 let t=clock.getElapsedTime();
 
-summonProgress += 0.002;
+let energy=(Math.sin(t*2)+1)/2;
 
-// energía dragón
-let e1=Math.max(0,(summonProgress*3)-0.2);
-let e2=Math.max(0,(summonProgress*3)-1);
-let e3=Math.max(0,(summonProgress*3)-2);
+// DRAGON COMO UNA SOLA PIEZA
+dragonParts.forEach((part)=>{
 
-if(boca){
+part.material.emissive = new THREE.Color(0x66ccff);
+part.material.emissiveIntensity = energy*2;
 
-boca.material.emissive=new THREE.Color(0x66ccff);
-boca.material.emissiveIntensity=e1*3;
+part.material.color.copy(getColor(t)).multiplyScalar(energy+0.3);
 
-boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.4);
+});
 
-}
+// RGB PISO DRAGON AGUA
+if(dragonFloor){
 
-if(cabeza){
+let r=(Math.sin(t)+1)/2;
+let g=(Math.sin(t+2)+1)/2;
+let b=(Math.sin(t+4)+1)/2;
 
-cabeza.material.emissive=new THREE.Color(0x66ccff);
-cabeza.material.emissiveIntensity=e2*3;
-
-cabeza.material.color.copy(getColor(t)).multiplyScalar(e2+0.4);
+dragonFloor.material.color.setRGB(r,g,b);
 
 }
 
-if(cuerpo){
-
-cuerpo.material.emissive=new THREE.Color(0x66ccff);
-cuerpo.material.emissiveIntensity=e3*3;
-
-cuerpo.material.color.copy(getColor(t)).multiplyScalar(e3+0.4);
-
-}
-
-// partículas agua
-let pos=particleSystem.geometry.attributes.position;
-
-for(let i=0;i<pos.count;i++){
-
-let y=pos.getY(i);
-
-y+=0.004;
-
-if(y>3) y=0;
-
-pos.setY(i,y);
-
-}
-
-pos.needsUpdate=true;
-
-// ondas piso
-let verts=floor.geometry.attributes.position;
-
-for(let i=0;i<verts.count;i++){
-
-let x=verts.getX(i);
-let y=verts.getY(i);
-
-let wave=Math.sin((x+y)*3+t*2)*0.15;
-
-verts.setZ(i,wave);
-
-}
-
-verts.needsUpdate=true;
+// leve movimiento del dragón
+dragonParts.forEach((part)=>{
+part.rotation.z = Math.sin(t)*0.02;
+});
 
 controls.update();
 renderer.render(scene,camera);
