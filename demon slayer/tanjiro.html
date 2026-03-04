@@ -54,25 +54,24 @@ let model = gltf.scene;
 scene.add(model);
 
 // centrar modelo
-let box=new THREE.Box3().setFromObject(model);
-let center=box.getCenter(new THREE.Vector3());
+let box = new THREE.Box3().setFromObject(model);
+let center = box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
-// recorrer todo el modelo
+// mover modelo a la derecha
+model.position.x += 3;
+
+// recorrer el modelo
 model.traverse((obj)=>{
 
 if(obj.isMesh){
 
 let n = obj.name.toLowerCase();
 
-// detectar TODO el dragón
+// detectar dragón
 if(n.includes("dragon")){
-
 dragonParts.push(obj);
-
-// ocultar al inicio
 obj.visible = false;
-
 }
 
 // detectar piso
@@ -83,8 +82,6 @@ dragonFloor = obj;
 }
 
 });
-
-console.log("PARTES DRAGON:",dragonParts);
 
 });
 
@@ -103,7 +100,7 @@ return colors[Math.floor(t)%colors.length];
 
 let clock = new THREE.Clock();
 
-// activar dragón
+// activar dragón con click
 window.addEventListener("click",()=>{
 
 dragonVisible = true;
@@ -135,7 +132,7 @@ part.material.color.copy(getColor(t)).multiplyScalar(energy+0.3);
 
 }
 
-// RGB piso
+// RGB piso dragón
 if(dragonFloor){
 
 let r=(Math.sin(t)+1)/2;
