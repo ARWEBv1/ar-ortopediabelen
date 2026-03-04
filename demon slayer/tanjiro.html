@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Tanjiro Dragon</title>
+<title>Tanjiro Dragon Test</title>
 
 <style>
 body{
 margin:0;
 overflow:hidden;
-background:black;
+background:#111;
 }
 canvas{
 display:block;
@@ -20,60 +20,65 @@ display:block;
 
 <script type="module">
 
-import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
-import {GLTFLoader} from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
-import {OrbitControls} from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import {GLTFLoader} from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import {OrbitControls} from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-let scene=new THREE.Scene();
-scene.background=new THREE.Color(0x000000);
+console.log("Three cargado");
 
-let camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,100);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x222222);
+
+const camera=new THREE.PerspectiveCamera(
+60,
+window.innerWidth/window.innerHeight,
+0.1,
+100
+);
+
 camera.position.set(0,1.5,4);
 
-let renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth,innerHeight);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-let controls=new OrbitControls(camera,renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
-let light1=new THREE.HemisphereLight(0xffffff,0x444444,2);
-scene.add(light1);
+// luces fuertes para evitar negro
+const ambient=new THREE.AmbientLight(0xffffff,3);
+scene.add(ambient);
 
-let light2=new THREE.DirectionalLight(0xffffff,2);
-light2.position.set(3,5,3);
-scene.add(light2);
-
-let loader=new GLTFLoader();
+const dir=new THREE.DirectionalLight(0xffffff,2);
+dir.position.set(5,5,5);
+scene.add(dir);
 
 let boca,cabeza,cuerpo;
 
+const loader=new GLTFLoader();
+
 loader.load("Tanjiro1.glb",(gltf)=>{
 
-let model=gltf.scene;
+console.log("Modelo cargado");
 
-// CENTRAR MODELO
+const model=gltf.scene;
+scene.add(model);
+
+// centrar modelo
 const box=new THREE.Box3().setFromObject(model);
 const center=box.getCenter(new THREE.Vector3());
 model.position.sub(center);
 
-// ESCALAR MODELO
-const size=box.getSize(new THREE.Vector3()).length();
-const scale=2/size;
-model.scale.setScalar(scale);
-
-scene.add(model);
-
 // detectar partes del dragón
-model.traverse(obj=>{
+model.traverse((obj)=>{
 
 if(obj.isMesh){
 
-let name=obj.name.toLowerCase();
+let n=obj.name.toLowerCase();
 
-if(name.includes("dragon boca")) boca=obj;
-if(name.includes("dragon cabeza")) cabeza=obj;
-if(name.includes("dragon cuerpo largo")) cuerpo=obj;
+if(n.includes("dragon boca")) boca=obj;
+if(n.includes("dragon cabeza")) cabeza=obj;
+if(n.includes("dragon cuerpo largo")) cuerpo=obj;
 
 }
 
@@ -81,9 +86,9 @@ if(name.includes("dragon cuerpo largo")) cuerpo=obj;
 
 });
 
-let clock=new THREE.Clock();
+const clock=new THREE.Clock();
 
-const waterColors=[
+const colors=[
 new THREE.Color(0.6,0.9,1),
 new THREE.Color(0.2,0.5,1),
 new THREE.Color(0,1,0.9),
@@ -92,34 +97,29 @@ new THREE.Color(0.05,0.1,0.4)
 ];
 
 function getColor(t){
-
-return waterColors[Math.floor(t)%waterColors.length];
-
+return colors[Math.floor(t)%colors.length];
 }
 
 function animate(){
 
 requestAnimationFrame(animate);
 
-let t=clock.getElapsedTime();
+const t=clock.getElapsedTime();
 
-let e1=(Math.sin(t)+1)/2;
-let e2=(Math.sin(t-1)+1)/2;
-let e3=(Math.sin(t-2)+1)/2;
+const e1=(Math.sin(t)+1)/2;
+const e2=(Math.sin(t-1)+1)/2;
+const e3=(Math.sin(t-2)+1)/2;
 
 if(boca){
-let c=getColor(t);
-boca.material.color.copy(c).multiplyScalar(e1+0.3);
+boca.material.color.copy(getColor(t)).multiplyScalar(e1+0.3);
 }
 
 if(cabeza){
-let c=getColor(t-1);
-cabeza.material.color.copy(c).multiplyScalar(e2+0.3);
+cabeza.material.color.copy(getColor(t-1)).multiplyScalar(e2+0.3);
 }
 
 if(cuerpo){
-let c=getColor(t-2);
-cuerpo.material.color.copy(c).multiplyScalar(e3+0.3);
+cuerpo.material.color.copy(getColor(t-2)).multiplyScalar(e3+0.3);
 }
 
 controls.update();
