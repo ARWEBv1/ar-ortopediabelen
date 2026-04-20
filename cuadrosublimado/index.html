@@ -559,5 +559,28 @@
     setAccess(sessionStorage.getItem(SESSION_KEY));
     render();
   </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB6zRDBsxWqrP4ART6fFvHK4_ccOBBVkLg",
+  authDomain: "ortopediasbelen-sublima.firebaseapp.com",
+  databaseURL: "https://ortopediasbelen-sublima-default-rtdb.firebaseio.com",
+  projectId: "ortopediasbelen-sublima"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+window.saveClientPassword = async (hash) => {
+  await db.ref("config/clientPassword").set(hash);
+};
+
+window.getClientPassword = async () => {
+  const snapshot = await db.ref("config/clientPassword").once("value");
+  return snapshot.val();
+};
+</script>
 </body>
 </html>
