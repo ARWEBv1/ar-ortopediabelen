@@ -181,6 +181,66 @@ const base = location.origin+location.pathname;
 qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(base);
 qrLink.innerText = base;
 </script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB6zRDBsxWqrP4ART6fFvHK4_ccOBBVkLg",
+  authDomain: "ortopediasbelen-sublima.firebaseapp.com",
+  databaseURL: "https://ortopediasbelen-sublima-default-rtdb.firebaseio.com",
+  projectId: "ortopediasbelen-sublima"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🔥 parche automático SIN romper tu código
+
+setTimeout(() => {
+
+  // reemplaza guardado
+  const originalChange = els.changePass.onsubmit;
+  els.changePass.onsubmit = async (e) => {
+    e.preventDefault();
+
+    if (await hash(els.adminConfirm.value) !== ADMIN_CODE) {
+      els.changeMsg.textContent = "La contraseña admin no coincide.";
+      return;
+    }
+
+    if (!els.newClientPass.value.trim()) {
+      els.changeMsg.textContent = "Escribe una clave cliente.";
+      return;
+    }
+
+    await db.ref("config/clientPassword").set(await hash(els.newClientPass.value));
+
+    els.changeMsg.textContent = "Clave cliente actualizada 🔥";
+  };
+
+  // reemplaza login cliente
+  els.clientLogin.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const snapshot = await db.ref("config/clientPassword").once("value");
+    const savedPass = snapshot.val();
+
+    if (!savedPass) {
+      els.clientMsg.textContent = "El administrador aún no ha creado la contraseña cliente.";
+      return;
+    }
+
+    if (await hash(els.clientPass.value) !== savedPass) {
+      els.clientMsg.textContent = "Contraseña cliente incorrecta.";
+      return;
+    }
+
+    sessionStorage.setItem(SESSION_KEY, "client");
+    setAccess("client");
+  };
+
+}, 500);
+</script>
 </body>
 </html>
