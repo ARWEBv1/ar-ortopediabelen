@@ -1,127 +1,53 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ortopediasbelen - Sublimados</title>
-  <style>
-    :root {
-      --ink: #172326;
-      --muted: #617174;
-      --line: #d9e0df;
-      --paper: #f7faf9;
-      --green: #0f7c6d;
-      --coral: #d8563b;
-      --shadow: 0 18px 48px rgba(23, 35, 38, .18);
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--paper); }
-    button, input { font: inherit; }
-    body.unlocked .auth { display: none; }
-    body:not(.unlocked) .app, body:not(.unlocked) .legal { display: none; }
-    body.client .admin-only { display: none; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ortopediasbelen - Sublimados</title>
 
-    .auth { min-height: 100vh; display: grid; place-items: center; padding: 22px; background: linear-gradient(135deg, #eef5f4, #fff); }
-    .auth-card, .controls { background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
-    .auth-card { width: min(440px, 100%); padding: 24px; }
-    h1 { margin: 0 0 8px; font-size: 29px; }
-    p { margin: 0; color: var(--muted); }
+<style>
+body { font-family: Arial; margin:0; }
+.auth { display:flex; justify-content:center; align-items:center; height:100vh; }
+.panel { display:none; }
+.panel.active { display:block; }
+.tab.active { background:green; color:#fff; }
+</style>
 
-    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0; }
-    .tab, .choice, .seg, .view-btn, .btn {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px;
-      background: #fff;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .tab.active, .choice.active, .seg.active, .view-btn.active, .btn.primary {
-      color: #fff;
-      border-color: var(--green);
-      background: var(--green);
-    }
-
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .form { display: grid; gap: 12px; margin-top: 14px; }
-    label { display: grid; gap: 6px; font-weight: 700; font-size: 14px; }
-    input[type="password"], input[type="file"] {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px;
-      background: #fff;
-    }
-    .msg { min-height: 20px; color: var(--coral); font-size: 14px; }
-
-    .app { min-height: 100vh; display: grid; grid-template-columns: minmax(320px, 430px) 1fr; }
-    .controls { padding: 24px; }
-    .group { border-top: 1px solid var(--line); padding: 18px 0; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .hidden { display: none !important; }
-
-    .summary { display: grid; gap: 9px; color: var(--muted); font-size: 14px; }
-    .price { display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-weight: 700; }
-    .price b { color: var(--coral); font-size: 20px; }
-
-    .qr-box { display: grid; gap: 10px; margin-top: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
-    .qr-box img { width: 180px; height: 180px; }
-
-    .stage { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-    .room { display: flex; align-items: center; justify-content: center; }
-
-    .legal { padding: 16px; text-align: center; color: var(--muted); background: #fff; }
-  </style>
 </head>
 
-<body class="locked">
+<body>
 
-<section class="auth">
-  <div class="auth-card">
-    <h1>Ortopediasbelen - Sublimados</h1>
-    <div class="tabs">
-      <button class="tab active" data-panel="clientPanel">Cliente</button>
-      <button class="tab" data-panel="adminPanel">Administrador</button>
-    </div>
+<div class="auth">
+  <div>
+    <button class="tab active" onclick="show('client')">Cliente</button>
+    <button class="tab" onclick="show('admin')">Admin</button>
 
-    <div class="panel active" id="clientPanel">
+    <div id="client" class="panel active">
       <form id="clientLogin">
-        <input id="clientPass" type="password" placeholder="Clave cliente">
+        <input id="clientPass" type="password">
         <button>Entrar</button>
         <div id="clientMsg"></div>
       </form>
     </div>
 
-    <div class="panel" id="adminPanel">
+    <div id="admin" class="panel">
       <form id="adminLogin">
-        <input id="adminPass" type="password" placeholder="Clave admin">
+        <input id="adminPass" type="password">
         <button>Entrar</button>
         <div id="adminMsg"></div>
       </form>
     </div>
   </div>
-</section>
+</div>
 
-<main class="app">
-  <aside class="controls">
-    <form id="changePass" class="admin-only">
-      <input id="adminConfirm" type="password" placeholder="Admin">
-      <input id="newClientPass" type="password" placeholder="Nueva clave">
-      <button>Cambiar</button>
-      <div id="changeMsg"></div>
-    </form>
+<script>
+function show(x){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById(x).classList.add("active");
+}
+</script>
 
-    <div class="qr-box admin-only">
-      <img id="qr">
-      <div id="qrLink"></div>
-    </div>
-  </aside>
-</main>
-
-<footer class="legal">Ortopediasbelen</footer>
-
-<!-- 🔥 FIREBASE -->
+<!-- 🔥 FIREBASE SOLO UNA VEZ -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -136,111 +62,35 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-async function saveClientPassword(hash) {
-  await db.ref("config/clientPassword").set(hash);
-}
-
-async function getClientPassword() {
-  const snapshot = await db.ref("config/clientPassword").once("value");
-  return snapshot.val();
-}
-
 function hash(str){
-  let h = 2166136261;
-  for (let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); }
+  let h=2166136261;
+  for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
   return (h>>>0).toString(16);
 }
 
-const ADMIN_CODE = "a9461750";
+const ADMIN_CODE="a9461750";
 
-document.getElementById("clientLogin").onsubmit = async (e)=>{
+/* LOGIN CLIENTE */
+clientLogin.onsubmit=async(e)=>{
   e.preventDefault();
-  const pass = document.getElementById("clientPass").value;
-  const real = await getClientPassword();
+  const pass=clientPass.value;
 
-  if(!real){ clientMsg.innerText="No hay clave creada"; return; }
-  if(hash(pass)!==real){ clientMsg.innerText="Incorrecta"; return; }
+  const snap=await db.ref("config/clientPassword").once("value");
+  const real=snap.val();
 
-  document.body.classList.add("unlocked","client");
+  if(!real){clientMsg.innerText="No hay clave";return;}
+  if(hash(pass)!==real){clientMsg.innerText="Incorrecta";return;}
+
+  alert("Cliente OK 🔥");
 };
 
-document.getElementById("adminLogin").onsubmit = async (e)=>{
+/* LOGIN ADMIN */
+adminLogin.onsubmit=(e)=>{
   e.preventDefault();
-  if(hash(adminPass.value)!==ADMIN_CODE){ adminMsg.innerText="Admin mal"; return; }
-  document.body.classList.add("unlocked");
+  if(hash(adminPass.value)!==ADMIN_CODE){adminMsg.innerText="Admin mal";return;}
+  alert("Admin OK 🔥");
 };
-
-document.getElementById("changePass").onsubmit = async (e)=>{
-  e.preventDefault();
-  if(hash(adminConfirm.value)!==ADMIN_CODE){ changeMsg.innerText="Admin mal"; return; }
-  await saveClientPassword(hash(newClientPass.value));
-  changeMsg.innerText="Actualizada 🔥";
-};
-
-const base = location.origin+location.pathname;
-qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(base);
-qrLink.innerText = base;
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB6zRDBsxWqrP4ART6fFvHK4_ccOBBVkLg",
-  authDomain: "ortopediasbelen-sublima.firebaseapp.com",
-  databaseURL: "https://ortopediasbelen-sublima-default-rtdb.firebaseio.com",
-  projectId: "ortopediasbelen-sublima"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// 🔥 parche automático SIN romper tu código
-
-setTimeout(() => {
-
-  // reemplaza guardado
-  const originalChange = els.changePass.onsubmit;
-  els.changePass.onsubmit = async (e) => {
-    e.preventDefault();
-
-    if (await hash(els.adminConfirm.value) !== ADMIN_CODE) {
-      els.changeMsg.textContent = "La contraseña admin no coincide.";
-      return;
-    }
-
-    if (!els.newClientPass.value.trim()) {
-      els.changeMsg.textContent = "Escribe una clave cliente.";
-      return;
-    }
-
-    await db.ref("config/clientPassword").set(await hash(els.newClientPass.value));
-
-    els.changeMsg.textContent = "Clave cliente actualizada 🔥";
-  };
-
-  // reemplaza login cliente
-  els.clientLogin.onsubmit = async (e) => {
-    e.preventDefault();
-
-    const snapshot = await db.ref("config/clientPassword").once("value");
-    const savedPass = snapshot.val();
-
-    if (!savedPass) {
-      els.clientMsg.textContent = "El administrador aún no ha creado la contraseña cliente.";
-      return;
-    }
-
-    if (await hash(els.clientPass.value) !== savedPass) {
-      els.clientMsg.textContent = "Contraseña cliente incorrecta.";
-      return;
-    }
-
-    sessionStorage.setItem(SESSION_KEY, "client");
-    setAccess("client");
-  };
-
-}, 500);
-</script>
 </body>
 </html>
