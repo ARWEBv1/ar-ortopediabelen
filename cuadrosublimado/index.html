@@ -1,96 +1,563 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ortopediasbelen - Sublimados</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ortopediasbelen - Sublimados</title>
+  <style>
+    :root {
+      --ink: #172326;
+      --muted: #617174;
+      --line: #d9e0df;
+      --paper: #f7faf9;
+      --green: #0f7c6d;
+      --coral: #d8563b;
+      --shadow: 0 18px 48px rgba(23, 35, 38, .18);
+    }
 
-<style>
-/* 🔥 TODO TU CSS ORIGINAL (INTACTO) */
-:root{--ink:#172326;--muted:#617174;--line:#d9e0df;--paper:#f7faf9;--green:#0f7c6d;--coral:#d8563b;--shadow:0 18px 48px rgba(23,35,38,.18);}
-*{box-sizing:border-box;}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper);}
-button,input{font:inherit;}
-body.unlocked .auth{display:none;}
-body:not(.unlocked) .app,body:not(.unlocked) .legal{display:none;}
-body.client .admin-only{display:none;}
-/* (recortado visualmente, es el mismo tuyo completo, no cambia nada funcional) */
-</style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--paper); }
+    button, input { font: inherit; }
+    body.unlocked .auth { display: none; }
+    body:not(.unlocked) .app, body:not(.unlocked) .legal { display: none; }
+    body.client .admin-only { display: none; }
+
+    .auth {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: linear-gradient(135deg, #eef5f4, #fff);
+    }
+
+    .auth-card, .controls {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-card { width: min(440px, 100%); padding: 24px; }
+    h1 { margin: 0 0 8px; font-size: 29px; line-height: 1.08; }
+    p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0; }
+    .tab, .choice, .seg, .view-btn, .btn {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tab.active, .choice.active, .seg.active, .view-btn.active, .btn.primary {
+      color: #fff;
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .form { display: grid; gap: 12px; margin-top: 14px; }
+    label { display: grid; gap: 6px; font-weight: 700; font-size: 14px; }
+    input[type="password"], input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px;
+      background: #fff;
+    }
+    .msg { min-height: 20px; color: var(--coral); font-size: 14px; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) 1fr;
+    }
+    .controls { border-radius: 0; box-shadow: none; padding: 24px; overflow: auto; }
+    .intro { margin-bottom: 22px; }
+    .group { border-top: 1px solid var(--line); padding: 18px 0; }
+    .group:first-of-type { border-top: 0; }
+    .title-row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 12px; font-weight: 700; }
+    .hint { color: var(--muted); font-size: 13px; font-weight: 400; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice { text-align: left; min-height: 72px; }
+    .choice strong { display: block; font-size: 18px; margin-bottom: 4px; }
+    .choice span { color: var(--muted); font-size: 13px; }
+    .segs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .segs.two { grid-template-columns: repeat(2, 1fr); }
+    .hidden { display: none !important; }
+
+    .summary { display: grid; gap: 9px; color: var(--muted); font-size: 14px; }
+    .summary strong { color: var(--ink); }
+    .price { display: flex; justify-content: space-between; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-weight: 700; color: var(--ink); }
+    .price b { color: var(--coral); font-size: 20px; }
+
+    .qr-box { display: grid; gap: 10px; margin-top: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdfd; }
+    .qr-box img { width: 180px; height: 180px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .qr-box div { overflow-wrap: anywhere; color: var(--muted); font-size: 13px; }
+
+    .stage {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.48), rgba(23,35,38,.18)),
+        url("https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 17px 22px;
+      background: rgba(255,255,255,.78);
+      border-bottom: 1px solid rgba(23,35,38,.08);
+    }
+    .topbar strong { display: block; font-size: 18px; }
+    .topbar span { color: var(--muted); font-size: 14px; }
+    .view-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .room {
+      position: relative;
+      min-height: 620px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 18px 88px;
+      overflow: hidden;
+    }
+    .gallery {
+      display: grid;
+      gap: 14px;
+      align-items: center;
+      justify-items: center;
+      filter: drop-shadow(0 18px 20px rgba(0,0,0,.22));
+    }
+    .layout-1 { grid-template-columns: 1fr; }
+    .layout-2 { grid-template-columns: repeat(2, 1fr); }
+    .layout-2.split-h { grid-template-columns: 1fr; }
+    .layout-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .frame {
+      width: var(--fw, 180px);
+      height: var(--fh, 240px);
+      border: 8px solid #172326;
+      background: #fff;
+      box-shadow: inset 0 0 0 5px #fff;
+      overflow: hidden;
+    }
+    .art { width: 100%; height: 100%; background: var(--art) center/cover no-repeat; }
+    .layout-4 .art { background-size: 200% 200%; }
+    .layout-4 .p1 .art { background-position: left top; }
+    .layout-4 .p2 .art { background-position: right top; }
+    .layout-4 .p3 .art { background-position: left bottom; }
+    .layout-4 .p4 .art { background-position: right bottom; }
+    .split-v .art { background-size: 200% 100%; }
+    .split-v .p1 .art { background-position: left center; }
+    .split-v .p2 .art { background-position: right center; }
+    .split-h .art { background-size: 100% 200%; }
+    .split-h .p1 .art { background-position: center top; }
+    .split-h .p2 .art { background-position: center bottom; }
+
+    .note {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      max-width: 520px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.88);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .model {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      perspective: 1000px;
+    }
+    .room.show3d .gallery { display: none; }
+    .room.show3d .model { display: flex; }
+    .slab {
+      position: relative;
+      width: var(--mw, 220px);
+      height: var(--mh, 300px);
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rx, 8deg)) rotateY(var(--ry, -28deg)) rotateZ(var(--rz, 0deg));
+    }
+    .face {
+      position: absolute;
+      inset: 0;
+      border: 8px solid #172326;
+      border-radius: 6px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,.25);
+    }
+    .front { background: var(--art) center/cover no-repeat; transform: translateZ(14px); }
+    .back {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 700;
+      color: #4d585b;
+      background: linear-gradient(135deg, #eef2f2, #9ea9ac, #e7ecec);
+      transform: rotateY(180deg) translateZ(14px);
+    }
+    .side { position: absolute; top: 8px; right: -14px; width: 28px; height: calc(100% - 16px); background: linear-gradient(90deg, #9aa4a6, #e4e9e9, #737f82); transform: rotateY(90deg) translateZ(calc(var(--mw, 220px) - 14px)); transform-origin: left center; }
+    .model-controls { display: grid; gap: 10px; width: min(460px, 90vw); padding: 12px; border-radius: 8px; background: rgba(255,255,255,.88); }
+    .range { display: grid; grid-template-columns: 70px 1fr; align-items: center; gap: 10px; }
+
+    .legal { padding: 16px; text-align: center; color: var(--muted); background: #fff; border-top: 1px solid var(--line); font-size: 13px; }
+    #orderForm { display: none; }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .room { min-height: 600px; }
+    }
+    @media (max-width: 520px) {
+      .controls { padding: 18px; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 25px; }
+      .frame { border-width: 6px; }
+    }
+  </style>
 </head>
-
 <body class="locked">
+  <section class="auth">
+    <div class="auth-card">
+      <h1>Ortopediasbelen - Sublimados</h1>
+      <p>Acceso privado al simulador de cuadros.</p>
+      <div class="tabs">
+        <button class="tab active" data-panel="clientPanel" type="button">Cliente</button>
+        <button class="tab" data-panel="adminPanel" type="button">Administrador</button>
+      </div>
+      <div class="panel active" id="clientPanel">
+        <form class="form" id="clientLogin">
+          <label>Contraseña de cliente <input id="clientPass" type="password"></label>
+          <button class="btn primary" type="submit">Abrir simulador</button>
+          <div class="msg" id="clientMsg"></div>
+        </form>
+      </div>
+      <div class="panel" id="adminPanel">
+        <form class="form" id="adminLogin">
+          <label>Contraseña de administrador <input id="adminPass" type="password"></label>
+          <button class="btn primary" type="submit">Entrar como administrador</button>
+          <div class="msg" id="adminMsg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
 
-<!-- 🔥 TODO TU HTML ORIGINAL (NO TOCADO) -->
-<!-- (tu sistema completo sigue aquí tal cual) -->
+  <main class="app">
+    <aside class="controls">
+      <h1>Ortopediasbelen - Sublimados</h1>
+      <p class="intro">Elige formato, cantidad, orientación e imagen para ver el pedido.</p>
 
-<script>
-/* 🔥 TODO TU JS ORIGINAL (INTACTO) */
+      <section class="group">
+        <div class="title-row"><span>Formato</span><span class="hint">centímetros</span></div>
+        <div class="grid" id="formats">
+          <button class="choice active" data-w="20" data-h="30" type="button"><strong>20 x 30</strong><span>Formato pequeño.</span></button>
+          <button class="choice" data-w="30" data-h="40" type="button"><strong>30 x 40</strong><span>Formato mediano.</span></button>
+          <button class="choice" data-w="30" data-h="60" type="button"><strong>30 x 60</strong><span>Díptico en x2.</span></button>
+          <button class="choice" data-w="40" data-h="60" type="button"><strong>40 x 60</strong><span>Formato grande.</span></button>
+        </div>
+        <div class="segs two" id="orientations" style="margin-top:10px">
+          <button class="seg active" data-o="vertical" type="button">Vertical</button>
+          <button class="seg" data-o="horizontal" type="button">Horizontal</button>
+        </div>
+      </section>
 
-let ADMIN_CODE;
-const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
-const SESSION_KEY = "ortopediasbelenSessionMode";
+      <section class="group">
+        <div class="title-row"><span>Cantidad</span><span class="hint" id="qtyHint">x1, x2 o x4</span></div>
+        <div class="segs" id="qtys">
+          <button class="seg active" data-c="1" type="button">x1</button>
+          <button class="seg" data-c="2" type="button">x2</button>
+          <button class="seg" data-c="4" id="q4" type="button">x4</button>
+        </div>
+      </section>
 
-/* 🔥 HASH ORIGINAL */
-async function hash(value){
-  let h=2166136261;
-  const s=`ortopediasbelen:${value}`;
-  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
-  return (h>>>0).toString(16).padStart(8,"0");
-}
+      <section class="group">
+        <div class="title-row"><span>Imágenes</span><span class="hint" id="uploadHint">sube 1 imagen</span></div>
+        <label>Imagen para el pedido <input id="upload" name="attachment" form="orderForm" type="file" accept="image/*" multiple></label>
+      </section>
 
-/* 🔥 FIX ADMIN (CLAVE 2212) */
-(async ()=>{
-  ADMIN_CODE = await hash("2212");
-})();
+      <section class="group">
+        <div class="title-row"><span>Pedido actual</span></div>
+        <div class="summary">
+          <strong id="sumTitle">20 x 30 x1 vertical</strong>
+          <span id="sumText">1 cuadro individual.</span>
+          <span id="sumTotal">Tamaño visual total: 20 x 30 cm.</span>
+          <div class="price"><span>Precio</span><b id="sumPrice">$20.000</b></div>
+          <button class="btn primary" id="sendBtn" type="button">Enviar pedido</button>
+          <div class="hint" id="sendHint">Se enviará a admin@ortopediasbelen.com con la imagen subida.</div>
+        </div>
+      </section>
 
-/* 🔥 RESTO DE TU CÓDIGO IGUAL */
+      <section class="group admin-only">
+        <div class="title-row"><span>Administrador</span><span class="hint">cliente y QR</span></div>
+        <form class="form" id="changePass">
+          <label>Contraseña admin <input id="adminConfirm" type="password"></label>
+          <label>Nueva contraseña cliente <input id="newClientPass" type="password"></label>
+          <button class="btn primary" type="submit">Cambiar clave cliente</button>
+          <button class="btn" id="logout" type="button">Cerrar sesión</button>
+          <div class="msg" id="changeMsg"></div>
+        </form>
+        <div class="qr-box">
+          <strong>QR para clientes</strong>
+          <img id="qr" alt="QR cliente">
+          <div id="qrLink"></div>
+        </div>
+      </section>
+    </aside>
 
-const $=(id)=>document.getElementById(id);
+    <section class="stage">
+      <div class="topbar">
+        <div><strong id="previewTitle">20 x 30 x1 vertical</strong><span id="previewMode">Un cuadro con una imagen.</span></div>
+        <div class="view-actions">
+          <button class="view-btn active" id="livingBtn" type="button">Living</button>
+          <button class="view-btn" id="threeBtn" type="button">3D</button>
+          <button class="view-btn" id="backBtn" type="button">Ver aluminio</button>
+        </div>
+      </div>
+      <div class="room" id="room">
+        <div class="gallery layout-1" id="gallery"></div>
+        <div class="model">
+          <div class="slab" id="slab">
+            <div class="face front" id="front"></div>
+            <div class="face back">Reverso aluminio</div>
+            <div class="side"></div>
+          </div>
+          <div class="model-controls">
+            <label class="range">Arriba <input id="rx" type="range" min="-70" max="70" value="8"></label>
+            <label class="range">Lados <input id="ry" type="range" min="-180" max="180" value="-28"></label>
+            <label class="range">Giro <input id="rz" type="range" min="-45" max="45" value="0"></label>
+            <button class="btn" id="reset3d" type="button">Centrar 3D</button>
+          </div>
+        </div>
+        <div class="note" id="note">En x4 se usa una sola imagen y se divide en cuatro cuadros iguales.</div>
+      </div>
+    </section>
+  </main>
 
-const els={
-  clientLogin:$("clientLogin"),
-  adminLogin:$("adminLogin"),
-  clientPass:$("clientPass"),
-  adminPass:$("adminPass"),
-  clientMsg:$("clientMsg"),
-  adminMsg:$("adminMsg"),
-  changePass:$("changePass"),
-  adminConfirm:$("adminConfirm"),
-  newClientPass:$("newClientPass"),
-  changeMsg:$("changeMsg")
-};
+  <footer class="legal">Ante copia o plagio, la demanda le llega. Propiedad de Ortopediasbelen.</footer>
 
-/* LOGIN CLIENTE (IGUAL) */
-els.clientLogin.addEventListener("submit",async(e)=>{
-  e.preventDefault();
-  const saved=localStorage.getItem(CLIENT_KEY);
-  if(!saved){els.clientMsg.textContent="No hay clave creada";return;}
-  if(await hash(els.clientPass.value)!==saved){
-    els.clientMsg.textContent="Contraseña incorrecta";return;
-  }
-  document.body.classList.add("unlocked","client");
-});
+  <form id="orderForm" action="https://formsubmit.co/admin@ortopediasbelen.com" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="_subject" id="orderSubject">
+    <input type="hidden" name="pedido" id="orderMessage">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="table">
+  </form>
 
-/* LOGIN ADMIN (ARREGLADO) */
-els.adminLogin.addEventListener("submit",async(e)=>{
-  e.preventDefault();
-  if(await hash(els.adminPass.value)!==ADMIN_CODE){
-    els.adminMsg.textContent="Contraseña admin incorrecta";
-    return;
-  }
-  document.body.classList.add("unlocked");
-});
+  <script>
+    const ADMIN_CODE = "a9461750";
+    const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
+    const SESSION_KEY = "ortopediasbelenSessionMode";
+    const demoImage = "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80";
+    const prices = {
+      "20x30": { 1: 20000, 2: 25000, 4: 60000 },
+      "30x40": { 1: 25000, 2: 40000, 4: 75000 },
+      "30x60": { 1: 30000, 2: 50000 },
+      "40x60": { 1: 60000, 2: 100000, 4: 200000 }
+    };
+    const state = { w: 20, h: 30, count: 1, o: "vertical", image: demoImage, imageNames: ["Imagen de ejemplo"], view: "living", rx: 8, ry: -28, rz: 0 };
 
-/* CAMBIAR CLAVE CLIENTE */
-els.changePass.addEventListener("submit",async(e)=>{
-  e.preventDefault();
-  if(await hash(els.adminConfirm.value)!==ADMIN_CODE){
-    els.changeMsg.textContent="Admin incorrecto";return;
-  }
-  localStorage.setItem(CLIENT_KEY,await hash(els.newClientPass.value));
-  els.changeMsg.textContent="Clave cambiada 🔥";
-});
-</script>
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      authTabs: document.querySelectorAll(".tab"), panels: document.querySelectorAll(".panel"),
+      clientLogin: $("clientLogin"), adminLogin: $("adminLogin"), clientPass: $("clientPass"), adminPass: $("adminPass"),
+      clientMsg: $("clientMsg"), adminMsg: $("adminMsg"), formats: $("formats"), orientations: $("orientations"),
+      qtys: $("qtys"), q4: $("q4"), qtyHint: $("qtyHint"), upload: $("upload"), uploadHint: $("uploadHint"),
+      sumTitle: $("sumTitle"), sumText: $("sumText"), sumTotal: $("sumTotal"), sumPrice: $("sumPrice"),
+      previewTitle: $("previewTitle"), previewMode: $("previewMode"), gallery: $("gallery"), note: $("note"),
+      room: $("room"), slab: $("slab"), front: $("front"), rx: $("rx"), ry: $("ry"), rz: $("rz"),
+      livingBtn: $("livingBtn"), threeBtn: $("threeBtn"), backBtn: $("backBtn"), reset3d: $("reset3d"),
+      changePass: $("changePass"), adminConfirm: $("adminConfirm"), newClientPass: $("newClientPass"), changeMsg: $("changeMsg"),
+      qr: $("qr"), qrLink: $("qrLink"), logout: $("logout"), sendBtn: $("sendBtn"), sendHint: $("sendHint"),
+      orderForm: $("orderForm"), orderSubject: $("orderSubject"), orderMessage: $("orderMessage")
+    };
 
+    async function hash(value) {
+      let h = 2166136261;
+      const s = `ortopediasbelen:${value}`;
+      for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return (h >>> 0).toString(16).padStart(8, "0");
+    }
+    const money = (n) => `$${n.toLocaleString("es-CL")}`;
+    const key = () => `${state.w}x${state.h}`;
+    const split = () => state.w === 30 && state.h === 60 && state.count === 2;
+    const clientCode = () => {
+      const m = location.hash.match(/^#cliente\/([a-f0-9]+)$/i);
+      return m ? m[1] : localStorage.getItem(CLIENT_KEY);
+    };
+
+    function setAccess(mode) {
+      const ok = mode === "admin" || mode === "client";
+      document.body.classList.toggle("unlocked", ok);
+      document.body.classList.toggle("client", mode === "client");
+      document.body.classList.toggle("admin", mode === "admin");
+      updateQr();
+    }
+    function updateQr() {
+      const code = localStorage.getItem(CLIENT_KEY) || "";
+      const base = `${location.origin}${location.pathname}`;
+      const url = code ? `${base}#cliente/${code}` : `${base}#cliente`;
+      els.qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
+      els.qrLink.textContent = url;
+    }
+    function frameSize() {
+      if (!split()) return state.o === "horizontal" ? { w: state.h, h: state.w } : { w: state.w, h: state.h };
+      return state.o === "horizontal" ? { w: 60, h: 30 } : { w: 30, h: 60 };
+    }
+    function displaySize() { return split() ? { w: 30, h: 60 } : frameSize(); }
+    function totalSize(size) {
+      if (split()) return { w: 60, h: 60 };
+      if (state.count === 4) return { w: size.w * 2, h: size.h * 2 };
+      if (state.count === 2) return { w: size.w * 2 + 6, h: size.h };
+      return size;
+    }
+    function orderTitle() {
+      const s = displaySize();
+      return `${s.w}x${s.h} x${state.count} ${state.o}`;
+    }
+
+    function syncQty() {
+      const is3060 = state.w === 30 && state.h === 60;
+      els.q4.classList.toggle("hidden", is3060);
+      els.qtys.classList.toggle("two", is3060);
+      els.qtyHint.textContent = is3060 ? "x1 o x2" : "x1, x2 o x4";
+      if (is3060 && state.count === 4) {
+        state.count = 2;
+        document.querySelectorAll("#qtys .seg").forEach(b => b.classList.toggle("active", b.dataset.c === "2"));
+      }
+    }
+    function renderFrames() {
+      syncQty();
+      const size = frameSize();
+      const total = totalSize(size);
+      const maxW = innerWidth <= 520 ? 280 : innerWidth <= 900 ? 460 : 620;
+      const maxH = innerWidth <= 520 ? 280 : 360;
+      const scale = Math.min(maxW / total.w, maxH / total.h);
+      els.gallery.className = `gallery layout-${state.count}${split() ? (state.o === "horizontal" ? " split-h" : " split-v") : ""}`;
+      els.gallery.style.setProperty("--fw", `${Math.max(70, Math.round(size.w * scale))}px`);
+      els.gallery.style.setProperty("--fh", `${Math.max(90, Math.round(size.h * scale))}px`);
+      els.gallery.innerHTML = "";
+      for (let i = 0; i < state.count; i++) {
+        const frame = document.createElement("div");
+        frame.className = `frame p${i + 1}`;
+        frame.style.setProperty("--art", `url("${state.image}")`);
+        frame.innerHTML = '<div class="art"></div>';
+        els.gallery.appendChild(frame);
+      }
+    }
+    function render3D() {
+      const size = frameSize();
+      const scale = Math.min((innerWidth <= 520 ? 230 : 320) / size.w, (innerWidth <= 520 ? 300 : 390) / size.h);
+      els.room.classList.toggle("show3d", state.view === "3d");
+      els.livingBtn.classList.toggle("active", state.view === "living");
+      els.threeBtn.classList.toggle("active", state.view === "3d");
+      els.backBtn.textContent = Math.abs(state.ry) > 100 ? "Ver imagen" : "Ver aluminio";
+      els.slab.style.setProperty("--mw", `${Math.max(120, Math.round(size.w * scale))}px`);
+      els.slab.style.setProperty("--mh", `${Math.max(150, Math.round(size.h * scale))}px`);
+      els.slab.style.setProperty("--rx", `${state.rx}deg`);
+      els.slab.style.setProperty("--ry", `${state.ry}deg`);
+      els.slab.style.setProperty("--rz", `${state.rz}deg`);
+      els.front.style.setProperty("--art", `url("${state.image}")`);
+      els.rx.value = state.rx; els.ry.value = state.ry; els.rz.value = state.rz;
+    }
+    function renderText() {
+      const s = displaySize();
+      const total = totalSize(frameSize());
+      const title = `${s.w} x ${s.h} x${state.count} ${state.o}`;
+      let text = `1 cuadro individual de ${s.w} x ${s.h} cm.`;
+      if (state.count === 2) text = `2 cuadros de ${s.w} x ${s.h} cm.`;
+      if (state.count === 4) text = `4 cuadros de ${s.w} x ${s.h} cm. Una imagen dividida en 4 partes.`;
+      if (split()) text = `Formato 30 x 60 x2. Una imagen de 60 x 60 cm dividida en dos mitades.`;
+      els.sumTitle.textContent = title;
+      els.previewTitle.textContent = title;
+      els.sumText.textContent = text;
+      els.sumTotal.textContent = `Tamaño visual total: ${total.w} x ${total.h} cm.`;
+      els.sumPrice.textContent = money(prices[key()][state.count]);
+      els.uploadHint.textContent = state.count === 2 && !split() ? "sube 2 imágenes" : "sube 1 imagen";
+      els.previewMode.textContent = split() ? "Una imagen 60 x 60 dividida en dos." : text;
+      els.note.textContent = split() ? "En 30 x 60 x2 se usa una imagen de 60 x 60 y se parte según la dirección elegida." : "La vista respeta proporción, formato y precio elegido.";
+    }
+    function render() { renderFrames(); render3D(); renderText(); }
+
+    els.authTabs.forEach(btn => btn.addEventListener("click", () => {
+      els.authTabs.forEach(b => b.classList.remove("active"));
+      els.panels.forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      $(btn.dataset.panel).classList.add("active");
+    }));
+    els.clientLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!clientCode()) { els.clientMsg.textContent = "El administrador aún no ha creado la contraseña cliente."; return; }
+      if (await hash(els.clientPass.value) !== clientCode()) { els.clientMsg.textContent = "Contraseña cliente incorrecta."; return; }
+      sessionStorage.setItem(SESSION_KEY, "client"); setAccess("client");
+    });
+    els.adminLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (await hash(els.adminPass.value) !== ADMIN_CODE) { els.adminMsg.textContent = "Contraseña admin incorrecta."; return; }
+      sessionStorage.setItem(SESSION_KEY, "admin"); setAccess("admin");
+    });
+    els.changePass.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (await hash(els.adminConfirm.value) !== ADMIN_CODE) { els.changeMsg.textContent = "La contraseña admin no coincide."; return; }
+      if (!els.newClientPass.value.trim()) { els.changeMsg.textContent = "Escribe una clave cliente."; return; }
+      localStorage.setItem(CLIENT_KEY, await hash(els.newClientPass.value));
+      updateQr();
+      els.adminConfirm.value = ""; els.newClientPass.value = "";
+      els.changeMsg.textContent = "Clave cliente cambiada. El QR ya fue actualizado.";
+    });
+    els.logout.addEventListener("click", () => { sessionStorage.removeItem(SESSION_KEY); setAccess(""); });
+
+    els.formats.addEventListener("click", (e) => {
+      const b = e.target.closest(".choice"); if (!b) return;
+      document.querySelectorAll("#formats .choice").forEach(x => x.classList.remove("active"));
+      b.classList.add("active"); state.w = Number(b.dataset.w); state.h = Number(b.dataset.h); render();
+    });
+    els.orientations.addEventListener("click", (e) => {
+      const b = e.target.closest(".seg"); if (!b) return;
+      document.querySelectorAll("#orientations .seg").forEach(x => x.classList.remove("active"));
+      b.classList.add("active"); state.o = b.dataset.o; render();
+    });
+    els.qtys.addEventListener("click", (e) => {
+      const b = e.target.closest(".seg"); if (!b) return;
+      document.querySelectorAll("#qtys .seg").forEach(x => x.classList.remove("active"));
+      b.classList.add("active"); state.count = Number(b.dataset.c); render();
+    });
+    els.upload.addEventListener("change", () => {
+      const file = els.upload.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { state.image = reader.result; state.imageNames = Array.from(els.upload.files).map(f => f.name); render(); };
+      reader.readAsDataURL(file);
+    });
+    els.livingBtn.addEventListener("click", () => { state.view = "living"; render(); });
+    els.threeBtn.addEventListener("click", () => { state.view = "3d"; render(); });
+    els.backBtn.addEventListener("click", () => { state.view = "3d"; state.ry = Math.abs(state.ry) > 100 ? -28 : 180; render(); });
+    [els.rx, els.ry, els.rz].forEach(input => input.addEventListener("input", () => {
+      state.rx = Number(els.rx.value); state.ry = Number(els.ry.value); state.rz = Number(els.rz.value); state.view = "3d"; render3D();
+    }));
+    els.reset3d.addEventListener("click", () => { state.rx = 8; state.ry = -28; state.rz = 0; state.view = "3d"; render(); });
+    els.sendBtn.addEventListener("click", () => {
+      if (!els.upload.files.length) { els.sendHint.textContent = "Sube la imagen del cliente antes de enviar."; return; }
+      els.orderSubject.value = `Pedido ${orderTitle()} - Ortopediasbelen`;
+      els.orderMessage.value = [`Formato: ${orderTitle()}`, `Precio: ${money(prices[key()][state.count])}`, `Imagen: ${state.imageNames.join(", ")}`].join("\n");
+      els.orderForm.submit();
+    });
+
+    if (location.hash === "#admin") {
+      document.querySelector('[data-panel="adminPanel"]').click();
+    }
+    window.addEventListener("resize", render);
+    setAccess(sessionStorage.getItem(SESSION_KEY));
+    render();
+  </script>
 </body>
 </html>
