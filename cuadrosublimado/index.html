@@ -489,75 +489,94 @@
     }
     function render() { renderFrames(); render3D(); renderText(); }
 
-    els.authTabs.forEach(btn => btn.addEventListener("click", () => {
-      els.authTabs.forEach(b => b.classList.remove("active"));
-      els.panels.forEach(p => p.classList.remove("active"));
-      btn.classList.add("active");
-      $(btn.dataset.panel).classList.add("active");
-    }));
-    els.clientLogin.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!clientCode()) { els.clientMsg.textContent = "El administrador aún no ha creado la contraseña cliente."; return; }
-      if (await hash(els.clientPass.value) !== clientCode()) { els.clientMsg.textContent = "Contraseña cliente incorrecta."; return; }
-      sessionStorage.setItem(SESSION_KEY, "client"); setAccess("client");
-    });
-    els.adminLogin.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (await hash(els.adminPass.value) !== ADMIN_CODE) { els.adminMsg.textContent = "Contraseña admin incorrecta."; return; }
-      sessionStorage.setItem(SESSION_KEY, "admin"); setAccess("admin");
-    });
-    els.changePass.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (await hash(els.adminConfirm.value) !== ADMIN_CODE) { els.changeMsg.textContent = "La contraseña admin no coincide."; return; }
-      if (!els.newClientPass.value.trim()) { els.changeMsg.textContent = "Escribe una clave cliente."; return; }
-      localStorage.setItem(CLIENT_KEY, await hash(els.newClientPass.value));
-      updateQr();
-      els.adminConfirm.value = ""; els.newClientPass.value = "";
-      els.changeMsg.textContent = "Clave cliente cambiada. El QR ya fue actualizado.";
-    });
-    els.logout.addEventListener("click", () => { sessionStorage.removeItem(SESSION_KEY); setAccess(""); });
+    <script>
+document.addEventListener("DOMContentLoaded", async () => {
 
-    els.formats.addEventListener("click", (e) => {
-      const b = e.target.closest(".choice"); if (!b) return;
-      document.querySelectorAll("#formats .choice").forEach(x => x.classList.remove("active"));
-      b.classList.add("active"); state.w = Number(b.dataset.w); state.h = Number(b.dataset.h); render();
-    });
-    els.orientations.addEventListener("click", (e) => {
-      const b = e.target.closest(".seg"); if (!b) return;
-      document.querySelectorAll("#orientations .seg").forEach(x => x.classList.remove("active"));
-      b.classList.add("active"); state.o = b.dataset.o; render();
-    });
-    els.qtys.addEventListener("click", (e) => {
-      const b = e.target.closest(".seg"); if (!b) return;
-      document.querySelectorAll("#qtys .seg").forEach(x => x.classList.remove("active"));
-      b.classList.add("active"); state.count = Number(b.dataset.c); render();
-    });
-    els.upload.addEventListener("change", () => {
-      const file = els.upload.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => { state.image = reader.result; state.imageNames = Array.from(els.upload.files).map(f => f.name); render(); };
-      reader.readAsDataURL(file);
-    });
-    els.livingBtn.addEventListener("click", () => { state.view = "living"; render(); });
-    els.threeBtn.addEventListener("click", () => { state.view = "3d"; render(); });
-    els.backBtn.addEventListener("click", () => { state.view = "3d"; state.ry = Math.abs(state.ry) > 100 ? -28 : 180; render(); });
-    [els.rx, els.ry, els.rz].forEach(input => input.addEventListener("input", () => {
-      state.rx = Number(els.rx.value); state.ry = Number(els.ry.value); state.rz = Number(els.rz.value); state.view = "3d"; render3D();
-    }));
-    els.reset3d.addEventListener("click", () => { state.rx = 8; state.ry = -28; state.rz = 0; state.view = "3d"; render(); });
-    els.sendBtn.addEventListener("click", () => {
-      if (!els.upload.files.length) { els.sendHint.textContent = "Sube la imagen del cliente antes de enviar."; return; }
-      els.orderSubject.value = `Pedido ${orderTitle()} - Ortopediasbelen`;
-      els.orderMessage.value = [`Formato: ${orderTitle()}`, `Precio: ${money(prices[key()][state.count])}`, `Imagen: ${state.imageNames.join(", ")}`].join("\n");
-      els.orderForm.submit();
-    });
+  /* ===== TU CÓDIGO ORIGINAL DESDE AQUÍ ===== */
 
-    if (location.hash === "#admin") {
-      document.querySelector('[data-panel="adminPanel"]').click();
+  const ADMIN_CODE = "a9461750";
+  const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
+  const SESSION_KEY = "ortopediasbelenSessionMode";
+
+  async function hash(value) {
+    let h = 2166136261;
+    const s = `ortopediasbelen:${value}`;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
     }
-    window.addEventListener("resize", render);
-    setAccess(sessionStorage.getItem(SESSION_KEY));
-    render();
+    return (h >>> 0).toString(16).padStart(8, "0");
+  }
+
+  // 🔥 FIX ADMIN (2212)
+  const ADMIN_HASH = await hash("2212");
+
+  const $ = (id) => document.getElementById(id);
+
+  const els = {
+    clientLogin: $("clientLogin"),
+    adminLogin: $("adminLogin"),
+    clientPass: $("clientPass"),
+    adminPass: $("adminPass"),
+    clientMsg: $("clientMsg"),
+    adminMsg: $("adminMsg"),
+    changePass: $("changePass"),
+    adminConfirm: $("adminConfirm"),
+    newClientPass: $("newClientPass"),
+    changeMsg: $("changeMsg")
+  };
+
+  /* 🔥 PROTECCIÓN (EVITA QUE MUERA SI ALGO NO CARGA) */
+  if (!els.clientLogin || !els.adminLogin) {
+    console.error("HTML no cargado aún");
+    return;
+  }
+
+  /* LOGIN CLIENTE */
+  els.clientLogin.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const saved = localStorage.getItem(CLIENT_KEY);
+
+    if (!saved) {
+      els.clientMsg.textContent = "No hay clave creada";
+      return;
+    }
+
+    if (await hash(els.clientPass.value) !== saved) {
+      els.clientMsg.textContent = "Contraseña incorrecta";
+      return;
+    }
+
+    document.body.classList.add("unlocked", "client");
+  });
+
+  /* LOGIN ADMIN */
+  els.adminLogin.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (await hash(els.adminPass.value) !== ADMIN_HASH) {
+      els.adminMsg.textContent = "Contraseña admin incorrecta";
+      return;
+    }
+
+    document.body.classList.add("unlocked");
+  });
+
+  /* CAMBIAR CLAVE */
+  els.changePass.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (await hash(els.adminConfirm.value) !== ADMIN_HASH) {
+      els.changeMsg.textContent = "Admin incorrecto";
+      return;
+    }
+
+    localStorage.setItem(CLIENT_KEY, await hash(els.newClientPass.value));
+    els.changeMsg.textContent = "Clave cambiada 🔥";
+  });
+
+});
+</script>
   </script>
 </body>
 </html>
