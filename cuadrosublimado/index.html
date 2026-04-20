@@ -1,121 +1,173 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ortopediasbelen - Sublimados</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ortopediasbelen - Sublimados</title>
 
-  <!-- 🔥 TODO TU CSS ORIGINAL (NO TOCADO) -->
-  <style>
-    /* PEGA AQUÍ TODO TU CSS ORIGINAL TAL CUAL (el largo que ya tenías) */
-  </style>
+<style>
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.auth{display:flex;justify-content:center;align-items:center;height:100vh}
+.card{background:#fff;padding:20px;border:1px solid #ccc}
+button{padding:10px;cursor:pointer}
+input{padding:10px;width:100%}
+.msg{color:red}
+body.unlocked .auth{display:none}
+body:not(.unlocked) .app{display:none}
+.admin-only{margin-top:20px;border-top:1px solid #ccc;padding-top:10px}
+body.client .admin-only{display:none}
+</style>
 
 </head>
 
 <body class="locked">
 
-  <!-- 🔥 TODO TU HTML ORIGINAL COMPLETO -->
-  <!-- (NO CAMBIES NADA DE LO QUE TENÍAS: auth, app, simulador, etc.) -->
+<div class="auth">
+<div class="card">
 
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
+<h2>Acceso</h2>
 
-    const ADMIN_CODE = "a9461750"; // 2212
-    const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
-    const SESSION_KEY = "ortopediasbelenSessionMode";
+<button onclick="show('client')">Cliente</button>
+<button onclick="show('admin')">Admin</button>
 
-    const $ = (id) => document.getElementById(id);
+<div id="clientPanel">
+<form id="clientLogin">
+<input id="clientPass" type="password" placeholder="Clave cliente">
+<button>Entrar</button>
+<div id="clientMsg" class="msg"></div>
+</form>
+</div>
 
-    const els = {
-      authTabs: document.querySelectorAll(".tab"),
-      panels: document.querySelectorAll(".panel"),
-      clientLogin: $("clientLogin"),
-      adminLogin: $("adminLogin"),
-      clientPass: $("clientPass"),
-      adminPass: $("adminPass"),
-      clientMsg: $("clientMsg"),
-      adminMsg: $("adminMsg"),
-      changePass: $("changePass"),
-      adminConfirm: $("adminConfirm"),
-      newClientPass: $("newClientPass"),
-      changeMsg: $("changeMsg"),
-      logout: $("logout")
-    };
+<div id="adminPanel" style="display:none">
+<form id="adminLogin">
+<input id="adminPass" type="password" placeholder="Clave admin">
+<button>Entrar</button>
+<div id="adminMsg" class="msg"></div>
+</form>
+</div>
 
-    async function hash(value) {
-      let h = 2166136261;
-      const s = `ortopediasbelen:${value}`;
-      for (let i = 0; i < s.length; i++) {
-        h ^= s.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      return (h >>> 0).toString(16).padStart(8, "0");
-    }
+</div>
+</div>
 
-    function setAccess(mode) {
-      const ok = mode === "admin" || mode === "client";
-      document.body.classList.toggle("unlocked", ok);
-      document.body.classList.toggle("client", mode === "client");
-      document.body.classList.toggle("admin", mode === "admin");
-    }
+<div class="app">
+<h1>SIMULADOR ACTIVO 🔥</h1>
 
-    // LOGIN CLIENTE
-    els.clientLogin?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+<p>Aquí vuelve todo tu sistema</p>
 
-      const saved = localStorage.getItem(CLIENT_KEY);
+<div class="admin-only">
+<h3>Administrador</h3>
 
-      if (!saved) {
-        els.clientMsg.textContent = "No hay clave cliente";
-        return;
-      }
+<form id="changePass">
+<input id="adminConfirm" type="password" placeholder="Confirma admin">
+<input id="newClientPass" type="password" placeholder="Nueva clave cliente">
+<button>Guardar</button>
+<div id="changeMsg"></div>
+</form>
 
-      if (await hash(els.clientPass.value) !== saved) {
-        els.clientMsg.textContent = "Contraseña incorrecta";
-        return;
-      }
+<button id="logout">Cerrar sesión</button>
 
-      sessionStorage.setItem(SESSION_KEY, "client");
-      setAccess("client");
-    });
+<p>QR cliente:</p>
+<img id="qr" width="150">
+<div id="qrLink"></div>
 
-    // LOGIN ADMIN
-    els.adminLogin?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+</div>
 
-      if (await hash(els.adminPass.value) !== ADMIN_CODE) {
-        els.adminMsg.textContent = "Admin incorrecto";
-        return;
-      }
+</div>
 
-      sessionStorage.setItem(SESSION_KEY, "admin");
-      setAccess("admin");
-    });
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
 
-    // CAMBIAR CLAVE
-    els.changePass?.addEventListener("submit", async (e) => {
-      e.preventDefault();
+const ADMIN_CODE="a9461750"; // 2212
+const CLIENT_KEY="clientePass";
+const SESSION_KEY="session";
 
-      if (await hash(els.adminConfirm.value) !== ADMIN_CODE) {
-        els.changeMsg.textContent = "Admin incorrecto";
-        return;
-      }
+const $=id=>document.getElementById(id);
 
-      localStorage.setItem(CLIENT_KEY, await hash(els.newClientPass.value));
-      els.changeMsg.textContent = "Clave actualizada 🔥";
-    });
+function show(type){
+$("clientPanel").style.display=type==="client"?"block":"none";
+$("adminPanel").style.display=type==="admin"?"block":"none";
+}
 
-    // LOGOUT
-    els.logout?.addEventListener("click", () => {
-      sessionStorage.removeItem(SESSION_KEY);
-      setAccess("");
-    });
+async function hash(v){
+let h=2166136261;
+const s="ortopediasbelen:"+v;
+for(let i=0;i<s.length;i++){
+h^=s.charCodeAt(i);
+h=Math.imul(h,16777619);
+}
+return (h>>>0).toString(16).padStart(8,"0");
+}
 
-    // INICIO
-    setAccess(sessionStorage.getItem(SESSION_KEY));
+function setAccess(mode){
+document.body.classList.toggle("unlocked",mode==="admin"||mode==="client");
+document.body.classList.toggle("client",mode==="client");
+document.body.classList.toggle("admin",mode==="admin");
+updateQR();
+}
 
-  });
-  </script>
+function updateQR(){
+const code=localStorage.getItem(CLIENT_KEY)||"";
+const url=location.origin+location.pathname+"#cliente/"+code;
+$("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(url);
+$("qrLink").textContent=url;
+}
+
+// LOGIN CLIENTE
+$("clientLogin").addEventListener("submit",async e=>{
+e.preventDefault();
+
+const saved=localStorage.getItem(CLIENT_KEY);
+if(!saved){
+$("clientMsg").textContent="No hay clave cliente";
+return;
+}
+
+if(await hash($("clientPass").value)!==saved){
+$("clientMsg").textContent="Clave incorrecta";
+return;
+}
+
+sessionStorage.setItem(SESSION_KEY,"client");
+setAccess("client");
+});
+
+// LOGIN ADMIN
+$("adminLogin").addEventListener("submit",async e=>{
+e.preventDefault();
+
+if(await hash($("adminPass").value)!==ADMIN_CODE){
+$("adminMsg").textContent="Admin incorrecto";
+return;
+}
+
+sessionStorage.setItem(SESSION_KEY,"admin");
+setAccess("admin");
+});
+
+// CAMBIAR CLAVE
+$("changePass").addEventListener("submit",async e=>{
+e.preventDefault();
+
+if(await hash($("adminConfirm").value)!==ADMIN_CODE){
+$("changeMsg").textContent="Admin incorrecto";
+return;
+}
+
+localStorage.setItem(CLIENT_KEY,await hash($("newClientPass").value));
+$("changeMsg").textContent="Clave guardada 🔥";
+updateQR();
+});
+
+// LOGOUT
+$("logout").onclick=()=>{
+sessionStorage.clear();
+setAccess("");
+};
+
+setAccess(sessionStorage.getItem(SESSION_KEY));
+
+});
+</script>
 
 </body>
 </html>
