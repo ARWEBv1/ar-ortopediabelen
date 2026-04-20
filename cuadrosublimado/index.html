@@ -4,165 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ortopediasbelen - Sublimados</title>
-
-<!-- ⚠️ TODO TU CSS ORIGINAL (SIN CAMBIOS) -->
-<!-- (lo dejo intacto, no lo toqué porque funciona bien) -->
-
 </head>
 
 <body class="locked">
 
-<!-- ⚠️ TODO TU HTML ORIGINAL COMPLETO AQUÍ (NO MODIFICADO) -->
-<!-- usa exactamente el que ya tienes -->
+<h2>Si ves esto, el HTML carga</h2>
+
+<form id="adminLogin">
+<input id="adminPass" type="password">
+<button>Entrar</button>
+</form>
+
+<div id="adminMsg"></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-/* ========================= */
-/* 🔥 CONFIG ORIGINAL + FIX */
-/* ========================= */
+const ADMIN_CODE = "a9461750";
 
-const ADMIN_CODE = "a9461750"; // ← hash de 2212 (NO CAMBIAR)
-const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
-const SESSION_KEY = "ortopediasbelenSessionMode";
+const adminLogin = document.getElementById("adminLogin");
+const adminPass = document.getElementById("adminPass");
+const adminMsg = document.getElementById("adminMsg");
 
-/* ========================= */
-/* 🔥 TU CÓDIGO ORIGINAL     */
-/* ========================= */
-
-const demoImage = "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80";
-
-const prices = {
-  "20x30": { 1: 20000, 2: 25000, 4: 60000 },
-  "30x40": { 1: 25000, 2: 40000, 4: 75000 },
-  "30x60": { 1: 30000, 2: 50000 },
-  "40x60": { 1: 60000, 2: 100000, 4: 200000 }
-};
-
-const state = { w:20,h:30,count:1,o:"vertical",image:demoImage,imageNames:["Imagen de ejemplo"],view:"living",rx:8,ry:-28,rz:0 };
-
-const $ = (id)=>document.getElementById(id);
-
-const els = {
-  authTabs: document.querySelectorAll(".tab"),
-  panels: document.querySelectorAll(".panel"),
-  clientLogin: $("clientLogin"),
-  adminLogin: $("adminLogin"),
-  clientPass: $("clientPass"),
-  adminPass: $("adminPass"),
-  clientMsg: $("clientMsg"),
-  adminMsg: $("adminMsg"),
-  formats: $("formats"),
-  orientations: $("orientations"),
-  qtys: $("qtys"),
-  q4: $("q4"),
-  qtyHint: $("qtyHint"),
-  upload: $("upload"),
-  uploadHint: $("uploadHint"),
-  sumTitle: $("sumTitle"),
-  sumText: $("sumText"),
-  sumTotal: $("sumTotal"),
-  sumPrice: $("sumPrice"),
-  previewTitle: $("previewTitle"),
-  previewMode: $("previewMode"),
-  gallery: $("gallery"),
-  note: $("note"),
-  room: $("room"),
-  slab: $("slab"),
-  front: $("front"),
-  rx: $("rx"),
-  ry: $("ry"),
-  rz: $("rz"),
-  livingBtn: $("livingBtn"),
-  threeBtn: $("threeBtn"),
-  backBtn: $("backBtn"),
-  reset3d: $("reset3d"),
-  changePass: $("changePass"),
-  adminConfirm: $("adminConfirm"),
-  newClientPass: $("newClientPass"),
-  changeMsg: $("changeMsg"),
-  qr: $("qr"),
-  qrLink: $("qrLink"),
-  logout: $("logout"),
-  sendBtn: $("sendBtn"),
-  sendHint: $("sendHint"),
-  orderForm: $("orderForm"),
-  orderSubject: $("orderSubject"),
-  orderMessage: $("orderMessage")
-};
-
-/* 🔥 HASH ORIGINAL */
-async function hash(value){
-  let h=2166136261;
-  const s=`ortopediasbelen:${value}`;
-  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
-  return (h>>>0).toString(16).padStart(8,"0");
-}
-
-/* 🔥 ACCESO */
-function setAccess(mode){
-  const ok = mode==="admin" || mode==="client";
-  document.body.classList.toggle("unlocked",ok);
-  document.body.classList.toggle("client",mode==="client");
-  document.body.classList.toggle("admin",mode==="admin");
-}
-
-/* ========================= */
-/* 🔥 LOGIN (ARREGLADO) */
-/* ========================= */
-
-els.clientLogin.addEventListener("submit", async (e)=>{
+adminLogin.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const saved = localStorage.getItem(CLIENT_KEY);
+  const hash = async (value)=>{
+    let h=2166136261;
+    const s=`ortopediasbelen:${value}`;
+    for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+    return (h>>>0).toString(16).padStart(8,"0");
+  };
 
-  if(!saved){
-    els.clientMsg.textContent="No hay clave cliente";
+  if(await hash(adminPass.value)!==ADMIN_CODE){
+    adminMsg.textContent="admin mal";
     return;
   }
 
-  if(await hash(els.clientPass.value)!==saved){
-    els.clientMsg.textContent="Contraseña incorrecta";
-    return;
-  }
+  document.body.classList.add("unlocked");
+  adminMsg.textContent="ENTRASTE 🔥";
 
-  sessionStorage.setItem(SESSION_KEY,"client");
-  setAccess("client");
 });
-
-els.adminLogin.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-
-  if(await hash(els.adminPass.value)!==ADMIN_CODE){
-    els.adminMsg.textContent="Admin incorrecto";
-    return;
-  }
-
-  sessionStorage.setItem(SESSION_KEY,"admin");
-  setAccess("admin");
-});
-
-/* 🔥 CAMBIO CLAVE */
-els.changePass.addEventListener("submit", async (e)=>{
-  e.preventDefault();
-
-  if(await hash(els.adminConfirm.value)!==ADMIN_CODE){
-    els.changeMsg.textContent="Admin incorrecto";
-    return;
-  }
-
-  localStorage.setItem(CLIENT_KEY, await hash(els.newClientPass.value));
-  els.changeMsg.textContent="Clave actualizada 🔥";
-});
-
-/* 🔥 LOGOUT */
-els.logout.addEventListener("click", ()=>{
-  sessionStorage.removeItem(SESSION_KEY);
-  setAccess("");
-});
-
-/* 🔥 INICIO */
-setAccess(sessionStorage.getItem(SESSION_KEY));
 
 });
 </script>
