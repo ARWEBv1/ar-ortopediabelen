@@ -6,25 +6,28 @@
 <title>Ortopediasbelen - Sublimados</title>
 
 <style>
-body { font-family: Arial; margin:0; }
-.auth { display:flex; justify-content:center; align-items:center; height:100vh; }
-.panel { display:none; }
-.panel.active { display:block; }
-.tab.active { background:green; color:#fff; }
+:root {
+  --ink:#172326; --muted:#617174; --line:#d9e0df;
+  --paper:#f7faf9; --green:#0f7c6d; --coral:#d8563b;
+}
+body{margin:0;font-family:Arial;background:var(--paper);}
+.auth{display:flex;justify-content:center;align-items:center;height:100vh;}
+.panel{display:none;}
+.panel.active{display:block;}
+.tab.active{background:var(--green);color:#fff;}
 </style>
-
 </head>
 
-<body>
+<body class="locked">
 
 <div class="auth">
   <div>
-    <button class="tab active" onclick="show('client')">Cliente</button>
-    <button class="tab" onclick="show('admin')">Admin</button>
+    <button class="tab active" onclick="showPanel('client')">Cliente</button>
+    <button class="tab" onclick="showPanel('admin')">Admin</button>
 
     <div id="client" class="panel active">
       <form id="clientLogin">
-        <input id="clientPass" type="password">
+        <input id="clientPass" type="password" placeholder="Clave cliente">
         <button>Entrar</button>
         <div id="clientMsg"></div>
       </form>
@@ -32,22 +35,28 @@ body { font-family: Arial; margin:0; }
 
     <div id="admin" class="panel">
       <form id="adminLogin">
-        <input id="adminPass" type="password">
+        <input id="adminPass" type="password" placeholder="Clave admin">
         <button>Entrar</button>
         <div id="adminMsg"></div>
       </form>
     </div>
+
+    <div id="adminPanel" class="panel">
+      <form id="changePass">
+        <input id="adminConfirm" type="password" placeholder="Admin">
+        <input id="newClientPass" type="password" placeholder="Nueva clave cliente">
+        <button>Cambiar</button>
+        <div id="changeMsg"></div>
+      </form>
+
+      <img id="qr">
+      <div id="qrLink"></div>
+    </div>
+
   </div>
 </div>
 
-<script>
-function show(x){
-  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-  document.getElementById(x).classList.add("active");
-}
-</script>
-
-<!-- 🔥 FIREBASE SOLO UNA VEZ -->
+<!-- 🔥 FIREBASE (UNA SOLA VEZ) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -62,34 +71,64 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+const ADMIN_PASS = "2212";
+
+/* HASH cliente */
 function hash(str){
   let h=2166136261;
   for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
   return (h>>>0).toString(16);
 }
 
-const ADMIN_CODE="a9461750";
+/* CAMBIO PANEL */
+function showPanel(type){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById(type).classList.add("active");
+}
 
 /* LOGIN CLIENTE */
-clientLogin.onsubmit=async(e)=>{
+clientLogin.onsubmit = async (e)=>{
   e.preventDefault();
-  const pass=clientPass.value;
+  const pass = clientPass.value;
 
-  const snap=await db.ref("config/clientPassword").once("value");
-  const real=snap.val();
+  const snap = await db.ref("config/clientPassword").once("value");
+  const real = snap.val();
 
-  if(!real){clientMsg.innerText="No hay clave";return;}
-  if(hash(pass)!==real){clientMsg.innerText="Incorrecta";return;}
+  if(!real){ clientMsg.innerText="No hay clave creada"; return; }
+  if(hash(pass)!==real){ clientMsg.innerText="Clave incorrecta"; return; }
 
   alert("Cliente OK 🔥");
 };
 
 /* LOGIN ADMIN */
-adminLogin.onsubmit=(e)=>{
+adminLogin.onsubmit = (e)=>{
   e.preventDefault();
-  if(hash(adminPass.value)!==ADMIN_CODE){adminMsg.innerText="Admin mal";return;}
-  alert("Admin OK 🔥");
+  if(adminPass.value !== ADMIN_PASS){
+    adminMsg.innerText="Admin mal";
+    return;
+  }
+
+  showPanel("adminPanel");
 };
+
+/* CAMBIAR CLAVE */
+changePass.onsubmit = async (e)=>{
+  e.preventDefault();
+
+  if(adminConfirm.value !== ADMIN_PASS){
+    changeMsg.innerText="Admin mal";
+    return;
+  }
+
+  await db.ref("config/clientPassword").set(hash(newClientPass.value));
+  changeMsg.innerText="Clave actualizada 🔥";
+};
+
+/* QR */
+const base = location.origin + location.pathname;
+qr.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(base);
+qrLink.innerText = base;
+
 </script>
 
 </body>
