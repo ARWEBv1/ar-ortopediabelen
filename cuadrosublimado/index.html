@@ -406,7 +406,7 @@
     function updateQr() {
       const code = localStorage.getItem(CLIENT_KEY) || "";
       const base = `${location.origin}${location.pathname}`;
-      const url = code ? `${base}#cliente/${code}` : `${base}#cliente`;
+      const url = `${base}`;
       els.qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}`;
       els.qrLink.textContent = url;
     }
