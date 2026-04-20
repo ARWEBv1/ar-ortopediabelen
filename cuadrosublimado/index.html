@@ -8,70 +8,65 @@
 <style>
 body{margin:0;font-family:Arial;background:#f4f4f4}
 .auth{display:flex;justify-content:center;align-items:center;height:100vh}
-.card{background:#fff;padding:20px;border:1px solid #ccc}
-button{padding:10px;cursor:pointer}
-input{padding:10px;width:100%}
-.msg{color:red}
+.card{background:#fff;padding:20px;border:1px solid #ccc;min-width:280px}
+button{padding:8px 12px;cursor:pointer;margin:5px 5px 10px 0}
+input{padding:10px;width:100%;margin-bottom:8px}
+.msg{color:red;font-size:13px}
 body.unlocked .auth{display:none}
 body:not(.unlocked) .app{display:none}
 .admin-only{margin-top:20px;border-top:1px solid #ccc;padding-top:10px}
 body.client .admin-only{display:none}
 </style>
-
 </head>
 
 <body class="locked">
 
 <div class="auth">
-<div class="card">
+  <div class="card">
+    <h2>Acceso</h2>
 
-<h2>Acceso</h2>
+    <button onclick="show('client')">Cliente</button>
+    <button onclick="show('admin')">Admin</button>
 
-<button onclick="show('client')">Cliente</button>
-<button onclick="show('admin')">Admin</button>
+    <div id="clientPanel">
+      <form id="clientLogin">
+        <input id="clientPass" type="password" placeholder="Clave cliente">
+        <button>Entrar</button>
+        <div id="clientMsg" class="msg"></div>
+      </form>
+    </div>
 
-<div id="clientPanel">
-<form id="clientLogin">
-<input id="clientPass" type="password" placeholder="Clave cliente">
-<button>Entrar</button>
-<div id="clientMsg" class="msg"></div>
-</form>
-</div>
+    <div id="adminPanel" style="display:none">
+      <form id="adminLogin">
+        <input id="adminPass" type="password" placeholder="Clave admin">
+        <button>Entrar</button>
+        <div id="adminMsg" class="msg"></div>
+      </form>
+    </div>
 
-<div id="adminPanel" style="display:none">
-<form id="adminLogin">
-<input id="adminPass" type="password" placeholder="Clave admin">
-<button>Entrar</button>
-<div id="adminMsg" class="msg"></div>
-</form>
-</div>
-
-</div>
+  </div>
 </div>
 
 <div class="app">
-<h1>SIMULADOR ACTIVO 🔥</h1>
+  <h1>SIMULADOR ACTIVO 🔥</h1>
+  <p>Aquí vuelve tu sistema base</p>
 
-<p>Aquí vuelve todo tu sistema</p>
+  <div class="admin-only">
+    <h3>Administrador</h3>
 
-<div class="admin-only">
-<h3>Administrador</h3>
+    <form id="changePass">
+      <input id="adminConfirm" type="password" placeholder="Confirma admin">
+      <input id="newClientPass" type="password" placeholder="Nueva clave cliente">
+      <button>Guardar</button>
+      <div id="changeMsg"></div>
+    </form>
 
-<form id="changePass">
-<input id="adminConfirm" type="password" placeholder="Confirma admin">
-<input id="newClientPass" type="password" placeholder="Nueva clave cliente">
-<button>Guardar</button>
-<div id="changeMsg"></div>
-</form>
+    <button id="logout">Cerrar sesión</button>
 
-<button id="logout">Cerrar sesión</button>
-
-<p>QR cliente:</p>
-<img id="qr" width="150">
-<div id="qrLink"></div>
-
-</div>
-
+    <p>QR cliente:</p>
+    <img id="qr" width="150">
+    <div id="qrLink"></div>
+  </div>
 </div>
 
 <script>
@@ -83,85 +78,86 @@ const SESSION_KEY="session";
 
 const $=id=>document.getElementById(id);
 
-function show(type){
-$("clientPanel").style.display=type==="client"?"block":"none";
-$("adminPanel").style.display=type==="admin"?"block":"none";
+// 🔥 FIX GLOBAL (esto arregla tu error)
+window.show=function(type){
+  $("clientPanel").style.display=type==="client"?"block":"none";
+  $("adminPanel").style.display=type==="admin"?"block":"none";
 }
 
 async function hash(v){
-let h=2166136261;
-const s="ortopediasbelen:"+v;
-for(let i=0;i<s.length;i++){
-h^=s.charCodeAt(i);
-h=Math.imul(h,16777619);
-}
-return (h>>>0).toString(16).padStart(8,"0");
+  let h=2166136261;
+  const s="ortopediasbelen:"+v;
+  for(let i=0;i<s.length;i++){
+    h^=s.charCodeAt(i);
+    h=Math.imul(h,16777619);
+  }
+  return (h>>>0).toString(16).padStart(8,"0");
 }
 
 function setAccess(mode){
-document.body.classList.toggle("unlocked",mode==="admin"||mode==="client");
-document.body.classList.toggle("client",mode==="client");
-document.body.classList.toggle("admin",mode==="admin");
-updateQR();
+  document.body.classList.toggle("unlocked",mode==="admin"||mode==="client");
+  document.body.classList.toggle("client",mode==="client");
+  document.body.classList.toggle("admin",mode==="admin");
+  updateQR();
 }
 
 function updateQR(){
-const code=localStorage.getItem(CLIENT_KEY)||"";
-const url=location.origin+location.pathname+"#cliente/"+code;
-$("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(url);
-$("qrLink").textContent=url;
+  const code=localStorage.getItem(CLIENT_KEY)||"";
+  const url=location.origin+location.pathname+"#cliente/"+code;
+  $("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(url);
+  $("qrLink").textContent=url;
 }
 
 // LOGIN CLIENTE
 $("clientLogin").addEventListener("submit",async e=>{
-e.preventDefault();
+  e.preventDefault();
 
-const saved=localStorage.getItem(CLIENT_KEY);
-if(!saved){
-$("clientMsg").textContent="No hay clave cliente";
-return;
-}
+  const saved=localStorage.getItem(CLIENT_KEY);
+  if(!saved){
+    $("clientMsg").textContent="No hay clave cliente";
+    return;
+  }
 
-if(await hash($("clientPass").value)!==saved){
-$("clientMsg").textContent="Clave incorrecta";
-return;
-}
+  if(await hash($("clientPass").value)!==saved){
+    $("clientMsg").textContent="Clave incorrecta";
+    return;
+  }
 
-sessionStorage.setItem(SESSION_KEY,"client");
-setAccess("client");
+  sessionStorage.setItem(SESSION_KEY,"client");
+  setAccess("client");
 });
 
 // LOGIN ADMIN
 $("adminLogin").addEventListener("submit",async e=>{
-e.preventDefault();
+  e.preventDefault();
 
-if(await hash($("adminPass").value)!==ADMIN_CODE){
-$("adminMsg").textContent="Admin incorrecto";
-return;
-}
+  if(await hash($("adminPass").value)!==ADMIN_CODE){
+    $("adminMsg").textContent="Admin incorrecto";
+    return;
+  }
 
-sessionStorage.setItem(SESSION_KEY,"admin");
-setAccess("admin");
+  sessionStorage.setItem(SESSION_KEY,"admin");
+  setAccess("admin");
 });
 
-// CAMBIAR CLAVE
+// CAMBIAR CLAVE CLIENTE
 $("changePass").addEventListener("submit",async e=>{
-e.preventDefault();
+  e.preventDefault();
 
-if(await hash($("adminConfirm").value)!==ADMIN_CODE){
-$("changeMsg").textContent="Admin incorrecto";
-return;
-}
+  if(await hash($("adminConfirm").value)!==ADMIN_CODE){
+    $("changeMsg").textContent="Admin incorrecto";
+    return;
+  }
 
-localStorage.setItem(CLIENT_KEY,await hash($("newClientPass").value));
-$("changeMsg").textContent="Clave guardada 🔥";
-updateQR();
+  localStorage.setItem(CLIENT_KEY,await hash($("newClientPass").value));
+  $("changeMsg").textContent="Clave guardada 🔥";
+  updateQR();
 });
 
 // LOGOUT
 $("logout").onclick=()=>{
-sessionStorage.clear();
-setAccess("");
+  sessionStorage.clear();
+  setAccess("");
 };
 
 setAccess(sessionStorage.getItem(SESSION_KEY));
