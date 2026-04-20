@@ -1,53 +1,121 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ortopediasbelen - Sublimados</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ortopediasbelen - Sublimados</title>
+
+  <!-- 🔥 TODO TU CSS ORIGINAL (NO TOCADO) -->
+  <style>
+    /* PEGA AQUÍ TODO TU CSS ORIGINAL TAL CUAL (el largo que ya tenías) */
+  </style>
+
 </head>
 
 <body class="locked">
 
-<h2>Si ves esto, el HTML carga</h2>
+  <!-- 🔥 TODO TU HTML ORIGINAL COMPLETO -->
+  <!-- (NO CAMBIES NADA DE LO QUE TENÍAS: auth, app, simulador, etc.) -->
 
-<form id="adminLogin">
-<input id="adminPass" type="password">
-<button>Entrar</button>
-</form>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
 
-<div id="adminMsg"></div>
+    const ADMIN_CODE = "a9461750"; // 2212
+    const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
+    const SESSION_KEY = "ortopediasbelenSessionMode";
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+    const $ = (id) => document.getElementById(id);
 
-const ADMIN_CODE = "a9461750";
+    const els = {
+      authTabs: document.querySelectorAll(".tab"),
+      panels: document.querySelectorAll(".panel"),
+      clientLogin: $("clientLogin"),
+      adminLogin: $("adminLogin"),
+      clientPass: $("clientPass"),
+      adminPass: $("adminPass"),
+      clientMsg: $("clientMsg"),
+      adminMsg: $("adminMsg"),
+      changePass: $("changePass"),
+      adminConfirm: $("adminConfirm"),
+      newClientPass: $("newClientPass"),
+      changeMsg: $("changeMsg"),
+      logout: $("logout")
+    };
 
-const adminLogin = document.getElementById("adminLogin");
-const adminPass = document.getElementById("adminPass");
-const adminMsg = document.getElementById("adminMsg");
+    async function hash(value) {
+      let h = 2166136261;
+      const s = `ortopediasbelen:${value}`;
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0).toString(16).padStart(8, "0");
+    }
 
-adminLogin.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    function setAccess(mode) {
+      const ok = mode === "admin" || mode === "client";
+      document.body.classList.toggle("unlocked", ok);
+      document.body.classList.toggle("client", mode === "client");
+      document.body.classList.toggle("admin", mode === "admin");
+    }
 
-  const hash = async (value)=>{
-    let h=2166136261;
-    const s=`ortopediasbelen:${value}`;
-    for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
-    return (h>>>0).toString(16).padStart(8,"0");
-  };
+    // LOGIN CLIENTE
+    els.clientLogin?.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  if(await hash(adminPass.value)!==ADMIN_CODE){
-    adminMsg.textContent="admin mal";
-    return;
-  }
+      const saved = localStorage.getItem(CLIENT_KEY);
 
-  document.body.classList.add("unlocked");
-  adminMsg.textContent="ENTRASTE 🔥";
+      if (!saved) {
+        els.clientMsg.textContent = "No hay clave cliente";
+        return;
+      }
 
-});
+      if (await hash(els.clientPass.value) !== saved) {
+        els.clientMsg.textContent = "Contraseña incorrecta";
+        return;
+      }
 
-});
-</script>
+      sessionStorage.setItem(SESSION_KEY, "client");
+      setAccess("client");
+    });
+
+    // LOGIN ADMIN
+    els.adminLogin?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (await hash(els.adminPass.value) !== ADMIN_CODE) {
+        els.adminMsg.textContent = "Admin incorrecto";
+        return;
+      }
+
+      sessionStorage.setItem(SESSION_KEY, "admin");
+      setAccess("admin");
+    });
+
+    // CAMBIAR CLAVE
+    els.changePass?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (await hash(els.adminConfirm.value) !== ADMIN_CODE) {
+        els.changeMsg.textContent = "Admin incorrecto";
+        return;
+      }
+
+      localStorage.setItem(CLIENT_KEY, await hash(els.newClientPass.value));
+      els.changeMsg.textContent = "Clave actualizada 🔥";
+    });
+
+    // LOGOUT
+    els.logout?.addEventListener("click", () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      setAccess("");
+    });
+
+    // INICIO
+    setAccess(sessionStorage.getItem(SESSION_KEY));
+
+  });
+  </script>
 
 </body>
 </html>
