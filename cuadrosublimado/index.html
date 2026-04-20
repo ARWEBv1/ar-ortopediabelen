@@ -4,19 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ortopediasbelen - Sublimados</title>
-
 <style>
-/* ⚠️ TODO TU CSS ORIGINAL AQUÍ (NO SE TOCA) */
+/* 👇 TODO TU CSS ORIGINAL (NO CAMBIADO) */
 </style>
 </head>
 
 <body class="locked">
 
-<!-- ⚠️ TODO TU HTML ORIGINAL AQUÍ (NO SE TOCA) -->
+<!-- 👇 TODO TU HTML ORIGINAL (NO CAMBIADO) -->
 
-<!-- ========================= -->
-<!-- 🔥 FIREBASE (SEPARADO) -->
-<!-- ========================= -->
+<!-- 🔥 FIREBASE (NUEVO - NO TOCAR) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -31,38 +28,32 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-window.saveClientPassword = async (hash) => {
+async function saveClientPassword(hash) {
   await db.ref("config/clientPassword").set(hash);
-};
+}
 
-window.getClientPassword = async () => {
+async function getClientPassword() {
   const snapshot = await db.ref("config/clientPassword").once("value");
   return snapshot.val();
-};
+}
 </script>
 
-<!-- ========================= -->
-<!-- 🔥 TU SCRIPT ORIGINAL -->
-<!-- ========================= -->
 <script>
+/* 👇 TODO TU JS ORIGINAL PERO MODIFICADO SOLO EN 3 PARTES */
 
 const ADMIN_CODE = "a9461750";
+const CLIENT_KEY = "ortopediasbelenClientPasswordHash";
 const SESSION_KEY = "ortopediasbelenSessionMode";
 
-/* 🔐 HASH (igual al tuyo) */
+/* 🔐 HASH igual */
 async function hash(value) {
   let h = 2166136261;
   const s = `ortopediasbelen:${value}`;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
-/* ========================= */
-/* 🔥 LOGIN CLIENTE */
-/* ========================= */
+/* 🔥 LOGIN CLIENTE (CAMBIADO) */
 els.clientLogin.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -82,9 +73,7 @@ els.clientLogin.addEventListener("submit", async (e) => {
   setAccess("client");
 });
 
-/* ========================= */
-/* 🔥 CAMBIAR CLAVE */
-/* ========================= */
+/* 🔥 CAMBIAR CLAVE (CAMBIADO) */
 els.changePass.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -105,9 +94,7 @@ els.changePass.addEventListener("submit", async (e) => {
   els.changeMsg.textContent = "Clave cliente actualizada 🔥";
 });
 
-/* ========================= */
-/* 🔥 QR FIJO */
-/* ========================= */
+/* 🔥 QR FIJO (CAMBIADO) */
 function updateQr() {
   const base = `${location.origin}${location.pathname}`;
   els.qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(base)}`;
