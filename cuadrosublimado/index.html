@@ -4,23 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ortopediasbelen - Sublimados</title>
-
 <style>
-:root{--ink:#172326;--muted:#617174;--line:#d9e0df;--paper:#f7faf9;--green:#0f7c6d;--coral:#d8563b;--shadow:0 18px 48px rgba(23,35,38,.18);}
-*{box-sizing:border-box;}
-body{margin:0;font-family:Arial;background:var(--paper);}
-button,input{font:inherit;}
-body.unlocked .auth{display:none;}
-body:not(.unlocked) .app,body:not(.unlocked) .legal{display:none;}
-body.client .admin-only{display:none;}
-.auth{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(135deg,#eef5f4,#fff);}
-.auth-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:24px;box-shadow:var(--shadow);width:400px;}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0;}
-.tab{padding:10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;}
-.tab.active{background:var(--green);color:#fff;}
-.panel{display:none;}
-.panel.active{display:block;}
-.app{padding:20px;}
+:root{--ink:#172326;--muted:#617174;--line:#d9e0df;--paper:#f7faf9;--green:#0f7c6d;--coral:#d8563b}
+body{margin:0;font-family:Arial;background:var(--paper)}
+.auth{display:grid;place-items:center;height:100vh}
+.auth-card{background:#fff;padding:20px;border:1px solid var(--line)}
+.tab{padding:10px;border:1px solid var(--line);cursor:pointer}
+.tab.active{background:var(--green);color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+.btn{padding:10px;background:var(--green);color:#fff;border:none;cursor:pointer}
+.msg{color:red}
+.app{display:none}
+body.unlocked .auth{display:none}
+body.unlocked .app{display:block}
 </style>
 </head>
 
@@ -28,9 +25,8 @@ body.client .admin-only{display:none;}
 
 <section class="auth">
 <div class="auth-card">
-<h1>Ortopediasbelen</h1>
 
-<div class="tabs">
+<div>
 <button class="tab active" data-panel="clientPanel">Cliente</button>
 <button class="tab" data-panel="adminPanel">Admin</button>
 </div>
@@ -38,52 +34,42 @@ body.client .admin-only{display:none;}
 <div id="clientPanel" class="panel active">
 <form id="clientLogin">
 <input id="clientPass" type="password" placeholder="Clave cliente">
-<button>Entrar</button>
-<div id="clientMsg"></div>
+<button class="btn">Entrar</button>
+<div id="clientMsg" class="msg"></div>
 </form>
 </div>
 
 <div id="adminPanel" class="panel">
 <form id="adminLogin">
 <input id="adminPass" type="password" placeholder="Clave admin">
-<button>Entrar</button>
-<div id="adminMsg"></div>
+<button class="btn">Entrar</button>
+<div id="adminMsg" class="msg"></div>
 </form>
 </div>
 
 </div>
 </section>
 
-<main class="app">
-<h2>SIMULADOR ACTIVO 🔥</h2>
-<p>Aquí va todo tu sistema (no se rompió).</p>
+<div class="app">
+<h1>SISTEMA OK 🔥</h1>
 
-<div class="admin-only">
 <form id="changePass">
-<input id="adminConfirm" placeholder="Admin">
-<input id="newClientPass" placeholder="Nueva clave">
-<button>Cambiar</button>
+<input id="adminConfirm" type="password" placeholder="Admin">
+<input id="newClientPass" type="password" placeholder="Nueva cliente">
+<button class="btn">Guardar</button>
 <div id="changeMsg"></div>
 </form>
 
-<img id="qr">
-<div id="qrLink"></div>
+<button id="logout">Salir</button>
+
 </div>
-</main>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded",()=>{
 
-const CLIENT_KEY="clientPass";
+const ADMIN_CODE="a9461750";
+const CLIENT_KEY="clientePass";
 const SESSION_KEY="session";
-
-async function hash(v){
-let h=2166136261;
-for(let i=0;i<v.length;i++){h^=v.charCodeAt(i);h=Math.imul(h,16777619);}
-return (h>>>0).toString(16);
-}
-
-const ADMIN_CODE = await hash("2212");
 
 const $=id=>document.getElementById(id);
 
@@ -98,59 +84,60 @@ changePass:$("changePass"),
 adminConfirm:$("adminConfirm"),
 newClientPass:$("newClientPass"),
 changeMsg:$("changeMsg"),
-qr:$("qr"),
-qrLink:$("qrLink")
+logout:$("logout")
 };
 
-/* tabs */
-document.querySelectorAll(".tab").forEach(btn=>{
-btn.onclick=()=>{
-document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-btn.classList.add("active");
-document.getElementById(btn.dataset.panel).classList.add("active");
+async function hash(v){
+let h=2166136261;
+for(let i=0;i<v.length;i++){
+h^=v.charCodeAt(i);
+h=Math.imul(h,16777619);
+}
+return (h>>>0).toString(16);
+}
+
+function setAccess(mode){
+document.body.classList.toggle("unlocked",mode==="admin"||mode==="client");
+}
+
+document.querySelectorAll(".tab").forEach(b=>{
+b.onclick=()=>{
+document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+b.classList.add("active");
+$(b.dataset.panel).classList.add("active");
 };
 });
 
-/* cliente */
-els.clientLogin.onsubmit=async(e)=>{
+els.clientLogin.addEventListener("submit",async e=>{
 e.preventDefault();
 const saved=localStorage.getItem(CLIENT_KEY);
-if(!saved){els.clientMsg.textContent="No hay clave";return;}
-if(await hash(els.clientPass.value)!==saved){
-els.clientMsg.textContent="Clave incorrecta";return;
-}
-document.body.classList.add("unlocked","client");
-};
+if(!saved){els.clientMsg.textContent="No hay clave cliente";return;}
+if(await hash(els.clientPass.value)!==saved){els.clientMsg.textContent="Clave mala";return;}
+sessionStorage.setItem(SESSION_KEY,"client");
+setAccess("client");
+});
 
-/* admin */
-els.adminLogin.onsubmit=async(e)=>{
+els.adminLogin.addEventListener("submit",async e=>{
 e.preventDefault();
-if(await hash(els.adminPass.value)!==ADMIN_CODE){
-els.adminMsg.textContent="Admin mal";return;
-}
-document.body.classList.add("unlocked");
-};
+if(await hash(els.adminPass.value)!==ADMIN_CODE){els.adminMsg.textContent="Admin mal";return;}
+sessionStorage.setItem(SESSION_KEY,"admin");
+setAccess("admin");
+});
 
-/* cambiar clave */
-els.changePass.onsubmit=async(e)=>{
+els.changePass.addEventListener("submit",async e=>{
 e.preventDefault();
-if(await hash(els.adminConfirm.value)!==ADMIN_CODE){
-els.changeMsg.textContent="Admin mal";return;
-}
+if(await hash(els.adminConfirm.value)!==ADMIN_CODE){els.changeMsg.textContent="Admin incorrecto";return;}
 localStorage.setItem(CLIENT_KEY,await hash(els.newClientPass.value));
 els.changeMsg.textContent="Guardado 🔥";
-updateQR();
+});
+
+els.logout.onclick=()=>{
+sessionStorage.clear();
+setAccess("");
 };
 
-/* qr */
-function updateQR(){
-const base=location.origin+location.pathname;
-els.qr.src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(base);
-els.qrLink.textContent=base;
-}
-
-updateQR();
+setAccess(sessionStorage.getItem(SESSION_KEY));
 
 });
 </script>
