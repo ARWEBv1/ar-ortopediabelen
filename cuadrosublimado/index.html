@@ -67,7 +67,11 @@ body.unlocked .app{display:block}
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-const ADMIN_CODE="2212";
+let ADMIN_CODE;
+
+(async () => {
+  ADMIN_CODE = await hash("2212");
+})();
 const CLIENT_KEY="clientePass";
 const SESSION_KEY="session";
 
